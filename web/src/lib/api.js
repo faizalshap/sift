@@ -27,5 +27,12 @@ export default {
       method: 'post',
       data: JSON.stringify(todo)
     });
+  },
+
+  updateTodo(todoListId, todoId, updatedTodo) {
+    return apiReq(`todolists/${todoListId}/todos/${todoId}`, {
+      method: 'put',
+      data: JSON.stringify(updatedTodo)
+    });
   }
 };

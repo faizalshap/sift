@@ -42,11 +42,26 @@ export default class BigRocksApp extends React.Component {
     });
   }
 
+  updateTodo(updatedTodo) {
+    let oldTodos = this.state.todos;
+    this.setState({
+      todos: [
+        ..._.reject(oldTodos, todo => todo.id == updatedTodo.id),
+        updatedTodo
+      ]
+    });
+
+    api.updateTodo(this.state.todoList.id, updatedTodo.id, updatedTodo).catch(error => {
+      this.setState({ todos: oldTodos });
+      alert('error: ' + error);
+    });
+  }
+
   render() {
     return (
       <div className='big-rocks-app'>
         <TodoListSidebar todoLists={this.state.todoLists} onClickList={this.showTodos.bind(this)} />
-        <TodoList onAddTodo={this.addTodo.bind(this)} todos={this.state.todos} />
+        <TodoList onAddTodo={this.addTodo.bind(this)} onUpdateTodo={this.updateTodo.bind(this)} todos={this.state.todos} />
       </div>
     );
   }
