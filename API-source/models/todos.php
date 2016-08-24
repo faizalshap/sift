@@ -6,6 +6,8 @@
     public $percent_complete;
     public $is_big_rock;
     public $is_current;
+    public $created_at;
+    public $updated_at;
 
     function __construct($attrs) {
       $this->id = $attrs['id'];
@@ -14,6 +16,8 @@
       $this->percent_complete = $attrs['percent_complete'];
       $this->is_big_rock = $attrs['is_big_rock'];
       $this->is_current = $attrs['is_current'];
+      $this->created_at = $attrs['created_at'];
+      $this->updated_at = $attrs['updated_at'];
     }
 
     public static function fetch($logged_in_user, $id) {
@@ -24,7 +28,9 @@
                               t.name,
                               t.percent_complete,
                               t.is_big_rock,
-                              t.is_current
+                              t.is_current,
+                              t.created_at,
+                              t.updated_at
                                 FROM todos AS t
                                 JOIN todolists AS tl ON tl.id = t.todolist_id
                                 WHERE t.id = '".$id."' AND tl.user_id = '".$logged_in_user->id."'");
@@ -34,7 +40,9 @@
                                 'name' => $row['name'],
                                 'percent_complete' => (int) $row['percent_complete'],
                                 'is_big_rock' => (bool) $row['is_big_rock'],
-                                'is_current' => (bool) $row['is_current']
+                                'is_current' => (bool) $row['is_current'],
+                                'created_at' => $row['created_at'],
+                                'updated_at' => $row['updated_at']
                             ));
       }
 
@@ -95,7 +103,9 @@
                                     'name' => $this->name,
                                     'percent_complete' => $this->percent_complete,
                                     'is_big_rock' => (integer) $this->is_big_rock,
-                                    'is_current' => (integer) $this->is_current
+                                    'is_current' => (integer) $this->is_current,
+                                    'created_at' => $this->created_at,
+                                    'updated_at' => $this->updated_at
                                 ));
         $this->id = $id;
       }
@@ -105,7 +115,8 @@
                             'name' => $this->name,
                             'percent_complete' => $this->percent_complete,
                             'is_big_rock' => (integer) $this->is_big_rock,
-                            'is_current' => (integer) $this->is_current
+                            'is_current' => (integer) $this->is_current,
+                            'updated_at' => $this->updated_at
                         ),
                       array('id' => $this->id),
                       1);

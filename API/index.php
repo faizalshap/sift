@@ -11,12 +11,12 @@
 
   //INCLUDE FUNCTIONS
   $url_root = '../API-source/';
-  include $url_root.'config.php';
+  include $url_root.'../config.php';
   include $url_root.'models/init.php';
 
   //IF OPTIONS
   if(strtolower($_SERVER['REQUEST_METHOD']) == 'options') {
-    response_code(201);
+    response_code(200);
     die();
   }
 

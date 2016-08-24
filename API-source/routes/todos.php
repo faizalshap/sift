@@ -26,7 +26,9 @@ Route::is('post', 'todolists/{$todolist_id}/todos', function($todolist_id) {
                           'name' => $json['name'],
                           'percent_complete' => $json['percent_complete'],
                           'is_big_rock' => (bool) $json['is_big_rock'],
-                          'is_current' => (bool) $json['is_current']
+                          'is_current' => (bool) $json['is_current'],
+                          'created_at' => gmdate('Y-m-d H:i:s'),
+                          'updated_at' => gmdate('Y-m-d H:i:s')
                       ));
 
   //VALIDATE TODO
@@ -60,6 +62,7 @@ Route::is('put', 'todolists/{$todolist_id}/todos/{$todo_id}', function($todolist
 
   //SETUP NEW TODO
   $todo = new Todo($json);
+  $todo->updated_at = gmdate('Y-m-d H:i:s');
 
   //MAKE SURE IT'S VALID
   if(!$todo->is_valid()) {
