@@ -22,6 +22,10 @@ export default {
     return apiReq(`todolists/${todoListId}/todos`);
   },
 
+  getCurrentTodos() {
+    return apiReq('current');
+  },
+
   addTodo(todoListId, todo) {
     return apiReq(`todolists/${todoListId}/todos`, {
       method: 'post',

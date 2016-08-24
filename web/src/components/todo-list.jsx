@@ -17,7 +17,9 @@ export default class TodoList extends React.Component {
   onKeyDown(e) {
     if (e.keyCode == enterKeyCode) {
       this.props.onAddTodo(this.state.newTodoName);
-      this.state.newTodoName = '';
+      this.setState({
+        newTodoName: ''
+      });
     }
   }
 
@@ -27,7 +29,7 @@ export default class TodoList extends React.Component {
       percent_complete: (todo.percent_complete == 100 ? 0 : 100)
     };
 
-    this.props.onUpdateTodo(updatedTodo);
+    this.props.onUpdateTodo(updatedTodo, 'todos');
   }
 
   render() {
@@ -44,12 +46,15 @@ export default class TodoList extends React.Component {
                   {todo.percent_complete == 100 ? 'checked' : 'unchecked'}
                 </div>
                 {todo.name}
+                <button className={`current-button ${todo.is_current == 100 && 'active'}`}>
+                  Current
+                </button>
               </li>
             );
           })}
         </ul>
 
-        <input type='text' ref='newTodo' value={this.state.newTodoName} onChange={this.onChange.bind(this)} onKeyDown={this.onKeyDown.bind(this)} placeholder='Add a todo' />
+        <input type='text' value={this.state.newTodoName} onChange={this.onChange.bind(this)} onKeyDown={this.onKeyDown.bind(this)} placeholder='Add a todo' />
       </div>
     );
   }
