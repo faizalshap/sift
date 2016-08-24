@@ -35,6 +35,7 @@ export default class TodoList extends React.Component {
 
     return (
       <div className='todo-list'>
+        <h1 className='todo-list-name'>{this.props.todoList.name}</h1>
         <ul>
           {_.map(this.props.todos, todo => {
             return (
@@ -59,6 +60,10 @@ TodoList.propTypes = {
     id: React.PropTypes.number,
     name: React.PropTypes.string
   })),
+  todoList: React.PropTypes.shape({
+    id: React.PropTypes.number,
+    name: React.PropTypes.string
+  }),
   onAddTodo: React.PropTypes.func,
   onUpdateTodo: React.PropTypes.func
 };

@@ -61,7 +61,7 @@ export default class BigRocksApp extends React.Component {
     return (
       <div className='big-rocks-app'>
         <TodoListSidebar todoLists={this.state.todoLists} onClickList={this.showTodos.bind(this)} />
-        <TodoList onAddTodo={this.addTodo.bind(this)} onUpdateTodo={this.updateTodo.bind(this)} todos={this.state.todos} />
+        <TodoList onAddTodo={this.addTodo.bind(this)} onUpdateTodo={this.updateTodo.bind(this)} todoList={this.state.todoList} todos={this.state.todos} />
       </div>
     );
   }
