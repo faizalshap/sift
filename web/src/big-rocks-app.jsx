@@ -13,20 +13,40 @@ export default class BigRocksApp extends React.Component {
   componentDidMount() {
     api.getTodoLists().then(todoLists => {
       this.setState({ todoLists: todoLists });
-      this.showTasks(todoLists[0].id);
+      this.showTodos(todoLists[0]);
     });
   }
 
-  showTasks(todoListId) {
-    this.setState({ todos: undefined })
-    api.getTodos(todoListId).then(todos => this.setState({ todos: todos }));
+  showTodos(todoList) {
+    this.setState({
+      todos: undefined,
+      todoList: todoList
+    });
+    api.getTodos(todoList.id).then(todos => this.setState({ todos: todos }));
+  }
+
+  addTodo(todoName) {
+    let todo = {
+      for_today: null,
+      is_big_rock: false,
+      name: todoName,
+      percent_complete: 0,
+      todolist_id: this.state.todoList.id,
+      key: Math.round(Math.random() * 1000)
+    };
+    let oldTodos = this.state.todos;
+
+    this.setState({ todos: [...oldTodos, todo] });
+    api.addTodo(this.state.todoList.id, todo).then(todo => {
+      this.setState({ todos: [...oldTodos, todo]});
+    });
   }
 
   render() {
     return (
       <div className='big-rocks-app'>
-        <TodoListSidebar todoLists={this.state.todoLists} onClickList={this.showTasks.bind(this)} />
-        <TodoList todos={this.state.todos} />
+        <TodoListSidebar todoLists={this.state.todoLists} onClickList={this.showTodos.bind(this)} />
+        <TodoList onAddTodo={this.addTodo.bind(this)} todos={this.state.todos} />
       </div>
     );
   }
