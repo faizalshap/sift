@@ -164,5 +164,12 @@
         return false;
       }
     }
+
+    public function attach_teamgantt($task) {
+      $this->teamgantt = (object) array();
+      $this->teamgantt->id = (integer) $task->id;
+      $this->teamgantt->group_name = $task->group_name;
+      $this->teamgantt->project_name = $task->project_name;
+    }
   }
 ?>
