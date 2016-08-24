@@ -49,6 +49,36 @@
       return $todo;
     }
 
+    public static function fetch_current($logged_in_user) {
+      $todos = array();
+      $result = mysql_query("SELECT
+                              t.id,
+                              t.todolist_id,
+                              t.name,
+                              t.percent_complete,
+                              t.is_big_rock,
+                              t.is_current,
+                              t.created_at,
+                              t.updated_at
+                                FROM todolists AS tl
+                                JOIN todos AS t ON t.todolist_id = tl.id
+                                WHERE tl.user_id = '".$logged_in_user->id."' AND t.is_current = 1
+                                ORDER BY is_big_rock DESC, t.created_at");
+      while($row = mysql_fetch_assoc($result)) {
+        array_push($todos, new Todo(array(  'id' => (int) $row['id'],
+                                            'todolist_id' => (int) $row['todolist_id'],
+                                            'name' => $row['name'],
+                                            'percent_complete' => (int) $row['percent_complete'],
+                                            'is_big_rock' => (bool) $row['is_big_rock'],
+                                            'is_current' => (bool) $row['is_current'],
+                                            'created_at' => $row['created_at'],
+                                            'updated_at' => $row['updated_at']
+                                        )));
+      }
+
+      return $todos;
+    }
+
     public function can_edit($logged_in_user) {
       if($this->original_todolists_id != $this->todolist_id) {
         $new_list = TodoList::fetch($logged_in_user, $this->todolist_id);
