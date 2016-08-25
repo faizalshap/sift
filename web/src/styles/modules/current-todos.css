@@ -1,0 +1,121 @@
+.current-todos {
+  .todo.checked {
+    opacity: 0.5;
+    text-decoration: line-through;
+  }
+  position: absolute;
+  top: 70px;
+  right: 0;
+  bottom: 0;
+  overflow: auto;
+  width: 374px;
+  .big-rocks-header {
+    padding: 50px 0 30px 30px;
+    box-shadow: inset 0 -1px 0 rgba(221, 221, 221, 0.5);
+    color: #373636;
+    font-size: 36px;
+    font-weight: 600;
+    line-height: 53px;
+  }
+  .other-current-header {
+    padding: 40px 0 30px 30px;
+    box-shadow: inset 0 -1px 0 rgba(221, 221, 221, 0.5);
+    color: #373636;
+    font-size: 21px;
+    font-weight: 500;
+    line-height: 32px;
+  }
+  li {
+    height: 43px;
+    padding: 30px 0 0 30px;
+    box-shadow: inset 0 -1px 0 rgba(221, 221, 221, 0.5);
+    color: #323844;
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 19px;
+  }
+  .big-rocks {
+    .checkbox {
+      cursor: pointer;
+      float: left;
+      height: 24px;
+      width: 24px;
+      background-position: center;
+      background-repeat: no-repeat;
+      margin: -6px 14px 0 0;
+      border-style: solid;
+      border-width: 2px;
+      border-color: #A1A1A1;
+      border-radius: 7px;
+      &.checked {
+        border-width: 1px;
+        background-image: url(/src/img/check-big.svg);
+      }
+    }
+  }
+  .other-rocks {
+    .checkbox {
+      cursor: pointer;
+      float: left;
+      margin: 0 16px 0 0;
+      height: 17px;
+      width: 17px;
+      background-position: center;
+      background-repeat: no-repeat;
+      box-sizing: border-box;
+      border-style: solid;
+      border-width: 2px;
+      border-color: #A1A1A1;
+      border-radius: 3px;
+      &.checked {
+        border-width: 0.5px;
+        background-image: url(/src/img/check.svg);
+      }
+    }
+  }
+  .current-button {
+    cursor: pointer;
+    float: right;
+    height: 16px;
+    width: 16px;
+    border: none;
+    margin-right: 30px;
+    border-style: solid;
+    border-width: 2px;
+    border-color: #A2DEDB;
+    border-radius: 50%;
+    background: white;
+    &.active {
+      background: #A2DEDB;
+    }
+  }
+}
+
+.no-rocks {
+  background: rgba(215,215,215,0.06);
+  border: 2px dashed #F2795D;
+  border-radius: 3px; 
+  margin: 20px 30px;
+  padding: 60px 35px 35px;
+  text-align: center;
+  font-weight: 600;
+  font-size: 17px;
+  color: #323844;
+  line-height: 22px;
+
+  .sifted-icon {
+    margin-bottom: 25px;
+  }
+
+  .sub {
+    margin-top: 25px;
+    font-size: 13px;
+    color: #777777;
+  }
+}
+
+.sifted-icon {
+  background: url(/src/img/rocks-logo.svg) center no-repeat;
+  height: 21px;
+  display: block;
+}

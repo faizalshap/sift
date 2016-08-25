@@ -4,6 +4,9 @@ import TodoListSidebar from './components/todo-list-sidebar';
 import TodoList from './components/todo-list';
 import CurrentTodoList from './components/current-todo-list';
 import Api from './lib/api';
+require('./styles/screen');
+require('./styles/modules/header');
+require('./styles/modules/content');
 
 export default class BigRocksApp extends React.Component {
   constructor(props) {
@@ -43,10 +46,10 @@ export default class BigRocksApp extends React.Component {
     };
     let oldTodos = this.state.todos;
 
-    this.setState({ todos: [...oldTodos, todo] });
+    this.setState({ todos: [...(oldTodos || []), todo] });
 
     this.api.addTodo(this.state.todoList.id, todo).then(persistedTodo => {
-      this.setState({ todos: [...oldTodos, persistedTodo]});
+      this.setState({ todos: [...(oldTodos || []), persistedTodo]});
     });
   }
 
@@ -98,9 +101,14 @@ export default class BigRocksApp extends React.Component {
   render() {
     return (
       <div className='big-rocks-app'>
-        <TodoListSidebar todoLists={this.state.todoLists} onClickList={this.showTodos.bind(this)} />
-        <TodoList onAddTodo={this.addTodo.bind(this)} onUpdateTodo={this.updateTodo.bind(this)} todoList={this.state.todoList} todos={this.state.todos} />
-        <CurrentTodoList currentTodos={this.state.currentTodos} onUpdateTodo={this.updateTodo.bind(this)} />
+        <header>
+          <a href="/">TeamGantt</a>
+        </header>
+        <div className='content'>
+          <TodoListSidebar todoLists={this.state.todoLists} onClickList={this.showTodos.bind(this)}/>
+          <TodoList onAddTodo={this.addTodo.bind(this)} onUpdateTodo={this.updateTodo.bind(this)} todoList={this.state.todoList} todos={this.state.todos}/>
+          <CurrentTodoList currentTodos={this.state.currentTodos} onUpdateTodo={this.updateTodo.bind(this)} />
+        </div>
       </div>
     );
   }

@@ -6,12 +6,17 @@ import Api from './lib/api';
 export default class AppWrapper extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {};
+    this.state = {
+      currentUser: JSON.parse(localStorage.getItem('currentUser'))
+    };
   }
 
   onSignin(attrs) {
     new Api({}).signIn(attrs)
-      .then(currentUser => this.setState({ currentUser }))
+      .then(currentUser => {
+        localStorage.setItem('currentUser', JSON.stringify(currentUser));
+        this.setState({ currentUser });
+      })
       .catch(loginError => this.setState({ loginError }));
   }
 

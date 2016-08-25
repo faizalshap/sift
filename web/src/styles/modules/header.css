@@ -1,0 +1,18 @@
+@import "../base/variables.css";
+header {
+  position: fixed;
+  z-index: var(--z-fixed-header);
+  height: var(--header-height);
+  width: 100%;
+  background-color: #7FD1CD;
+  a {
+    width: 108px;
+    height: 21px;
+    background-image: url(/src/img/logo_sift.svg);
+    text-indent: 1000px;
+    display: block;
+    overflow: hidden;
+    margin: 22px 0 0 22px;
+    float: left;
+  }
+}
