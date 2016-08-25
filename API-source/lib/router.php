@@ -28,7 +28,7 @@
 
     public function check_route() {
       //DEFINE URLS
-      $check_url = $this->url_parts('API/'.$this->query); //GET PARTS OF URL WE WILL COMPARE AGAINST
+      $check_url = $this->url_parts($this->query); //GET PARTS OF URL WE WILL COMPARE AGAINST
       $current_url = $this->url_parts(substr(explode('?',$_SERVER['REQUEST_URI'])[0],1)); //GET URL OF OUR CURRENT URL
 
       //START BUILDING OUR RETURN OBJECT

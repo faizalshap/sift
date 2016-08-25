@@ -1,7 +1,7 @@
 <?
 
 /* NEW USER */
-Route::is('post', 'users', function() {
+Route::is('post', 'API/users', function() {
   $json = fetch_json();
 
   //VALIDATE ENTERED PARAMS
@@ -41,7 +41,7 @@ Route::is('post', 'users', function() {
 });
 
 /* LOGIN */
-Route::is('post', 'login', function() {
+Route::is('post', 'API/login', function() {
   $json = fetch_json();
 
   $login = User::login($json['username'], $json['password']);

@@ -1,6 +1,6 @@
 <?
 /* GET ALL TODOLISTS */
-Route::is('get', 'todolists', function() {
+Route::is('get', 'API/todolists', function() {
   global $logged_in_user;
   if($todolists = TodoList::show_all($logged_in_user)) {
     echo json_encode($todolists);
@@ -11,7 +11,7 @@ Route::is('get', 'todolists', function() {
 });
 
 /* CREATE NEW TODOLIST */
-Route::is('post', 'todolists', function() {
+Route::is('post', 'API/todolists', function() {
   global $logged_in_user;
   $json = fetch_json();
 
@@ -27,7 +27,7 @@ Route::is('post', 'todolists', function() {
 });
 
 /* RENAME TODOLIST */
-Route::is('put', 'todolists/{$todolist_id}', function($todolist_id) {
+Route::is('put', 'API/todolists/{$todolist_id}', function($todolist_id) {
   global $logged_in_user;
   $json = fetch_json();
 
@@ -50,7 +50,7 @@ Route::is('put', 'todolists/{$todolist_id}', function($todolist_id) {
 });
 
 /* DELETE TODOLIST */
-Route::is('delete', 'todolists/{$todolist_id}', function($todolist_id) {
+Route::is('delete', 'API/todolists/{$todolist_id}', function($todolist_id) {
   global $logged_in_user;
 
   //MAKE SURE WE CAN ACCESS TODOLIST
@@ -69,7 +69,7 @@ Route::is('delete', 'todolists/{$todolist_id}', function($todolist_id) {
 });
 
 /* GET TODOLIST DATA */
-Route::is('get', 'todolists/{$todolist_id}', function($todolist_id) {
+Route::is('get', 'API/todolists/{$todolist_id}', function($todolist_id) {
   global $logged_in_user;
   if($todolist = TodoList::fetch($logged_in_user,$todolist_id)) {
     echo json_encode($todolist);
@@ -80,7 +80,7 @@ Route::is('get', 'todolists/{$todolist_id}', function($todolist_id) {
 });
 
 /* GET ALL TODOS IN A TODOLIST */
-Route::is('get', 'todolists/{$todolist_id}/todos', function($todolist_id) {
+Route::is('get', 'API/todolists/{$todolist_id}/todos', function($todolist_id) {
   global $logged_in_user;
   if($todos = TodoList::display_todos($logged_in_user,$todolist_id)) {
     echo json_encode($todos);

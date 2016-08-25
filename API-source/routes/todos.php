@@ -1,6 +1,6 @@
 <?
 /* GET TODO */
-Route::is('get', 'todolists/{$todolist_id}/todos/{$todo_id}', function($todolist_id, $todo_id) {
+Route::is('get', 'API/todolists/{$todolist_id}/todos/{$todo_id}', function($todolist_id, $todo_id) {
   global $logged_in_user;
   if($todo = Todo::fetch($logged_in_user, $todo_id)) {
     echo json_encode($todo);
@@ -11,7 +11,7 @@ Route::is('get', 'todolists/{$todolist_id}/todos/{$todo_id}', function($todolist
 });
 
 /* CREATE NEW TODO */
-Route::is('post', 'todolists/{$todolist_id}/todos', function($todolist_id) {
+Route::is('post', 'API/todolists/{$todolist_id}/todos', function($todolist_id) {
   global $logged_in_user;
   $json = fetch_json();
 
@@ -42,7 +42,7 @@ Route::is('post', 'todolists/{$todolist_id}/todos', function($todolist_id) {
 });
 
 /* UPDATE TODO */
-Route::is('put', 'todolists/{$todolist_id}/todos/{$todo_id}', function($todolist_id, $todo_id) {
+Route::is('put', 'API/todolists/{$todolist_id}/todos/{$todo_id}', function($todolist_id, $todo_id) {
   global $logged_in_user;
   $json = fetch_json();
   $json['id'] = $todo_id;
@@ -61,8 +61,9 @@ Route::is('put', 'todolists/{$todolist_id}/todos/{$todo_id}', function($todolist
   }
 
   //SETUP NEW TODO
-  $todo = new Todo($json);
+  $todo = ($original_todo->teamgantt_id == NULL) ? new Todo($json) : new TeamGanttTodo($json);
   $todo->updated_at = gmdate('Y-m-d H:i:s');
+  $todo->teamgantt_id = $original_todo->teamgantt_id;
 
   //MAKE SURE IT'S VALID
   if(!$todo->is_valid()) {
@@ -72,10 +73,13 @@ Route::is('put', 'todolists/{$todolist_id}/todos/{$todo_id}', function($todolist
   //SAVE & RETURN
   $todo->save();
   echo json_encode($todo);
+
+  //IF TEAMGANTT - WE NEED TO UPDATE IT
+  if($todo->run_patch($logged_in_user)) { }
 });
 
 /* DELETE TODO */
-Route::is('delete', 'todolists/{$todolist_id}/todos/{$todo_id}', function($todolist_id, $todo_id) {
+Route::is('delete', 'API/todolists/{$todolist_id}/todos/{$todo_id}', function($todolist_id, $todo_id) {
   global $logged_in_user;
   //MAKE SURE WE CAN EDIT THE TODO
   $todo = Todo::fetch($logged_in_user, $todo_id);
