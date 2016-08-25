@@ -1,0 +1,36 @@
+.todo-list-sidebar {
+  position: absolute;
+  top: 70px;
+  bottom: 0;
+  left: 0;
+  background-color: white;
+  width: 300px;
+  overflow: auto;
+  h1 {
+    padding: 55px 0 0 30px;
+    color: #777;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 1.71px;
+    line-height: 15px;
+  }
+  li {
+    cursor: pointer;
+    padding: 30px 0 0 55px;
+    color: #979797;
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 19px;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+  .add-item {
+    height: 21px;
+    width: 21px;
+    margin: -19px 18px 0 0;
+    float: right;
+    background-image: url(/src/img/btn-add-item.png);
+  }
+}
