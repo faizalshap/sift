@@ -37,7 +37,8 @@ export default class BigRocksApp extends React.Component {
       name: todoName,
       percent_complete: 0,
       todolist_id: this.state.todoList.id,
-      key: Math.round(Math.random() * 1000)
+      key: Math.round(Math.random() * 1000),
+      created_at: new Date().toISOString().substring(0, 19).replace('T', ' ')
     };
     let oldTodos = this.state.todos;
 
