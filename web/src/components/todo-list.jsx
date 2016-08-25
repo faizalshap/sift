@@ -41,6 +41,18 @@ export default class TodoList extends React.Component {
     this.props.onUpdateTodo(updatedTodo);
   }
 
+  onToggleBigRock(todo) {
+    let isNowBigRock = !todo.is_big_rock;
+
+    let updatedTodo = {
+      ...todo,
+      is_current: (isNowBigRock ? true : todo.is_current),
+      is_big_rock: isNowBigRock
+    };
+
+    this.props.onUpdateTodo(updatedTodo);
+  }
+
   render() {
     if (!this.props.todos) { return (<div />); }
 
@@ -50,7 +62,7 @@ export default class TodoList extends React.Component {
         <ul>
           {_(this.props.todos).sortBy(['percent_complete', 'created_at']).map(todo => {
             return (
-              <li key={todo.id || todo.key}>
+              <li key={todo.id || todo.key} onDoubleClick={_.partial(this.onToggleBigRock.bind(this), todo)}>
                 <div className={`checkbox ${todo.percent_complete == 100 && 'checked'}`} onClick={_.partial(this.onCheck.bind(this), todo)}>
                   {todo.percent_complete == 100 ? 'checked' : 'unchecked'}
                 </div>

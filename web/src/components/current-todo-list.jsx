@@ -33,6 +33,18 @@ export default class CurrentTodoList extends React.Component {
     this.props.onUpdateTodo(updatedTodo);
   }
 
+  onToggleBigRock(todo) {
+    let isNowBigRock = !todo.is_big_rock;
+
+    let updatedTodo = {
+      ...todo,
+      is_current: (isNowBigRock ? true : todo.is_current),
+      is_big_rock: isNowBigRock
+    };
+
+    this.props.onUpdateTodo(updatedTodo);
+  }
+
   render() {
     if (!this.props.currentTodos) { return (<div />); }
 
@@ -42,7 +54,7 @@ export default class CurrentTodoList extends React.Component {
         <ul>
           {_.map(this.bigRocks(), todo => {
              return (
-               <li key={todo.id || todo.key}>
+               <li key={todo.id || todo.key} onDoubleClick={_.partial(this.onToggleBigRock.bind(this), todo)}>
                  <div className={`checkbox ${todo.percent_complete == 100 && 'checked'}`} onClick={_.partial(this.onCheck.bind(this), todo)}>
                    {todo.percent_complete == 100 ? 'checked' : 'unchecked'}
                  </div>
@@ -60,7 +72,7 @@ export default class CurrentTodoList extends React.Component {
         <ul>
           {_.map(this.otherCurrentTodos(), todo => {
              return (
-               <li key={todo.id || todo.key}>
+               <li key={todo.id || todo.key} onDoubleClick={_.partial(this.onToggleBigRock.bind(this), todo)}>
                  <div className={`checkbox ${todo.percent_complete == 100 && 'checked'}`} onClick={_.partial(this.onCheck.bind(this), todo)}>
                    {todo.percent_complete == 100 ? 'checked' : 'unchecked'}
                  </div>
