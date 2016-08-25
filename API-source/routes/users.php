@@ -31,7 +31,10 @@ Route::is('post', 'API/users', function() {
     foreach($default_todos as $name) {
       $todo = new Todo(array( 'todolist_id' => $todolist->id,
                               'percent_complete' => 0,
-                              'name' => $name));
+                              'name' => $name,
+                              'created_at' => gmdate('Y-m-d H:i:s'),
+                              'updated_at' => gmdate('Y-m-d H:i:s')
+                          ));
       $todo->save();
     }
 

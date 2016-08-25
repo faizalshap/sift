@@ -1,25 +1,5 @@
 <?
-  class TeamGanttTodo extends Todo {
-    public $is_teamgantt = true;
-
-    public function attach_teamgantt($task) {
-      $this->name = $task->name;
-      $this->percent_complete = $task->percent_complete;
-      $this->teamgantt_id = $task->id;
-
-      //ADDITIONAL INFO
-      $this->teamgantt_meta = (object) array();
-      $this->teamgantt_meta->project_name = $task->project_name;
-      $this->teamgantt_meta->group_name = $task->group_name;
-      $this->teamgantt_meta->end_date = $task->end_date;
-      $this->teamgantt_meta->resources = array();
-      foreach($task->resources as $resource) {
-        $resource_data = (object) array('name' => $resource->name,
-                                        'pic' => $resource->pic);
-        array_push($this->teamgantt_meta->resources, $resource_data);
-      }
-    }
-
+  class TeamGantt {
     public function fetch_teamgantt_todolist_id($logged_in_user) {
       $teamgantt_todolist_name = 'TeamGantt Todos';
       $result = mysql_query("SELECT
@@ -39,78 +19,88 @@
       }
     }
 
-    public function does_exist($logged_in_user) {
-      if(isset($this->teamgantt_id)) {
-        $result = mysql_query("SELECT
-                                t.id,
-                                t.created_at
-                                  FROM todos AS t
-                                  JOIN todolists AS tl ON tl.id = t.todolist_id
-                                  WHERE t.teamgantt_id = '".$this->teamgantt_id."' AND tl.user_id = '".$logged_in_user->id."'");
-        while($row = mysql_fetch_assoc($result)) {
-          $this->id = $row['id'];
-          $this->created_at = $row['created_at'];
+    public static function fetch_list($logged_in_user, $query) {
+      if($query == 'today') {
+        $teamgantt_tasks = API::run($logged_in_user, 'GET', 'https://api.teamgantt.com/v1/tasks?today');
+        if(!$teamgantt_tasks->error) {
+          //CONVERT & DISPLAY
+          $todos = array();
+          foreach($teamgantt_tasks as $task) {
+            //SETUP RESOURCES IN ADVANCE
+            $resource_array = array();
+            foreach($task->resources as $resource) {
+              $resource_data = (object) array('name' => $resource->name,
+                                              'pic' => $resource->pic);
+              array_push($resource_array, $resource_data);
+            }
+
+            $todo = new Todo( array('name' => $task->name,
+                                    'percent_complete' => $task->percent_complete,
+                                    'teamgantt_id' => $task->id,
+                                    'teamgantt_meta' => (object) array('project_name' => $task->project_name,
+                                                                        'group_name' => $task->group_name,
+                                                                        'end_date' => $task->end_date,
+                                                                        'resources' => $resource_array)
+                          ));
+            array_push($todos, $todo);
+          }
+          return $todos;
         }
+        else {
+          return false;
+        }
+      }
+      else {
+        return false;
       }
     }
 
-    public function fetch_teamgantt_meta($logged_in_user) {
-      $url = 'https://api.teamgantt.com/v1/tasks/'.$this->teamgantt_id;
-      $response = API::run($logged_in_user, 'get', $url);
-      if($response->id) {
-        $this->teamgantt_meta = (object) array();
-        $this->teamgantt_meta->project_name = $response->project_name;
-        $this->teamgantt_meta->group_name = $response->group_name;
-        $this->teamgantt_meta->end_date = $response->end_date;
-        $this->teamgantt_meta->resources = array();
-        foreach($response->resources as $resource) {
-          $resource_data = (object) array('name' => $resource->name,
-                                          'pic' => $resource->pic);
-          array_push($this->teamgantt_meta->resources, $resource_data);
-        }
-      }
-    }
-
-    public function run_patch($logged_in_user) {
+    public function patch_task($logged_in_user, $todo) {
       //RUN PATCH TO TEAMGANTT
-      $url = 'https://api.teamgantt.com/v1/tasks/'.$this->teamgantt_id;
-      $data = array('name' => $this->name,
-                    'percent_complete' => $this->percent_complete
-                );
-      API::run($logged_in_user, 'patch', $url, $data);
+      if($todo->teamgantt_id != NULL) {
+        $url = 'https://api.teamgantt.com/v1/tasks/'.$todo->teamgantt_id;
+        $data = array('name' => $todo->name,
+                      'percent_complete' => $todo->percent_complete
+                  );
+        API::run($logged_in_user, 'patch', $url, $data);
+      }
     }
   }
 
   class API {
     public static function run($logged_in_user, $method, $url, $data = array()) {
       //AUTH
-      $keys = $logged_in_user->get_api_keys();
-      $bearer = 'Bearer dkdp33bvds398dmKKsWW';
+      if($keys = $logged_in_user->get_api_keys()) {
+        $bearer = 'Bearer dkdp33bvds398dmKKsWW';
 
-      //INITIALIZE
-      $tg = curl_init($url);
-      $headers = array(
-          'Authorization: '.$bearer,
-          'TG-Authorization: '.$bearer,
-          'TG-Api-Key: '.$keys['api_key'],
-          'TG-User-Token: '.$keys['user_token']
-        );
+        //INITIALIZE
+        $tg = curl_init($url);
+        $headers = array(
+            'Authorization: '.$bearer,
+            'TG-Authorization: '.$bearer,
+            'TG-Api-Key: '.$keys['api_key'],
+            'TG-User-Token: '.$keys['user_token']
+          );
 
-      //SETUP PARAMS
-      curl_setopt($tg, CURLOPT_HTTPHEADER, $headers);
-      curl_setopt($tg, CURLOPT_RETURNTRANSFER, true);
-      curl_setopt($tg, CURLOPT_SSL_VERIFYPEER, 0);
+        //SETUP PARAMS
+        curl_setopt($tg, CURLOPT_HTTPHEADER, $headers);
+        curl_setopt($tg, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($tg, CURLOPT_SSL_VERIFYPEER, 0);
 
-      if($method == 'patch') {
-        curl_setopt($tg, CURLOPT_CUSTOMREQUEST, 'PATCH');
-        curl_setopt($tg, CURLOPT_POSTFIELDS, json_encode($data));
+        if($method == 'patch') {
+          curl_setopt($tg, CURLOPT_CUSTOMREQUEST, 'PATCH');
+          curl_setopt($tg, CURLOPT_POSTFIELDS, json_encode($data));
+        }
+
+        //EXECUTE & RETURN
+        $output = curl_exec($tg);
+
+        curl_close($tg);
+        return json_decode($output);
       }
-
-      //EXECUTE & RETURN
-      $output = curl_exec($tg);
-
-      curl_close($tg);
-      return json_decode($output);
+      else {
+        return false;
+      }
     }
   }
 ?>

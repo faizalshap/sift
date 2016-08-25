@@ -1,6 +1,4 @@
 <?
-  $_headers['BR-Api-Key'] = $_headers['BR-Api-Key'];
-  $_headers['BR-User-Token'] = $_headers['BR-User-Token'];
-
-  
+  $_headers['S-Api-Key'] = $_headers['S-Api-Key'];
+  $_headers['S-User-Token'] = $_headers['S-User-Token'];
 ?>

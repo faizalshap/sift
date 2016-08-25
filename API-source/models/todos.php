@@ -41,19 +41,17 @@
                                 JOIN todolists AS tl ON tl.id = t.todolist_id
                                 WHERE t.id = '".$id."' AND tl.user_id = '".$logged_in_user->id."'");
       while($row = mysql_fetch_assoc($result)) {
-        $todo_array = array('id' => (int) $row['id'],
-                            'todolist_id' => (int) $row['todolist_id'],
-                            'name' => $row['name'],
-                            'percent_complete' => (int) $row['percent_complete'],
-                            'is_big_rock' => (bool) $row['is_big_rock'],
-                            'is_current' => (bool) $row['is_current'],
-                            'created_at' => $row['created_at'],
-                            'updated_at' => $row['updated_at'],
-                            'teamgantt_id' => $row['teamgantt_id'],
-                            'teamgantt_meta' => $row['teamgantt_meta']
-                        );
-
-        $todo = ($row['teamgantt_id'] == '') ? new Todo($todo_array) : new TeamGanttTodo($todo_array);
+        $todo = new Todo(array( 'id' => (int) $row['id'],
+                                'todolist_id' => (int) $row['todolist_id'],
+                                'name' => $row['name'],
+                                'percent_complete' => (int) $row['percent_complete'],
+                                'is_big_rock' => (bool) $row['is_big_rock'],
+                                'is_current' => (bool) $row['is_current'],
+                                'created_at' => $row['created_at'],
+                                'updated_at' => $row['updated_at'],
+                                'teamgantt_id' => $row['teamgantt_id'],
+                                'teamgantt_meta' => $row['teamgantt_meta']
+                        ));
       }
 
       return $todo;
@@ -149,14 +147,10 @@
                             'is_big_rock' => (integer) $this->is_big_rock,
                             'is_current' => (integer) $this->is_current,
                             'created_at' => $this->created_at,
-                            'updated_at' => $this->updated_at
+                            'updated_at' => $this->updated_at,
+                            'teamgantt_id' => $this->teamgantt_id,
+                            'teamgantt_meta' => $this->teamgantt_meta
                         );
-
-        //APPEND TEAMGANTT DATA IF NECESSARY
-        if(isset($this->is_teamgantt)) {
-          $save_array['teamgantt_id'] = $this->teamgantt_id;
-          $save_array['teamgantt_meta'] = json_encode($this->teamgantt_meta);
-        }
 
         $id = mysql_insert('todos', $save_array);
         $this->id = $id;
@@ -167,13 +161,10 @@
                             'percent_complete' => $this->percent_complete,
                             'is_big_rock' => (integer) $this->is_big_rock,
                             'is_current' => (integer) $this->is_current,
-                            'updated_at' => $this->updated_at
+                            'updated_at' => $this->updated_at,
+                            'teamgantt_id' => $this->teamgantt_id,
+                            'teamgantt_meta' => $this->teamgantt_meta
                         );
-
-        //APPEND TEAMGANTT DATA IF NECESSARY
-        if(isset($this->is_teamgantt)) {
-          $save_array['teamgantt_meta'] = json_encode($this->teamgantt_meta);
-        }
 
         //UPDATE DB
         mysql_update('todos', $save_array, array('id' => $this->id), 1);

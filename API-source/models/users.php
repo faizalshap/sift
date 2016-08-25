@@ -85,15 +85,15 @@
     }
 
     public function get_api_keys() {
-      $keys = array();
+      $keys = false;
       $result = mysql_query("SELECT
                                 api_key,
                                 user_token
                                   FROM api_keys
                                   WHERE user_id = '".$this->id."' LIMIT 1");
       while($row = mysql_fetch_assoc($result)) {
-        $keys['api_key'] = $row['api_key'];
-        $keys['user_token'] = $row['user_token'];
+        $keys = array('api_key' => $row['api_key'],
+                      'user_token' => $row['user_token']);
       }
       return $keys;
     }
