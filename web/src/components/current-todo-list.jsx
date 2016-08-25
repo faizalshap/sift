@@ -11,11 +11,17 @@ export default class CurrentTodoList extends React.Component {
   }
 
   bigRocks() {
-    return _.filter(this.props.currentTodos, todo => todo.is_big_rock);
+    return _(this.props.currentTodos)
+      .filter(todo => todo.is_big_rock)
+      .sortBy(['percent_complete', 'created_at'])
+      .value();
   }
 
   otherCurrentTodos() {
-    return _.reject(this.props.currentTodos, todo => todo.is_big_rock);
+    return _(this.props.currentTodos)
+      .reject(todo => todo.is_big_rock)
+      .sortBy(['percent_complete', 'created_at'])
+      .value();
   }
 
   onToggleCurrent(todo) {

@@ -48,7 +48,7 @@ export default class TodoList extends React.Component {
       <div className='todo-list'>
         <h1 className='todo-list-name'>{this.props.todoList.name}</h1>
         <ul>
-          {_.map(this.props.todos, todo => {
+          {_(this.props.todos).sortBy(['percent_complete', 'created_at']).map(todo => {
             return (
               <li key={todo.id || todo.key}>
                 <div className={`checkbox ${todo.percent_complete == 100 && 'checked'}`} onClick={_.partial(this.onCheck.bind(this), todo)}>
@@ -61,7 +61,7 @@ export default class TodoList extends React.Component {
                 </button>
               </li>
             );
-          })}
+          }).value()}
         </ul>
 
         <input type='text' value={this.state.newTodoName} onChange={this.onChange.bind(this)} onKeyDown={this.onKeyDown.bind(this)} placeholder='Add a todo' />
