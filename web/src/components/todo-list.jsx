@@ -29,7 +29,16 @@ export default class TodoList extends React.Component {
       percent_complete: (todo.percent_complete == 100 ? 0 : 100)
     };
 
-    this.props.onUpdateTodo(updatedTodo, 'todos');
+    this.props.onUpdateTodo(updatedTodo);
+  }
+
+  onToggleCurrent(todo) {
+    let updatedTodo = {
+      ...todo,
+      is_current: !todo.is_current
+    };
+
+    this.props.onUpdateTodo(updatedTodo);
   }
 
   render() {
@@ -46,7 +55,8 @@ export default class TodoList extends React.Component {
                   {todo.percent_complete == 100 ? 'checked' : 'unchecked'}
                 </div>
                 {todo.name}
-                <button className={`current-button ${todo.is_current == 100 && 'active'}`}>
+                <button onClick={_.partial(this.onToggleCurrent.bind(this), todo)} className={`current-button ${todo.is_current && 'active'}`}>
+                  {todo.is_current && '*'}
                   Current
                 </button>
               </li>

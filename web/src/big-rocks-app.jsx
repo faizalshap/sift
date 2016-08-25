@@ -48,18 +48,48 @@ export default class BigRocksApp extends React.Component {
     });
   }
 
-  updateTodo(updatedTodo, sourceListName) {
-    let oldTodos = this.state[sourceListName];
-    this.setState({
-      [sourceListName]: [
-        ..._.reject(oldTodos, todo => todo.id == updatedTodo.id),
-        updatedTodo
-      ]
+  // You should be ashamed of yourself... even for a hackathon.
+  updateTodo(updatedTodo) {
+    let oldTodoLists = {
+      todos: this.state.todos,
+      currentTodos: this.state.currentTodos
+    };
+    let todoWasInCurrent = !!_.find(oldTodoLists.currentTodos, todo => todo.id == updatedTodo.id);
+
+    _.each(oldTodoLists, (todoList, todoListKey) => {
+      var newTodoList = oldTodoLists[todoListKey];
+
+      if (_.find(todoList, todo => todo.id == updatedTodo.id)) {
+        // Replace the old instances with the new
+        newTodoList = [
+          ..._.reject(oldTodoLists[todoListKey], todo => todo.id == updatedTodo.id),
+          updatedTodo
+        ];
+      }
+
+      if (todoListKey == 'currentTodos') {
+        if (updatedTodo.is_current && !todoWasInCurrent) {
+          // Add to current if not there and it should be
+          newTodoList = [...newTodoList, updatedTodo];
+        } else if (!updatedTodo.is_current && todoWasInCurrent) {
+          // Remove from current if there and it shouldn't be
+          newTodoList = _.reject(newTodoList, todo => todo.id == updatedTodo.id);
+        }
+      }
+
+      this.setState({
+        [todoListKey]: newTodoList
+      });
     });
 
     api.updateTodo(updatedTodo.todolist_id, updatedTodo.id, updatedTodo).catch(error => {
-      this.setState({ [sourceListName]: oldTodos });
       alert('error: ' + error);
+
+      _.each(oldTodoLists, (todoList, todoListKey) => {
+        this.setState({
+          [todoListKey]: todoList
+        });
+      });
     });
   }
 

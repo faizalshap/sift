@@ -7,7 +7,7 @@ export default class CurrentTodoList extends React.Component {
       percent_complete: (todo.percent_complete == 100 ? 0 : 100)
     };
 
-    this.props.onUpdateTodo(updatedTodo, 'currentTodos');
+    this.props.onUpdateTodo(updatedTodo);
   }
 
   bigRocks() {
@@ -16,6 +16,15 @@ export default class CurrentTodoList extends React.Component {
 
   otherCurrentTodos() {
     return _.reject(this.props.currentTodos, todo => todo.is_big_rock);
+  }
+
+  onToggleCurrent(todo) {
+    let updatedTodo = {
+      ...todo,
+      is_current: !todo.is_current
+    };
+
+    this.props.onUpdateTodo(updatedTodo);
   }
 
   render() {
@@ -32,6 +41,10 @@ export default class CurrentTodoList extends React.Component {
                    {todo.percent_complete == 100 ? 'checked' : 'unchecked'}
                  </div>
                  {todo.name}
+                 <button onClick={_.partial(this.onToggleCurrent.bind(this), todo)} className={`current-button ${todo.is_current && 'active'}`}>
+                   {todo.is_current && '*'}
+                   Current
+                 </button>
                </li>
              );
            })}
@@ -46,6 +59,10 @@ export default class CurrentTodoList extends React.Component {
                    {todo.percent_complete == 100 ? 'checked' : 'unchecked'}
                  </div>
                  {todo.name}
+                 <button onClick={_.partial(this.onToggleCurrent.bind(this), todo)} className={`current-button ${todo.is_current && 'active'}`}>
+                   {todo.is_current && '*'}
+                   Current
+                 </button>
                </li>
              );
            })}
