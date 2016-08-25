@@ -22,9 +22,8 @@
                 name
                   FROM todolists
                     WHERE user_id = ".$logged_in_user->id;
-      $query .= ($list_id != NULL) ? " AND id = '".$list_id."'" : '';
+      $query .= ($list_id != NULL) ? " AND id = '".$list_id."'" : ' AND is_hidden = 0';
       $query .= " ORDER BY name ASC";
-
       $result = mysql_query($query);
       while($row = mysql_fetch_assoc($result)) {
         array_push($lists, new TodoList(array('id' => (int) $row['id'],
@@ -45,7 +44,8 @@
                               t.is_big_rock,
                               t.is_current,
                               t.created_at,
-                              t.updated_at
+                              t.updated_at,
+                              t.teamgantt_id
                                 FROM todolists AS tl
                                 JOIN todos AS t ON t.todolist_id = tl.id
                                 WHERE tl.id = '".$todolist_id."' AND tl.user_id = '".$logged_in_user->id."'
@@ -58,7 +58,8 @@
                                           'is_big_rock' => (bool) $row['is_big_rock'],
                                           'is_current' => (bool) $row['is_current'],
                                           'created_at' => $row['created_at'],
-                                          'updated_at' => $row['updated_at']
+                                          'updated_at' => $row['updated_at'],
+                                          'teamgantt_id' => $row['teamgantt_id']
                                       )));
       }
       return $todos;

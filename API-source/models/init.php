@@ -5,4 +5,5 @@
   include 'todolists.php';
   include 'todos.php';
   include 'users.php';
+  include 'teamgantt.php';
 ?>

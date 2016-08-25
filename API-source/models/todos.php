@@ -8,6 +8,7 @@
     public $is_current;
     public $created_at;
     public $updated_at;
+    public $teamgantt_id;
 
     function __construct($attrs) {
       $this->id = $attrs['id'];
@@ -18,6 +19,7 @@
       $this->is_current = $attrs['is_current'];
       $this->created_at = $attrs['created_at'];
       $this->updated_at = $attrs['updated_at'];
+      $this->teamgantt_id = $attrs['teamgantt_id'];
     }
 
     public static function fetch($logged_in_user, $id) {
@@ -30,7 +32,8 @@
                               t.is_big_rock,
                               t.is_current,
                               t.created_at,
-                              t.updated_at
+                              t.updated_at,
+                              t.teamgantt_id
                                 FROM todos AS t
                                 JOIN todolists AS tl ON tl.id = t.todolist_id
                                 WHERE t.id = '".$id."' AND tl.user_id = '".$logged_in_user->id."'");
@@ -42,7 +45,8 @@
                                 'is_big_rock' => (bool) $row['is_big_rock'],
                                 'is_current' => (bool) $row['is_current'],
                                 'created_at' => $row['created_at'],
-                                'updated_at' => $row['updated_at']
+                                'updated_at' => $row['updated_at'],
+                                'teamgantt_id' => $row['teamgantt_id']
                             ));
       }
 
@@ -59,7 +63,8 @@
                               t.is_big_rock,
                               t.is_current,
                               t.created_at,
-                              t.updated_at
+                              t.updated_at,
+                              t.teamgantt_id
                                 FROM todolists AS tl
                                 JOIN todos AS t ON t.todolist_id = tl.id
                                 WHERE tl.user_id = '".$logged_in_user->id."' AND t.is_current = 1
@@ -72,7 +77,8 @@
                                             'is_big_rock' => (bool) $row['is_big_rock'],
                                             'is_current' => (bool) $row['is_current'],
                                             'created_at' => $row['created_at'],
-                                            'updated_at' => $row['updated_at']
+                                            'updated_at' => $row['updated_at'],
+                                            'teamgantt_id' => $row['teamgantt_id']
                                         )));
       }
 
@@ -129,14 +135,19 @@
 
     public function save() {
       if($this->id == NULL) {
-        $id = mysql_insert('todos', array('todolist_id' => $this->todolist_id,
-                                    'name' => $this->name,
-                                    'percent_complete' => $this->percent_complete,
-                                    'is_big_rock' => (integer) $this->is_big_rock,
-                                    'is_current' => (integer) $this->is_current,
-                                    'created_at' => $this->created_at,
-                                    'updated_at' => $this->updated_at
-                                ));
+        $save_array = array('todolist_id' => $this->todolist_id,
+                            'name' => $this->name,
+                            'percent_complete' => $this->percent_complete,
+                            'is_big_rock' => (integer) $this->is_big_rock,
+                            'is_current' => (integer) $this->is_current,
+                            'created_at' => $this->created_at,
+                            'updated_at' => $this->updated_at
+                        );
+        if(isset($this->teamgantt_id)) {
+          $save_array['teamgantt_id'] = $this->teamgantt_id;
+        }
+
+        $id = mysql_insert('todos', $save_array);
         $this->id = $id;
       }
       else {
@@ -163,13 +174,6 @@
       else {
         return false;
       }
-    }
-
-    public function attach_teamgantt($task) {
-      $this->teamgantt = (object) array();
-      $this->teamgantt->id = (integer) $task->id;
-      $this->teamgantt->group_name = $task->group_name;
-      $this->teamgantt->project_name = $task->project_name;
     }
   }
 ?>
