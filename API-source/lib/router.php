@@ -42,16 +42,21 @@
       //LOOP THROUGH QUERY DIRs TO SEE IF IT'S A MATCH
       for($i = 0; $i < count($current_url); $i++) {
         if(stristr($check_url[$i],'{$')) {
-          //IF $check_url PART IS A VARIABLE {$var_name} - ADD IT TO OUR RETURN OBJECT
-          $param_name = str_replace('{$','',str_replace('}','',$check_url[$i]));
-
-          //CLEANUP IF IT'S A NUMBER
-          if(is_numeric($current_url[$i])) {
-            $current_url[$i] = (int) $current_url[$i];
+          if(!is_numeric($current_url[$i])) {
+            return false;
           }
+          else {
+            //IF $check_url PART IS A VARIABLE {$var_name} - ADD IT TO OUR RETURN OBJECT
+            $param_name = str_replace('{$','',str_replace('}','',$check_url[$i]));
 
-          //DEFINE IT
-          $ret[$param_name] = $current_url[$i];
+            //CLEANUP IF IT'S A NUMBER
+            if(is_numeric($current_url[$i])) {
+              $current_url[$i] = (int) $current_url[$i];
+            }
+
+            //DEFINE IT
+            $ret[$param_name] = $current_url[$i];
+          }
         }
         elseif($check_url[$i] != $current_url[$i]) {
           return false; //IF QUERY DIRS DON'T MATCH - FAIL

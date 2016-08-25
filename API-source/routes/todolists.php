@@ -6,7 +6,7 @@ Route::is('get', 'API/todolists', function() {
     echo json_encode($todolists);
   }
   else {
-    error_code(404);
+    response_code(404);
   }
 });
 
@@ -86,7 +86,7 @@ Route::is('get', 'API/todolists/{$todolist_id}/todos', function($todolist_id) {
     echo json_encode($todos);
   }
   else {
-    error_code(404);
+    response_code(404);
   }
 });
 ?>

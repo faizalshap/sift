@@ -1,21 +1,19 @@
 <?
-  Route::is('get', 'API/teamgantt/today', function() {
+  Route::is('get', 'API/todolists/teamgantt/todos', function() {
     global $logged_in_user;
     $teamgantt_tasks = API::run($logged_in_user, 'GET', 'https://api.teamgantt.com/v1/tasks?today');
 
     //CONVERT & DISPLAY
     $todos = array();
     foreach($teamgantt_tasks as $task) {
-      $todo = new TeamGanttTodo(array('name' => $task->name,
-                                      'percent_complete' => $task->percent_complete
-                                    ));
+      $todo = new TeamGanttTodo;
       $todo->attach_teamgantt($task);
       array_push($todos, $todo);
     }
     echo json_encode($todos);
   });
 
-  Route::is('post', 'API/teamgantt/todo', function() {
+  Route::is('post', 'API/todolists/teamgantt/todos', function() {
     global $logged_in_user;
     $json = fetch_json();
 
@@ -31,6 +29,7 @@
     $todo->teamgantt_id = (int) $json['id'];
     $todo->todolist_id = $todo->fetch_teamgantt_todolist_id($logged_in_user);
     $todo->does_exist($logged_in_user);
+    $todo->fetch_teamgantt_meta($logged_in_user);
 
     //VERIFY
     if(!$todo->is_valid()) {

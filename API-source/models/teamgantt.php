@@ -1,10 +1,23 @@
 <?
   class TeamGanttTodo extends Todo {
+    public $is_teamgantt = true;
+
     public function attach_teamgantt($task) {
-      $this->teamgantt = (object) array();
-      $this->teamgantt->id = (integer) $task->id;
-      $this->teamgantt->group_name = $task->group_name;
-      $this->teamgantt->project_name = $task->project_name;
+      $this->name = $task->name;
+      $this->percent_complete = $task->percent_complete;
+      $this->teamgantt_id = $task->id;
+
+      //ADDITIONAL INFO
+      $this->teamgantt_meta = (object) array();
+      $this->teamgantt_meta->project_name = $task->project_name;
+      $this->teamgantt_meta->group_name = $task->group_name;
+      $this->teamgantt_meta->end_date = $task->end_date;
+      $this->teamgantt_meta->resources = array();
+      foreach($task->resources as $resource) {
+        $resource_data = (object) array('name' => $resource->name,
+                                        'pic' => $resource->pic);
+        array_push($this->teamgantt_meta->resources, $resource_data);
+      }
     }
 
     public function fetch_teamgantt_todolist_id($logged_in_user) {
@@ -41,13 +54,30 @@
       }
     }
 
+    public function fetch_teamgantt_meta($logged_in_user) {
+      $url = 'https://api.teamgantt.com/v1/tasks/'.$this->teamgantt_id;
+      $response = API::run($logged_in_user, 'get', $url);
+      if($response->id) {
+        $this->teamgantt_meta = (object) array();
+        $this->teamgantt_meta->project_name = $response->project_name;
+        $this->teamgantt_meta->group_name = $response->group_name;
+        $this->teamgantt_meta->end_date = $response->end_date;
+        $this->teamgantt_meta->resources = array();
+        foreach($response->resources as $resource) {
+          $resource_data = (object) array('name' => $resource->name,
+                                          'pic' => $resource->pic);
+          array_push($this->teamgantt_meta->resources, $resource_data);
+        }
+      }
+    }
+
     public function run_patch($logged_in_user) {
       //RUN PATCH TO TEAMGANTT
       $url = 'https://api.teamgantt.com/v1/tasks/'.$this->teamgantt_id;
       $data = array('name' => $this->name,
                     'percent_complete' => $this->percent_complete
                 );
-      echo API::run($logged_in_user, 'patch', $url, $data);
+      API::run($logged_in_user, 'patch', $url, $data);
     }
   }
 

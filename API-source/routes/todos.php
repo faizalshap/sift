@@ -75,7 +75,9 @@ Route::is('put', 'API/todolists/{$todolist_id}/todos/{$todo_id}', function($todo
   echo json_encode($todo);
 
   //IF TEAMGANTT - WE NEED TO UPDATE IT
-  if($todo->run_patch($logged_in_user)) { }
+  if($todo->is_teamgantt) {
+    $todo->run_patch($logged_in_user);
+  }
 });
 
 /* DELETE TODO */
