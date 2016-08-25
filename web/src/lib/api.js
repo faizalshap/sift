@@ -1,40 +1,52 @@
 import reqwest from 'reqwest';
 
-function apiReq(path, options) {
-  let reqOptions = {
-    ...options,
-    url: `${process.env.API_URL}/${path}`,
-    headers: {
-      'BR-Api-Key': 'dev',
-      'BR-User-Token': 'dev'
-    }
-  };
+export default class Api {
+  constructor(user) {
+    this.user = user;
+  }
 
-  return reqwest(reqOptions);
-}
+  apiReq(path, options) {
+    let reqOptions = {
+      url: `${process.env.API_URL}/${path}`,
+      headers: {
+        'S-Api-Key': this.user.user_key,
+        'S-User-Token': this.user.user_token
+      },
+      ...options
+    };
 
-export default {
+    return reqwest(reqOptions);
+  }
+
+  signIn(attrs) {
+    return this.apiReq('login', {
+      method: 'post',
+      headers: {},
+      data: JSON.stringify(attrs)
+    });
+  }
+
   getTodoLists() {
-    return apiReq('todolists');
-  },
+    return this.apiReq('todolists');
+  }
 
   getTodos(todoListId) {
-    return apiReq(`todolists/${todoListId}/todos`);
-  },
+    return this.apiReq(`todolists/${todoListId}/todos`);
+  }
 
   getCurrentTodos() {
-    return apiReq('current');
-  },
+    return this.apiReq('current');
+  }
 
   addTodo(todoListId, todo) {
-    return apiReq(`todolists/${todoListId}/todos`, {
+    return this.apiReq(`todolists/${todoListId}/todos`, {
       method: 'post',
       data: JSON.stringify(todo)
     });
-  },
+  }
 
   updateTodo(todoListId, todoId, updatedTodo) {
-    return apiReq(`todolists/${todoListId}/todos/${todoId}`, {
+    return this.apiReq(`todolists/${todoListId}/todos/${todoId}`, {
       method: 'put',
       data: JSON.stringify(updatedTodo)
     });

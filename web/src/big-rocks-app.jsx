@@ -3,21 +3,22 @@ import _ from 'lodash';
 import TodoListSidebar from './components/todo-list-sidebar';
 import TodoList from './components/todo-list';
 import CurrentTodoList from './components/current-todo-list';
-import api from './lib/api';
+import Api from './lib/api';
 
 export default class BigRocksApp extends React.Component {
   constructor(props) {
     super(props);
     this.state = {};
+    this.api = new Api(this.props.currentUser);
   }
 
   componentDidMount() {
-    api.getTodoLists().then(todoLists => {
+    this.api.getTodoLists().then(todoLists => {
       this.setState({ todoLists: todoLists });
       this.showTodos(todoLists[0]);
     });
 
-    api.getCurrentTodos().then(currentTodos => {
+    this.api.getCurrentTodos().then(currentTodos => {
       this.setState({ currentTodos });
     });
   }
@@ -27,7 +28,7 @@ export default class BigRocksApp extends React.Component {
       todos: undefined,
       todoList: todoList
     });
-    api.getTodos(todoList.id).then(todos => this.setState({ todos: todos }));
+    this.api.getTodos(todoList.id).then(todos => this.setState({ todos: todos }));
   }
 
   addTodo(todoName) {
@@ -44,7 +45,7 @@ export default class BigRocksApp extends React.Component {
 
     this.setState({ todos: [...oldTodos, todo] });
 
-    api.addTodo(this.state.todoList.id, todo).then(persistedTodo => {
+    this.api.addTodo(this.state.todoList.id, todo).then(persistedTodo => {
       this.setState({ todos: [...oldTodos, persistedTodo]});
     });
   }
@@ -83,7 +84,7 @@ export default class BigRocksApp extends React.Component {
       });
     });
 
-    api.updateTodo(updatedTodo.todolist_id, updatedTodo.id, updatedTodo).catch(error => {
+    this.api.updateTodo(updatedTodo.todolist_id, updatedTodo.id, updatedTodo).catch(error => {
       alert('error: ' + error);
 
       _.each(oldTodoLists, (todoList, todoListKey) => {
@@ -104,3 +105,11 @@ export default class BigRocksApp extends React.Component {
     );
   }
 };
+
+BigRocksApp.propTypes = {
+  currentUser: React.PropTypes.shape({
+    user_id: React.PropTypes.number,
+    user_key: React.PropTypes.string,
+    user_token: React.PropTypes.string
+  })
+}
