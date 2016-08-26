@@ -1,4 +1,5 @@
 import React from 'react';
+require('../styles/modules/todo-lists');
 require('../styles/modules/todos');
 
 let enterKeyCode = 13;
@@ -63,20 +64,27 @@ export default class TodoList extends React.Component {
 
     return (
       <div className='todo-list'>
-        <h1 className='todo-list-name'>{this.props.todoList.name}</h1>
-        <div className='todo-list-inner'>
-          <ul>
-            {_(this.props.todos).sortBy(['percent_complete', 'created_at']).map(todo => {
-              return (
-                <li className={`todo ${todo.percent_complete == 100 && 'checked'}`} key={todo.id || todo.key} onDoubleClick={_.partial(this.onToggleBigRock.bind(this), todo)}>
-                  <div className={`checkbox ${todo.percent_complete == 100 && 'checked'}`} onClick={_.partial(this.onCheck.bind(this), todo)} />
-                  {todo.name}
-                  <button onClick={_.partial(this.onToggleCurrent.bind(this), todo)} className={`current-button ${todo.is_current && 'active'}`}>
-                  </button>
-                </li>
-              );
-            }).value()}
-          </ul>
+        <div className='todo-list-scroll'>
+          <h1 className='todo-list-name'>{this.props.todoList.name}</h1>
+          <div className='todo-list-inner'>
+            <ul>
+              {_(this.props.todos).sortBy(['percent_complete', 'created_at']).map(todo => {
+                return (
+                  <li className={`todo ${todo.percent_complete == 100 && 'checked'}`} key={todo.id || todo.key} onDoubleClick={_.partial(this.onToggleBigRock.bind(this), todo)}>
+                    <div className='checkbox-col'>
+                      <div className={`checkbox ${todo.percent_complete == 100 && 'checked'}`} onClick={_.partial(this.onCheck.bind(this), todo)} />
+                    </div>
+                    <div className='todo-name-col'>
+                      {todo.name}
+                    </div>
+                    <div className='current-button-col'>
+                      <button onClick={_.partial(this.onToggleCurrent.bind(this), todo)} className={`current-button ${todo.is_current && 'active'}`} />
+                    </div>
+                  </li>
+                );
+              }).value()}
+            </ul>
+          </div>
         </div>
         <input className='add-task' type='text' value={this.state.newTodoName} onChange={this.onChange.bind(this)} onKeyDown={this.onKeyDown.bind(this)} placeholder='Add Task'/>
       </div>

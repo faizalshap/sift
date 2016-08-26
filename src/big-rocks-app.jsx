@@ -105,7 +105,7 @@ export default class BigRocksApp extends React.Component {
           <a href="/">TeamGantt</a>
         </header>
         <div className='content'>
-          <TodoListSidebar todoLists={this.state.todoLists} onClickList={this.showTodos.bind(this)}/>
+          <TodoListSidebar todoLists={this.state.todoLists} currentList={this.state.todoList} onClickList={this.showTodos.bind(this)}/>
           <TodoList onAddTodo={this.addTodo.bind(this)} onUpdateTodo={this.updateTodo.bind(this)} todoList={this.state.todoList} todos={this.state.todos}/>
           <CurrentTodoList currentTodos={this.state.currentTodos} onUpdateTodo={this.updateTodo.bind(this)} />
         </div>

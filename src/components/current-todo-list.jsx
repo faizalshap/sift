@@ -65,11 +65,15 @@ export default class CurrentTodoList extends React.Component {
           {_.map(this.bigRocks(), todo => {
              return (
                <li className={`todo ${todo.percent_complete == 100 && 'checked'}`} key={todo.id || todo.key} onDoubleClick={_.partial(this.onToggleBigRock.bind(this), todo)}>
-                 <div className={`checkbox ${todo.percent_complete == 100 && 'checked'}`} onClick={_.partial(this.onCheck.bind(this), todo)}>
+                 <div className='checkbox-col'>
+                   <div className={`checkbox ${todo.percent_complete == 100 && 'checked'}`} onClick={_.partial(this.onCheck.bind(this), todo)} />
                  </div>
-                 {todo.name}
-                 <button onClick={_.partial(this.onToggleCurrent.bind(this), todo)} className={`current-button ${todo.is_current && 'active'}`}>
-                 </button>
+                 <div className='todo-name-col'>
+                   {todo.name}
+                 </div>
+                 <div className='current-button-col'>
+                   <button onClick={_.partial(this.onToggleCurrent.bind(this), todo)} className={`current-button ${todo.is_current && 'active'}`} />
+                 </div>
                </li>
              );
            })}
@@ -80,11 +84,15 @@ export default class CurrentTodoList extends React.Component {
           {_.map(this.otherCurrentTodos(), todo => {
              return (
                <li className={`todo ${todo.percent_complete == 100 && 'checked'}`} key={todo.id || todo.key} onDoubleClick={_.partial(this.onToggleBigRock.bind(this), todo)}>
-                 <div className={`checkbox ${todo.percent_complete == 100 && 'checked'}`} onClick={_.partial(this.onCheck.bind(this), todo)}>
+                 <div className='checkbox-col'>
+                   <div className={`checkbox ${todo.percent_complete == 100 && 'checked'}`} onClick={_.partial(this.onCheck.bind(this), todo)} />
                  </div>
-                 {todo.name}
-                 <button onClick={_.partial(this.onToggleCurrent.bind(this), todo)} className={`current-button ${todo.is_current && 'active'}`}>
-                 </button>
+                 <div className='todo-name-col'>
+                   {todo.name}
+                 </div>
+                 <div className='current-button-col'>
+                   <button onClick={_.partial(this.onToggleCurrent.bind(this), todo)} className={`current-button ${todo.is_current && 'active'}`} />
+                 </div>
                </li>
              );
            })}
