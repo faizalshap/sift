@@ -21362,11 +21362,11 @@
 
 	var _bigRocksApp2 = _interopRequireDefault(_bigRocksApp);
 
-	var _signin = __webpack_require__(196);
+	var _signin = __webpack_require__(198);
 
 	var _signin2 = _interopRequireDefault(_signin);
 
-	var _api = __webpack_require__(187);
+	var _api = __webpack_require__(189);
 
 	var _api2 = _interopRequireDefault(_api);
 
@@ -21448,11 +21448,11 @@
 
 	var _todoList2 = _interopRequireDefault(_todoList);
 
-	var _currentTodoList = __webpack_require__(184);
+	var _currentTodoList = __webpack_require__(186);
 
 	var _currentTodoList2 = _interopRequireDefault(_currentTodoList);
 
-	var _api = __webpack_require__(187);
+	var _api = __webpack_require__(189);
 
 	var _api2 = _interopRequireDefault(_api);
 
@@ -21468,9 +21468,9 @@
 
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-	__webpack_require__(190);
 	__webpack_require__(192);
 	__webpack_require__(194);
+	__webpack_require__(196);
 
 	var BigRocksApp = function (_React$Component) {
 	  _inherits(BigRocksApp, _React$Component);
@@ -21603,7 +21603,7 @@
 	        _react2.default.createElement(
 	          'div',
 	          { className: 'content' },
-	          _react2.default.createElement(_todoListSidebar2.default, { todoLists: this.state.todoLists, onClickList: this.showTodos.bind(this) }),
+	          _react2.default.createElement(_todoListSidebar2.default, { todoLists: this.state.todoLists, currentList: this.state.todoList, onClickList: this.showTodos.bind(this) }),
 	          _react2.default.createElement(_todoList2.default, { onAddTodo: this.addTodo.bind(this), onUpdateTodo: this.updateTodo.bind(this), todoList: this.state.todoList, todos: this.state.todos }),
 	          _react2.default.createElement(_currentTodoList2.default, { currentTodos: this.state.currentTodos, onUpdateTodo: this.updateTodo.bind(this) })
 	        )
@@ -38435,13 +38435,11 @@
 	        ),
 	        _react2.default.createElement(
 	          'ul',
-	          null,
+	          { className: 'todo-list-links' },
 	          _.map(this.props.todoLists, function (todoList) {
 	            return _react2.default.createElement(
 	              'li',
-	              { onClick: function onClick() {
-	                  return _this2.props.onClickList(todoList);
-	                }, key: todoList.id },
+	              { className: 'todo-list-link ' + (todoList == _this2.props.currentList && 'current'), onClick: _.partial(_this2.props.onClickList, todoList), key: todoList.id },
 	              todoList.name
 	            );
 	          })
@@ -38461,7 +38459,11 @@
 	    id: _react2.default.PropTypes.number,
 	    name: _react2.default.PropTypes.string
 	  })),
-	  onClickList: _react2.default.PropTypes.func
+	  onClickList: _react2.default.PropTypes.func,
+	  currentList: _react2.default.PropTypes.shape({
+	    id: _react2.default.PropTypes.number,
+	    name: _react2.default.PropTypes.string
+	  })
 	};
 
 /***/ },
@@ -38499,7 +38501,7 @@
 
 
 	// module
-	exports.push([module.id, ".todo-list-sidebar {\n  position: absolute;\n  top: 70px;\n  bottom: 0;\n  left: 0;\n  background-color: white;\n  width: 300px;\n  overflow: auto;\n}\n.todo-list-sidebar h1 {\n  padding: 55px 0 0 30px;\n  color: #777;\n  font-size: 14px;\n  font-weight: 600;\n  letter-spacing: 1.71px;\n  line-height: 15px;\n}\n.todo-list-sidebar li {\n  cursor: pointer;\n  padding: 30px 0 0 55px;\n  color: #979797;\n  font-size: 16px;\n  font-weight: 500;\n  line-height: 19px\n}\n.todo-list-sidebar li:hover {\n  text-decoration: underline;\n}\n.todo-list-sidebar .add-item {\n  height: 21px;\n  width: 21px;\n  margin: -19px 18px 0 0;\n  float: right;\n  background-image: url(/src/img/btn-add-item.png);\n}\n", ""]);
+	exports.push([module.id, ".todo-list-sidebar {\n  position: absolute;\n  top: 70px;\n  bottom: 0;\n  left: 0;\n  background-color: white;\n  width: 300px;\n  overflow: auto;\n}\n.todo-list-sidebar h1 {\n  padding: 55px 0 0 30px;\n  color: #777;\n  font-size: 14px;\n  font-weight: 600;\n  letter-spacing: 1.71px;\n  line-height: 15px;\n  text-transform: uppercase;\n}\n.todo-list-sidebar .todo-list-links {\n  margin-top: 10px;\n}\n.todo-list-sidebar li {\n  cursor: pointer;\n  padding: 15px 0 15px 55px;\n  color: #979797;\n  font-size: 16px;\n  font-weight: 500;\n  line-height: 19px\n}\n.todo-list-sidebar li.current {\n  background-color: #F5F7F9;\n  font-weight: 600;\n  font-size: 16px;\n  color: #373636;\n}\n.todo-list-sidebar li:hover {\n  text-decoration: underline;\n}\n.todo-list-sidebar .add-item {\n  height: 21px;\n  width: 21px;\n  margin: -19px 18px 0 0;\n  float: right;\n  background-image: url(/src/img/btn-add-item.png);\n}\n", ""]);
 
 	// exports
 
@@ -38839,6 +38841,7 @@
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 	__webpack_require__(182);
+	__webpack_require__(184);
 
 	var enterKeyCode = 13;
 
@@ -38914,25 +38917,41 @@
 	        'div',
 	        { className: 'todo-list' },
 	        _react2.default.createElement(
-	          'h1',
-	          { className: 'todo-list-name' },
-	          this.props.todoList.name
-	        ),
-	        _react2.default.createElement(
 	          'div',
-	          { className: 'todo-list-inner' },
+	          { className: 'todo-list-scroll' },
 	          _react2.default.createElement(
-	            'ul',
-	            null,
-	            _(this.props.todos).sortBy(['percent_complete', 'created_at']).map(function (todo) {
-	              return _react2.default.createElement(
-	                'li',
-	                { className: 'todo ' + (todo.percent_complete == 100 && 'checked'), key: todo.id || todo.key, onDoubleClick: _.partial(_this2.onToggleBigRock.bind(_this2), todo) },
-	                _react2.default.createElement('div', { className: 'checkbox ' + (todo.percent_complete == 100 && 'checked'), onClick: _.partial(_this2.onCheck.bind(_this2), todo) }),
-	                todo.name,
-	                _react2.default.createElement('button', { onClick: _.partial(_this2.onToggleCurrent.bind(_this2), todo), className: 'current-button ' + (todo.is_current && 'active') })
-	              );
-	            }).value()
+	            'h1',
+	            { className: 'todo-list-name' },
+	            this.props.todoList.name
+	          ),
+	          _react2.default.createElement(
+	            'div',
+	            { className: 'todo-list-inner' },
+	            _react2.default.createElement(
+	              'ul',
+	              null,
+	              _(this.props.todos).sortBy(['percent_complete', 'created_at']).map(function (todo) {
+	                return _react2.default.createElement(
+	                  'li',
+	                  { className: 'todo ' + (todo.percent_complete == 100 && 'checked'), key: todo.id || todo.key, onDoubleClick: _.partial(_this2.onToggleBigRock.bind(_this2), todo) },
+	                  _react2.default.createElement(
+	                    'div',
+	                    { className: 'checkbox-col' },
+	                    _react2.default.createElement('div', { className: 'checkbox ' + (todo.percent_complete == 100 && 'checked'), onClick: _.partial(_this2.onCheck.bind(_this2), todo) })
+	                  ),
+	                  _react2.default.createElement(
+	                    'div',
+	                    { className: 'todo-name-col' },
+	                    todo.name
+	                  ),
+	                  _react2.default.createElement(
+	                    'div',
+	                    { className: 'current-button-col' },
+	                    _react2.default.createElement('button', { onClick: _.partial(_this2.onToggleCurrent.bind(_this2), todo), className: 'current-button ' + (todo.is_current && 'active') })
+	                  )
+	                );
+	              }).value()
+	            )
 	          )
 	        ),
 	        _react2.default.createElement('input', { className: 'add-task', type: 'text', value: this.state.newTodoName, onChange: this.onChange.bind(this), onKeyDown: this.onKeyDown.bind(this), placeholder: 'Add Task' })
@@ -38969,8 +38988,8 @@
 	if(false) {
 		// When the styles change, update the <style> tags
 		if(!content.locals) {
-			module.hot.accept("!!./../../../node_modules/css-loader/index.js!./../../../node_modules/postcss-loader/index.js!./todos.css", function() {
-				var newContent = require("!!./../../../node_modules/css-loader/index.js!./../../../node_modules/postcss-loader/index.js!./todos.css");
+			module.hot.accept("!!./../../../node_modules/css-loader/index.js!./../../../node_modules/postcss-loader/index.js!./todo-lists.css", function() {
+				var newContent = require("!!./../../../node_modules/css-loader/index.js!./../../../node_modules/postcss-loader/index.js!./todo-lists.css");
 				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
 				update(newContent);
 			});
@@ -38988,13 +39007,53 @@
 
 
 	// module
-	exports.push([module.id, ".todo-list {\n  position: absolute;\n  left: 300px;\n  right: 374px;\n  bottom: 0;\n  top: 70px;\n  background-color: #F5F7F9;\n  overflow-y: scroll;\n  padding: 55px 50px 175px;\n}\n.todo-list h1 {\n  margin-bottom: 20px;\n  color: #373636;\n  font-size: 21px;\n  font-weight: 500;\n  line-height: 32px;\n}\n.todo-list .add-task {\n  padding: 30px 55px;\n  border: 0;\n  outline: none;\n  position: fixed;\n  box-shadow: 0 0 30px rgba(0, 0, 0, 0.1);\n  bottom: 55px;\n  right: 424px;\n  left: 350px;\n  display: block;\n  width: calc(100% - 789px);\n  font-size: 12px;\n  background: white url(/src/img/btn-add-item.svg) 20px center no-repeat\n}\n.todo-list .add-task::-webkit-input-placeholder {\n  color: #5CBCD6;\n  text-transform: uppercase;\n  letter-spacing: 1.71px;\n}\n.todo-list .add-task::-moz-placeholder {\n  color: #5CBCD6;\n  text-transform: uppercase;\n  letter-spacing: 1.71px;\n}\n.todo-list .add-task:-ms-input-placeholder {\n  color: #5CBCD6;\n  text-transform: uppercase;\n  letter-spacing: 1.71px;\n}\n.todo-list .add-task::placeholder {\n  color: #5CBCD6;\n  text-transform: uppercase;\n  letter-spacing: 1.71px;\n}\n.todo-list .todo.checked {\n  opacity: 0.5;\n  text-decoration: line-through;\n}\n.todo-list-inner {\n  /*height: 400px;*/\n  background-color: white;\n}\n.todo-list-inner li {\n  height: 43px;\n  padding: 30px 0 0 20px;\n  box-shadow: inset 0 -1px 0 rgba(221, 221, 221, 0.5);\n  color: #323844;\n  font-size: 14px;\n  font-weight: 500;\n  line-height: 17px;\n}\n.todo-list-inner .checkbox {\n  cursor: pointer;\n  float: left;\n  margin: -2px 20px 0 0;\n  height: 17px;\n  width: 17px;\n  box-sizing: border-box;\n  background-position: center;\n  background-repeat: no-repeat;\n  border-style: solid;\n  border-width: 2px;\n  border-color: #A1A1A1;\n  border-radius: 3px\n}\n.todo-list-inner .checkbox.checked {\n  border-width: 1px;\n  background-image: url(/src/img/check.svg);\n}\n.todo-list-inner .current-button {\n  cursor: pointer;\n  float: right;\n  height: 16px;\n  width: 16px;\n  border: none;\n  margin-right: 30px;\n  border-style: solid;\n  border-width: 2px;\n  border-color: #A2DEDB;\n  border-radius: 50%;\n  background: white\n  /*background-image: url(/src/img/oval.png);*/\n}\n.todo-list-inner .current-button.active {\n  background: #A2DEDB;\n  /*background-image: url(/src/img/oval-solid.png);*/\n}\n", ""]);
+	exports.push([module.id, ".todo-list-scroll {\n  overflow-y: scroll;\n  padding: 55px 50px 175px;\n  height: 100%;\n}\n.todo-list {\n  position: absolute;\n  left: 300px;\n  right: 374px;\n  bottom: 0;\n  top: 70px;\n  background-color: #F5F7F9;\n}\n.todo-list h1 {\n  margin-bottom: 20px;\n  color: #373636;\n  font-size: 21px;\n  font-weight: 500;\n  line-height: 32px;\n}\n.todo-list .add-task {\n  padding: 30px 55px;\n  border: 0;\n  outline: none;\n  position: absolute;\n  box-shadow: 0 0 60px rgba(255, 255, 255, 1), 0 0 30px rgba(0, 0, 0, 0.1);\n  bottom: 55px;\n  right: 424px;\n  left: 50px;\n  display: block;\n  width: calc(100% - 100px);\n  font-size: 12px;\n  background: white url(/src/img/btn-add-item.svg) 20px center no-repeat\n}\n.todo-list .add-task::-webkit-input-placeholder {\n  color: #5CBCD6;\n  text-transform: uppercase;\n  letter-spacing: 1.71px;\n}\n.todo-list .add-task::-moz-placeholder {\n  color: #5CBCD6;\n  text-transform: uppercase;\n  letter-spacing: 1.71px;\n}\n.todo-list .add-task:-ms-input-placeholder {\n  color: #5CBCD6;\n  text-transform: uppercase;\n  letter-spacing: 1.71px;\n}\n.todo-list .add-task::placeholder {\n  color: #5CBCD6;\n  text-transform: uppercase;\n  letter-spacing: 1.71px;\n}\n.todo-list .todo.checked {\n  opacity: 0.5;\n  text-decoration: line-through;\n}\n.todo-list-inner {\n  background-color: white;\n}\n", ""]);
 
 	// exports
 
 
 /***/ },
 /* 184 */
+/***/ function(module, exports, __webpack_require__) {
+
+	// style-loader: Adds some css to the DOM by adding a <style> tag
+
+	// load the styles
+	var content = __webpack_require__(185);
+	if(typeof content === 'string') content = [[module.id, content, '']];
+	// add the styles to the DOM
+	var update = __webpack_require__(180)(content, {});
+	if(content.locals) module.exports = content.locals;
+	// Hot Module Replacement
+	if(false) {
+		// When the styles change, update the <style> tags
+		if(!content.locals) {
+			module.hot.accept("!!./../../../node_modules/css-loader/index.js!./../../../node_modules/postcss-loader/index.js!./todos.css", function() {
+				var newContent = require("!!./../../../node_modules/css-loader/index.js!./../../../node_modules/postcss-loader/index.js!./todos.css");
+				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+				update(newContent);
+			});
+		}
+		// When the module is disposed, remove the <style> tags
+		module.hot.dispose(function() { update(); });
+	}
+
+/***/ },
+/* 185 */
+/***/ function(module, exports, __webpack_require__) {
+
+	exports = module.exports = __webpack_require__(179)();
+	// imports
+
+
+	// module
+	exports.push([module.id, ".todo {\n  border-bottom: 1px solid #EEEEEE;\n}\n.todo:before {\n  content: '';\n  display: table;\n}\n.todo:after {\n  content: '';\n  display: table;\n  clear: both;\n}\n.todo .checkbox-col {\n  width: 58px;\n  float: left;\n  padding: 29px 19px;\n}\n.todo .current-button-col {\n  width: 74px;\n  float: left;\n  padding: 32px 29px 28px;\n}\n.todo .todo-name-col {\n  width: calc(100% - 132px);\n  float: left;\n  padding: 30px 0;\n}\n.todo .checkbox {\n  cursor: pointer;\n  margin: 0 16px 0 0;\n  height: 17px;\n  width: 17px;\n  background-position: center;\n  background-repeat: no-repeat;\n  box-sizing: border-box;\n  border-style: solid;\n  border-width: 1.5px;\n  border-color: #A1A1A1;\n  border-radius: 3px\n}\n.todo .checkbox.checked {\n  border-width: 0.5px;\n  background-image: url(/src/img/check.svg);\n}\n.todo .current-button {\n  cursor: pointer;\n  height: 16px;\n  width: 16px;\n  border: none;\n  border: 2px solid #A2DEDB;\n  border-radius: 50%;\n  background: white\n}\n.todo .current-button.active {\n  background: #A2DEDB;\n}\n.todo.checked .todo-name-col {\n  opacity: 0.5;\n  text-decoration: line-through;\n}", ""]);
+
+	// exports
+
+
+/***/ },
+/* 186 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -39019,7 +39078,7 @@
 
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-	__webpack_require__(185);
+	__webpack_require__(187);
 
 	var CurrentTodoList = function (_React$Component) {
 	  _inherits(CurrentTodoList, _React$Component);
@@ -39109,9 +39168,21 @@
 	            return _react2.default.createElement(
 	              'li',
 	              { className: 'todo ' + (todo.percent_complete == 100 && 'checked'), key: todo.id || todo.key, onDoubleClick: _.partial(_this2.onToggleBigRock.bind(_this2), todo) },
-	              _react2.default.createElement('div', { className: 'checkbox ' + (todo.percent_complete == 100 && 'checked'), onClick: _.partial(_this2.onCheck.bind(_this2), todo) }),
-	              todo.name,
-	              _react2.default.createElement('button', { onClick: _.partial(_this2.onToggleCurrent.bind(_this2), todo), className: 'current-button ' + (todo.is_current && 'active') })
+	              _react2.default.createElement(
+	                'div',
+	                { className: 'checkbox-col' },
+	                _react2.default.createElement('div', { className: 'checkbox ' + (todo.percent_complete == 100 && 'checked'), onClick: _.partial(_this2.onCheck.bind(_this2), todo) })
+	              ),
+	              _react2.default.createElement(
+	                'div',
+	                { className: 'todo-name-col' },
+	                todo.name
+	              ),
+	              _react2.default.createElement(
+	                'div',
+	                { className: 'current-button-col' },
+	                _react2.default.createElement('button', { onClick: _.partial(_this2.onToggleCurrent.bind(_this2), todo), className: 'current-button ' + (todo.is_current && 'active') })
+	              )
 	            );
 	          })
 	        ),
@@ -39127,9 +39198,21 @@
 	            return _react2.default.createElement(
 	              'li',
 	              { className: 'todo ' + (todo.percent_complete == 100 && 'checked'), key: todo.id || todo.key, onDoubleClick: _.partial(_this2.onToggleBigRock.bind(_this2), todo) },
-	              _react2.default.createElement('div', { className: 'checkbox ' + (todo.percent_complete == 100 && 'checked'), onClick: _.partial(_this2.onCheck.bind(_this2), todo) }),
-	              todo.name,
-	              _react2.default.createElement('button', { onClick: _.partial(_this2.onToggleCurrent.bind(_this2), todo), className: 'current-button ' + (todo.is_current && 'active') })
+	              _react2.default.createElement(
+	                'div',
+	                { className: 'checkbox-col' },
+	                _react2.default.createElement('div', { className: 'checkbox ' + (todo.percent_complete == 100 && 'checked'), onClick: _.partial(_this2.onCheck.bind(_this2), todo) })
+	              ),
+	              _react2.default.createElement(
+	                'div',
+	                { className: 'todo-name-col' },
+	                todo.name
+	              ),
+	              _react2.default.createElement(
+	                'div',
+	                { className: 'current-button-col' },
+	                _react2.default.createElement('button', { onClick: _.partial(_this2.onToggleCurrent.bind(_this2), todo), className: 'current-button ' + (todo.is_current && 'active') })
+	              )
 	            );
 	          })
 	        )
@@ -39152,13 +39235,13 @@
 	};
 
 /***/ },
-/* 185 */
+/* 187 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 
 	// load the styles
-	var content = __webpack_require__(186);
+	var content = __webpack_require__(188);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
 	var update = __webpack_require__(180)(content, {});
@@ -39178,7 +39261,7 @@
 	}
 
 /***/ },
-/* 186 */
+/* 188 */
 /***/ function(module, exports, __webpack_require__) {
 
 	exports = module.exports = __webpack_require__(179)();
@@ -39186,13 +39269,13 @@
 
 
 	// module
-	exports.push([module.id, ".current-todos {\n  position: absolute;\n  top: 70px;\n  right: 0;\n  bottom: 0;\n  overflow: auto;\n  width: 374px;\n}\n.current-todos .todo.checked {\n  opacity: 0.5;\n  text-decoration: line-through;\n}\n.current-todos .big-rocks-header {\n  padding: 50px 0 30px 30px;\n  box-shadow: inset 0 -1px 0 rgba(221, 221, 221, 0.5);\n  color: #373636;\n  font-size: 36px;\n  font-weight: 600;\n  line-height: 53px;\n}\n.current-todos .other-current-header {\n  padding: 40px 0 30px 30px;\n  box-shadow: inset 0 -1px 0 rgba(221, 221, 221, 0.5);\n  color: #373636;\n  font-size: 21px;\n  font-weight: 500;\n  line-height: 32px;\n}\n.current-todos li {\n  height: 43px;\n  padding: 30px 0 0 30px;\n  box-shadow: inset 0 -1px 0 rgba(221, 221, 221, 0.5);\n  color: #323844;\n  font-size: 16px;\n  font-weight: 500;\n  line-height: 19px;\n}\n.current-todos .big-rocks .checkbox {\n  cursor: pointer;\n  float: left;\n  height: 24px;\n  width: 24px;\n  background-position: center;\n  background-repeat: no-repeat;\n  margin: -6px 14px 0 0;\n  border-style: solid;\n  border-width: 2px;\n  border-color: #A1A1A1;\n  border-radius: 7px\n}\n.current-todos .big-rocks .checkbox.checked {\n  border-width: 1px;\n  background-image: url(/src/img/check-big.svg);\n}\n.current-todos .other-rocks .checkbox {\n  cursor: pointer;\n  float: left;\n  margin: 0 16px 0 0;\n  height: 17px;\n  width: 17px;\n  background-position: center;\n  background-repeat: no-repeat;\n  box-sizing: border-box;\n  border-style: solid;\n  border-width: 2px;\n  border-color: #A1A1A1;\n  border-radius: 3px\n}\n.current-todos .other-rocks .checkbox.checked {\n  border-width: 0.5px;\n  background-image: url(/src/img/check.svg);\n}\n.current-todos .current-button {\n  cursor: pointer;\n  float: right;\n  height: 16px;\n  width: 16px;\n  border: none;\n  margin-right: 30px;\n  border-style: solid;\n  border-width: 2px;\n  border-color: #A2DEDB;\n  border-radius: 50%;\n  background: white\n}\n.current-todos .current-button.active {\n  background: #A2DEDB;\n}\n.no-rocks {\n  background: rgba(215,215,215,0.06);\n  border: 2px dashed #F2795D;\n  border-radius: 3px; \n  margin: 20px 30px;\n  padding: 60px 35px 35px;\n  text-align: center;\n  font-weight: 600;\n  font-size: 17px;\n  color: #323844;\n  line-height: 22px;\n}\n.no-rocks .sifted-icon {\n  margin-bottom: 25px;\n}\n.no-rocks .sub {\n  margin-top: 25px;\n  font-size: 13px;\n  color: #777777;\n}\n.sifted-icon {\n  background: url(/src/img/rocks-logo.svg) center no-repeat;\n  height: 21px;\n  display: block;\n}", ""]);
+	exports.push([module.id, ".current-todos {\n  position: absolute;\n  top: 70px;\n  right: 0;\n  bottom: 0;\n  overflow: auto;\n  width: 374px;\n  padding-bottom: 75px;\n}\n.current-todos .big-rocks-header {\n  padding: 50px 0 30px 30px;\n  color: #373636;\n  font-size: 36px;\n  font-weight: 600;\n  line-height: 53px;\n}\n.current-todos .other-current-header {\n  padding: 40px 0 30px 30px;\n  color: #373636;\n  font-size: 21px;\n  font-weight: 500;\n  line-height: 32px;\n}\n.current-todos .todo:first-child {\n  border-top: 1px solid #eee;\n}\n.current-todos .big-rocks .checkbox-col {\n  width: 64px;\n  padding: 25px 20px;\n}\n.current-todos .big-rocks .current-button-col {\n  padding: 28px 29px 25px;\n}\n.current-todos .big-rocks .todo-name-col {\n  padding: 29px 0;\n  width: calc(100% - 138px);\n}\n.current-todos .big-rocks .checkbox {\n  height: 24px;\n  width: 24px;\n  border-radius: 4px\n}\n.current-todos .big-rocks .checkbox.checked {\n  border-width: 1px;\n  background-image: url(/src/img/check-big.svg);\n}\n.no-rocks {\n  background: rgba(215,215,215,0.06);\n  border: 2px dashed #F2795D;\n  border-radius: 3px; \n  margin: 20px 30px;\n  padding: 60px 35px 35px;\n  text-align: center;\n  font-weight: 600;\n  font-size: 17px;\n  color: #323844;\n  line-height: 22px;\n}\n.no-rocks .sifted-icon {\n  margin-bottom: 25px;\n}\n.no-rocks .sub {\n  margin-top: 25px;\n  font-size: 13px;\n  color: #777777;\n}\n.sifted-icon {\n  background: url(/src/img/rocks-logo.svg) center no-repeat;\n  height: 21px;\n  display: block;\n}", ""]);
 
 	// exports
 
 
 /***/ },
-/* 187 */
+/* 189 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -39205,7 +39288,7 @@
 
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-	var _reqwest = __webpack_require__(188);
+	var _reqwest = __webpack_require__(190);
 
 	var _reqwest2 = _interopRequireDefault(_reqwest);
 
@@ -39282,7 +39365,7 @@
 	;
 
 /***/ },
-/* 188 */
+/* 190 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
@@ -39306,7 +39389,7 @@
 	  } else {
 	    var XHR2
 	    try {
-	      XHR2 = __webpack_require__(189)
+	      XHR2 = __webpack_require__(191)
 	    } catch (ex) {
 	      throw new Error('Peer dependency `xhr2` required! Please npm install xhr2')
 	    }
@@ -39918,19 +40001,19 @@
 
 
 /***/ },
-/* 189 */
+/* 191 */
 /***/ function(module, exports) {
 
 	/* (ignored) */
 
 /***/ },
-/* 190 */
+/* 192 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 
 	// load the styles
-	var content = __webpack_require__(191);
+	var content = __webpack_require__(193);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
 	var update = __webpack_require__(180)(content, {});
@@ -39950,46 +40033,6 @@
 	}
 
 /***/ },
-/* 191 */
-/***/ function(module, exports, __webpack_require__) {
-
-	exports = module.exports = __webpack_require__(179)();
-	// imports
-
-
-	// module
-	exports.push([module.id, "/* http://meyerweb.com/eric/tools/css/reset/\n   v2.0 | 20110126\n   License: none (public domain)\n*/\nhtml, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, big, cite, code, del, dfn, em, img, ins, kbd, q, s, samp, small, strike, strong, sub, sup, tt, var, b, u, i, center, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td, article, aside, canvas, details, embed, figure, figcaption, footer, header, hgroup, main, menu, nav, output, ruby, section, summary, time, mark, audio, video {\n    margin: 0;\n    padding: 0;\n    border: 0;\n    font-size: 100%;\n    font: inherit;\n    vertical-align: baseline\n}\n/* HTML5 display-role reset for older browsers */\narticle, aside, details, figcaption, figure, footer, header, hgroup, main, menu, nav, section {\n    display: block\n}\nbody {\n    line-height: 1\n}\nol, ul {\n    list-style: none\n}\nblockquote, q {\n    quotes: none\n}\nblockquote:before, blockquote:after, q:before, q:after {\n    content: '';\n    content: none\n}\ntable {\n    border-collapse: collapse;\n    border-spacing: 0\n}\nbody {\n    font-family: 'proxima-nova'\n}\ninput, textarea {\n    font-family: inherit;\n    font-size: inherit\n}\nbutton {\n    outline: none\n}\n", ""]);
-
-	// exports
-
-
-/***/ },
-/* 192 */
-/***/ function(module, exports, __webpack_require__) {
-
-	// style-loader: Adds some css to the DOM by adding a <style> tag
-
-	// load the styles
-	var content = __webpack_require__(193);
-	if(typeof content === 'string') content = [[module.id, content, '']];
-	// add the styles to the DOM
-	var update = __webpack_require__(180)(content, {});
-	if(content.locals) module.exports = content.locals;
-	// Hot Module Replacement
-	if(false) {
-		// When the styles change, update the <style> tags
-		if(!content.locals) {
-			module.hot.accept("!!./../../../node_modules/css-loader/index.js!./../../../node_modules/postcss-loader/index.js!./header.css", function() {
-				var newContent = require("!!./../../../node_modules/css-loader/index.js!./../../../node_modules/postcss-loader/index.js!./header.css");
-				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
-				update(newContent);
-			});
-		}
-		// When the module is disposed, remove the <style> tags
-		module.hot.dispose(function() { update(); });
-	}
-
-/***/ },
 /* 193 */
 /***/ function(module, exports, __webpack_require__) {
 
@@ -39998,7 +40041,7 @@
 
 
 	// module
-	exports.push([module.id, "header {\n  position: fixed;\n  z-index: 1000;\n  height: 70px;\n  width: 100%;\n  background-color: #7FD1CD;\n}\nheader a {\n  width: 108px;\n  height: 21px;\n  background-image: url(/src/img/logo_sift.svg);\n  text-indent: 1000px;\n  display: block;\n  overflow: hidden;\n  margin: 22px 0 0 22px;\n  float: left;\n}\n", ""]);
+	exports.push([module.id, "/* http://meyerweb.com/eric/tools/css/reset/\n   v2.0 | 20110126\n   License: none (public domain)\n*/\nhtml, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, big, cite, code, del, dfn, em, img, ins, kbd, q, s, samp, small, strike, strong, sub, sup, tt, var, b, u, i, center, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td, article, aside, canvas, details, embed, figure, figcaption, footer, header, hgroup, main, menu, nav, output, ruby, section, summary, time, mark, audio, video {\n    margin: 0;\n    padding: 0;\n    border: 0;\n    font-size: 100%;\n    font: inherit;\n    vertical-align: baseline\n}\n/* HTML5 display-role reset for older browsers */\narticle, aside, details, figcaption, figure, footer, header, hgroup, main, menu, nav, section {\n    display: block\n}\nbody {\n    line-height: 1\n}\nol, ul {\n    list-style: none\n}\nblockquote, q {\n    quotes: none\n}\nblockquote:before, blockquote:after, q:before, q:after {\n    content: '';\n    content: none\n}\ntable {\n    border-collapse: collapse;\n    border-spacing: 0\n}\n* {\n    box-sizing: border-box\n}\nbody {\n    font-family: 'proxima-nova'\n}\ninput, textarea {\n    font-family: inherit;\n    font-size: inherit\n}\nbutton {\n    outline: none\n}\n", ""]);
 
 	// exports
 
@@ -40019,8 +40062,8 @@
 	if(false) {
 		// When the styles change, update the <style> tags
 		if(!content.locals) {
-			module.hot.accept("!!./../../../node_modules/css-loader/index.js!./../../../node_modules/postcss-loader/index.js!./content.css", function() {
-				var newContent = require("!!./../../../node_modules/css-loader/index.js!./../../../node_modules/postcss-loader/index.js!./content.css");
+			module.hot.accept("!!./../../../node_modules/css-loader/index.js!./../../../node_modules/postcss-loader/index.js!./header.css", function() {
+				var newContent = require("!!./../../../node_modules/css-loader/index.js!./../../../node_modules/postcss-loader/index.js!./header.css");
 				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
 				update(newContent);
 			});
@@ -40038,13 +40081,53 @@
 
 
 	// module
-	exports.push([module.id, ".content {\n  padding-top: 70px;\n}\n", ""]);
+	exports.push([module.id, "header {\n  position: fixed;\n  z-index: 1000;\n  height: 70px;\n  width: 100%;\n  background-color: #7FD1CD;\n}\nheader a {\n  width: 108px;\n  height: 21px;\n  background-image: url(/src/img/logo_sift.svg);\n  text-indent: 1000px;\n  display: block;\n  overflow: hidden;\n  margin: 22px 0 0 22px;\n  float: left;\n}\n", ""]);
 
 	// exports
 
 
 /***/ },
 /* 196 */
+/***/ function(module, exports, __webpack_require__) {
+
+	// style-loader: Adds some css to the DOM by adding a <style> tag
+
+	// load the styles
+	var content = __webpack_require__(197);
+	if(typeof content === 'string') content = [[module.id, content, '']];
+	// add the styles to the DOM
+	var update = __webpack_require__(180)(content, {});
+	if(content.locals) module.exports = content.locals;
+	// Hot Module Replacement
+	if(false) {
+		// When the styles change, update the <style> tags
+		if(!content.locals) {
+			module.hot.accept("!!./../../../node_modules/css-loader/index.js!./../../../node_modules/postcss-loader/index.js!./content.css", function() {
+				var newContent = require("!!./../../../node_modules/css-loader/index.js!./../../../node_modules/postcss-loader/index.js!./content.css");
+				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+				update(newContent);
+			});
+		}
+		// When the module is disposed, remove the <style> tags
+		module.hot.dispose(function() { update(); });
+	}
+
+/***/ },
+/* 197 */
+/***/ function(module, exports, __webpack_require__) {
+
+	exports = module.exports = __webpack_require__(179)();
+	// imports
+
+
+	// module
+	exports.push([module.id, ".content {\n  padding-top: 70px;\n}\n", ""]);
+
+	// exports
+
+
+/***/ },
+/* 198 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
