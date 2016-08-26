@@ -1,5 +1,6 @@
 import React from 'react';
-require('../styles/modules/current-todos.css');
+require('../styles/modules/current-todos');
+require('../styles/modules/icons');
 
 export default class CurrentTodoList extends React.Component {
   onCheck(todo) {
@@ -50,53 +51,56 @@ export default class CurrentTodoList extends React.Component {
     if (!this.props.currentTodos) { return (<div />); }
 
     return (
-      <div className='current-todos'>
-        <h1 className='big-rocks-header'>Top Sifted Items</h1>
+      <div className={`current-todos ${this.props.isFullscreen ? 'fullscreen' : ''}`}>
+        <div className='current-todos-inner'>
+          <i onClick={this.props.onToggleFullscreen} className='expand-icon'/>
+          <h1 className='big-rocks-header'>Top Sifted Items</h1>
 
-        {!this.bigRocks().length && (
-           <div className='no-rocks'>
-             <i className='sifted-icon'/>
-             Sift through your list and put your highest priority tasks here
-             <div className='sub'>Double click items to bring them here</div>
-           </div>
-        )}
+          {!this.bigRocks().length && (
+            <div className='no-rocks'>
+              <i className='sifted-icon'/>
+              Sift through your list and put your highest priority tasks here
+              <div className='sub'>Double click items to bring them here</div>
+            </div>
+          )}
 
-        <ul className='big-rocks'>
-          {_.map(this.bigRocks(), todo => {
-             return (
-               <li className={`todo ${todo.percent_complete == 100 && 'checked'}`} key={todo.id || todo.key} onDoubleClick={_.partial(this.onToggleBigRock.bind(this), todo)}>
-                 <div className='checkbox-col'>
-                   <div className={`checkbox ${todo.percent_complete == 100 && 'checked'}`} onClick={_.partial(this.onCheck.bind(this), todo)} />
-                 </div>
-                 <div className='todo-name-col'>
-                   {todo.name}
-                 </div>
-                 <div className='current-button-col'>
-                   <button onClick={_.partial(this.onToggleCurrent.bind(this), todo)} className={`current-button ${todo.is_current && 'active'}`} />
-                 </div>
-               </li>
-             );
-           })}
-        </ul>
+          <ul className='big-rocks'>
+            {_.map(this.bigRocks(), todo => {
+              return (
+                <li className={`todo ${todo.percent_complete == 100 && 'checked'}`} key={todo.id || todo.key} onDoubleClick={_.partial(this.onToggleBigRock.bind(this), todo)}>
+                  <div className='checkbox-col'>
+                    <div className={`checkbox ${todo.percent_complete == 100 && 'checked'}`} onClick={_.partial(this.onCheck.bind(this), todo)} />
+                  </div>
+                  <div className='todo-name-col'>
+                    {todo.name}
+                  </div>
+                  <div className='current-button-col'>
+                    <button onClick={_.partial(this.onToggleCurrent.bind(this), todo)} className={`current-button ${todo.is_current && 'active'}`} />
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
 
-        <h2 className='other-current-header'>Other</h2>
-        <ul className='other-rocks'>
-          {_.map(this.otherCurrentTodos(), todo => {
-             return (
-               <li className={`todo ${todo.percent_complete == 100 && 'checked'}`} key={todo.id || todo.key} onDoubleClick={_.partial(this.onToggleBigRock.bind(this), todo)}>
-                 <div className='checkbox-col'>
-                   <div className={`checkbox ${todo.percent_complete == 100 && 'checked'}`} onClick={_.partial(this.onCheck.bind(this), todo)} />
-                 </div>
-                 <div className='todo-name-col'>
-                   {todo.name}
-                 </div>
-                 <div className='current-button-col'>
-                   <button onClick={_.partial(this.onToggleCurrent.bind(this), todo)} className={`current-button ${todo.is_current && 'active'}`} />
-                 </div>
-               </li>
-             );
-           })}
-        </ul>
+          <h2 className='other-current-header'>Other</h2>
+          <ul className='other-rocks'>
+            {_.map(this.otherCurrentTodos(), todo => {
+              return (
+                <li className={`todo ${todo.percent_complete == 100 && 'checked'}`} key={todo.id || todo.key} onDoubleClick={_.partial(this.onToggleBigRock.bind(this), todo)}>
+                  <div className='checkbox-col'>
+                    <div className={`checkbox ${todo.percent_complete == 100 && 'checked'}`} onClick={_.partial(this.onCheck.bind(this), todo)} />
+                  </div>
+                  <div className='todo-name-col'>
+                    {todo.name}
+                  </div>
+                  <div className='current-button-col'>
+                    <button onClick={_.partial(this.onToggleCurrent.bind(this), todo)} className={`current-button ${todo.is_current && 'active'}`} />
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
       </div>
     );
   }
@@ -107,5 +111,7 @@ CurrentTodoList.propTypes = {
     id: React.PropTypes.number,
     name: React.PropTypes.string
   })),
-  onUpdateTodo: React.PropTypes.func
+  onUpdateTodo: React.PropTypes.func,
+  onToggleFullscreen: React.PropTypes.func,
+  isFullscreen: React.PropTypes.bool
 };

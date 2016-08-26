@@ -11,7 +11,9 @@ require('./styles/modules/content');
 export default class BigRocksApp extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {};
+    this.state = {
+      isFullscreen: false
+    };
     this.api = new Api(this.props.currentUser);
   }
 
@@ -98,6 +100,12 @@ export default class BigRocksApp extends React.Component {
     });
   }
 
+  toggleFullscreen() {
+    this.setState({
+      isFullscreen: !this.state.isFullscreen
+    });
+  }
+
   render() {
     return (
       <div className='big-rocks-app'>
@@ -105,9 +113,9 @@ export default class BigRocksApp extends React.Component {
           <a href="/">TeamGantt</a>
         </header>
         <div className='content'>
-          <TodoListSidebar todoLists={this.state.todoLists} currentList={this.state.todoList} onClickList={this.showTodos.bind(this)}/>
-          <TodoList onAddTodo={this.addTodo.bind(this)} onUpdateTodo={this.updateTodo.bind(this)} todoList={this.state.todoList} todos={this.state.todos}/>
-          <CurrentTodoList currentTodos={this.state.currentTodos} onUpdateTodo={this.updateTodo.bind(this)} />
+          {!this.state.isFullscreen && (<TodoListSidebar todoLists={this.state.todoLists} currentList={this.state.todoList} onClickList={this.showTodos.bind(this)}/>)}
+          {!this.state.isFullscreen && (<TodoList onAddTodo={this.addTodo.bind(this)} onUpdateTodo={this.updateTodo.bind(this)} todoList={this.state.todoList} todos={this.state.todos}/>)}
+          <CurrentTodoList isFullscreen={this.state.isFullscreen} onToggleFullscreen={this.toggleFullscreen.bind(this)} currentTodos={this.state.currentTodos} onUpdateTodo={this.updateTodo.bind(this)} />
         </div>
       </div>
     );

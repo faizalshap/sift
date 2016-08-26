@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="20px" height="20px" viewBox="0 0 20 20" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 39.1 (31720) - http://www.bohemiancoding.com/sketch -->
+    <title>btn_expand</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="TeamGantt-Big-Rocks" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="task_list_big_rock_desktop" transform="translate(-1403.000000, -93.000000)" fill="#C0C0C0">
+            <g id="Sifted-Side-Panel" transform="translate(1065.000000, 70.000000)">
+                <g id="btn_expand" transform="translate(338.000000, 23.000000)">
+                    <path d="M10,20 C4.477,20 0,15.523 0,10 C0,4.477 4.477,0 10,0 C15.523,0 20,4.477 20,10 C20,15.523 15.523,20 10,20 L10,20 Z M10,2 C5.582,2 2,5.582 2,10 C2,14.418 5.582,18 10,18 C14.418,18 18,14.418 18,10 C18,5.582 14.418,2 10,2 L10,2 Z M14.01,9 L14.01,14.006 L9.004,14.006 L10.804,12.206 L7.794,9.196 L5.994,10.996 L5.994,5.99 L11,5.99 L9.2,7.79 L12.21,10.8 L14.01,9 Z" id="Shape"></path>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

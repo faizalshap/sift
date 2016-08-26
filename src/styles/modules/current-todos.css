@@ -6,6 +6,20 @@
   overflow: auto;
   width: 374px;
   padding-bottom: 75px;
+  .current-todos-inner {
+    background-color: white;
+    position: relative;
+  }
+  &.fullscreen {
+    width: auto;
+    padding: 0 200px;
+  }
+  .expand-icon {
+    cursor: pointer;
+    position: absolute;
+    right: 17px;
+    top: 21px;
+  }
   .big-rocks-header {
     padding: 50px 0 30px 30px;
     color: #373636;
