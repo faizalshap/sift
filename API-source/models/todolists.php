@@ -34,7 +34,7 @@
                                               'user_id' => (int) $row['user_id'],
                                               'name' => $row['name'],
                                               'todo_count' => (int) $row['todo_count']
-                                            )));
+                                          )));
       }
       return $lists;
     }
