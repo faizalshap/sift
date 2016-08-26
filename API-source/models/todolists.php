@@ -27,7 +27,7 @@
                   LEFT OUTER JOIN todos AS t ON t.todolist_id = tl.id
                     WHERE tl.user_id = ".$logged_in_user->id;
       $query .= ($list_id != NULL) ? " AND tl.id = '".$list_id."'" : ' AND tl.is_hidden = 0';
-      $query .= " ORDER BY name ASC";
+      $query .= " GROUP BY tl.id ORDER BY name ASC";
       $result = mysql_query($query);
       while($row = mysql_fetch_assoc($result)) {
         array_push($lists, new TodoList(array('id' => (int) $row['id'],
