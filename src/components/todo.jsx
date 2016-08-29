@@ -55,7 +55,7 @@ export default class Todo extends React.Component {
           {todo.name}
         </div>
         <div className='current-button-col'>
-          <button onClick={this.onDestroyTodo.bind(this)} className='destroy'>×</button>
+          <button onClick={this.onDestroyTodo.bind(this)} className='link destroy'>×</button>
           <button onClick={this.onToggleCurrent.bind(this)} className={`current-button ${todo.isCurrent && 'active'}`} />
         </div>
       </li>

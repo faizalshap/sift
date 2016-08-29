@@ -67,6 +67,12 @@ export default class Api {
     return this.apiReq(`todolists`, {
       method: 'post',
       data: todoList
-    })
+    });
+  }
+
+  destroyTodoList(todoListId) {
+    return this.apiReq(`todolists/${todoListId}`, {
+      method: 'delete'
+    });
   }
 };

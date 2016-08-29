@@ -51,6 +51,27 @@ export default class BigRocksApp extends React.Component {
     });
   }
 
+  destroyTodoList(destroyedTodoList) {
+    this.setState({
+      todoListsAreLoading: true
+    });
+
+
+    this.api.destroyTodoList(destroyedTodoList.id).then(() => {
+      const newTodoLists = _.reject(this.state.todoLists, todoList => todoList.id == destroyedTodoList.id);
+
+      if (this.state.todoList.id == destroyedTodoList.id) {
+        this.showTodos(newTodoLists[0]);
+      }
+
+      this.setState({
+        todoListsAreLoading: false,
+        todoLists: newTodoLists,
+        currentTodos: _.reject(this.state.currentTodos, todo => todo.todolistId == destroyedTodoList.id)
+      });
+    })
+  }
+
   addTodo(todoName) {
     let todo = {
       isCurrent: null,
@@ -151,7 +172,7 @@ export default class BigRocksApp extends React.Component {
           <a href="/">TeamGantt</a>
         </header>
         <div className='content'>
-          {!this.state.isFullscreen && (<TodoListSidebar todoListsAreLoading={this.state.todoListsAreLoading} todoLists={this.state.todoLists} currentList={this.state.todoList} onClickList={this.showTodos.bind(this)} onAddTodoList={this.addTodoList.bind(this)}/>)}
+          {!this.state.isFullscreen && (<TodoListSidebar todoListsAreLoading={this.state.todoListsAreLoading} todoLists={this.state.todoLists} currentList={this.state.todoList} onClickList={this.showTodos.bind(this)} onAddTodoList={this.addTodoList.bind(this)} onDestroyTodoList={this.destroyTodoList.bind(this)}/>)}
           {!this.state.isFullscreen && (<TodoList onAddTodo={this.addTodo.bind(this)} onDestroyTodo={this.destroyTodo.bind(this)} onUpdateTodo={this.updateTodo.bind(this)} todoList={this.state.todoList} todos={this.state.todos}/>)}
           <CurrentTodoList isFullscreen={this.state.isFullscreen} onToggleFullscreen={this.toggleFullscreen.bind(this)} onDestroyTodo={this.destroyTodo.bind(this)} currentTodos={this.state.currentTodos} onUpdateTodo={this.updateTodo.bind(this)} />
         </div>

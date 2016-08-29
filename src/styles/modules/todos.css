@@ -38,8 +38,7 @@
     }
   }
   .destroy {
-    border: none;
-    background: transparent;
+    visibility: hidden;
     height: 16px;
     line-height: 16px;
     font-size: 20px;
@@ -62,6 +61,11 @@
     background: white;
     &.active {
       background: #A2DEDB;
+    }
+  }
+  &:hover {
+    .destroy {
+      visibility: visible;
     }
   }
 }
