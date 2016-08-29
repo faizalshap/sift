@@ -27,22 +27,25 @@
           $todos = array();
           foreach($teamgantt_tasks as $task) {
             //SETUP RESOURCES IN ADVANCE
-            $resource_array = array();
-            foreach($task->resources as $resource) {
-              $resource_data = (object) array('name' => $resource->name,
-                                              'pic' => $resource->pic);
-              array_push($resource_array, $resource_data);
-            }
+            if($task->percent_complete != 100) {
+              $resource_array = array();
+              foreach($task->resources as $resource) {
+                $resource_data = (object) array('name' => $resource->name,
+                                                'pic' => $resource->pic);
+                array_push($resource_array, $resource_data);
+              }
 
-            $todo = new Todo( array('name' => $task->name,
-                                    'percent_complete' => $task->percent_complete,
-                                    'teamgantt_id' => $task->id,
-                                    'teamgantt_meta' => (object) array('project_name' => $task->project_name,
-                                                                        'group_name' => $task->group_name,
-                                                                        'end_date' => $task->end_date,
-                                                                        'resources' => $resource_array)
-                          ));
-            array_push($todos, $todo);
+              $todo = new Todo( array('todolist_id' => 'teamgantt',
+                                      'name' => $task->name,
+                                      'percent_complete' => $task->percent_complete,
+                                      'teamgantt_id' => $task->id,
+                                      'teamgantt_meta' => (object) array('project_name' => $task->project_name,
+                                                                          'group_name' => $task->group_name,
+                                                                          'end_date' => $task->end_date,
+                                                                          'resources' => $resource_array)
+                            ));
+              array_push($todos, $todo);
+            }
           }
           return $todos;
         }
