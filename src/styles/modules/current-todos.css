@@ -12,6 +12,7 @@
   }
   &.fullscreen {
     width: auto;
+    left: 0;
     padding: 0 200px;
   }
   .expand-icon {
