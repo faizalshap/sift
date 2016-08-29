@@ -22,6 +22,13 @@
 
     public static function show_all($logged_in_user, $list_id = NULL) {
       $lists = array();
+
+      //DISPLAY TEAMGANTT LIST
+      array_push($lists, new TodoList(array('id' => 'teamgantt',
+                                            'user_id' => $logged_in_user->id,
+                                            'name' => 'My TeamGantt Tasks'
+                                        )));
+
       $query = "SELECT
                 tl.id,
                 tl.user_id,
