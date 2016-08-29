@@ -111,7 +111,7 @@
       }
       else {
         mysql_update('todolists',
-                      array('name' => $this->name
+                      array('name' => $this->name,
                             'updated_at' => $this->updated_at),
                       array('id' => $this->id),
                       1);
