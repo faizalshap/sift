@@ -1,4 +1,5 @@
 import React from 'react';
+import Todo from './todo';
 require('../styles/modules/todo-lists');
 require('../styles/modules/todos');
 
@@ -25,38 +26,6 @@ export default class TodoList extends React.Component {
     }
   }
 
-  onCheck(todo) {
-    let updatedTodo = {
-      ...todo,
-      percent_complete: (todo.percent_complete == 100
-        ? 0
-        : 100)
-    };
-
-    this.props.onUpdateTodo(updatedTodo);
-  }
-
-  onToggleCurrent(todo) {
-    let updatedTodo = {
-      ...todo,
-      is_current: !todo.is_current
-    };
-
-    this.props.onUpdateTodo(updatedTodo);
-  }
-
-  onToggleBigRock(todo) {
-    let isNowBigRock = !todo.is_big_rock;
-
-    let updatedTodo = {
-      ...todo,
-      is_current: (isNowBigRock ? true : todo.is_current),
-      is_big_rock: isNowBigRock
-    };
-
-    this.props.onUpdateTodo(updatedTodo);
-  }
-
   render() {
     if (!this.props.todoList) {
       return (<div/>);
@@ -68,20 +37,8 @@ export default class TodoList extends React.Component {
           <h1 className='todo-list-name'>{this.props.todoList.name}</h1>
           <div className='todo-list-inner'>
             <ul>
-              {_(this.props.todos).sortBy(['percent_complete', 'created_at']).map(todo => {
-                return (
-                  <li className={`todo ${todo.percent_complete == 100 && 'checked'}`} key={todo.id || todo.key} onDoubleClick={_.partial(this.onToggleBigRock.bind(this), todo)}>
-                    <div className='checkbox-col'>
-                      <div className={`checkbox ${todo.percent_complete == 100 && 'checked'}`} onClick={_.partial(this.onCheck.bind(this), todo)} />
-                    </div>
-                    <div className='todo-name-col'>
-                      {todo.name}
-                    </div>
-                    <div className='current-button-col'>
-                      <button onClick={_.partial(this.onToggleCurrent.bind(this), todo)} className={`current-button ${todo.is_current && 'active'}`} />
-                    </div>
-                  </li>
-                );
+              {_(this.props.todos).sortBy(['percentComplete', 'createdAt']).map(todo => {
+                return (<Todo todo={todo} key={todo.id || todo.key} onDestroyTodo={this.props.onDestroyTodo} onUpdateTodo={this.props.onUpdateTodo} />);
               }).value()}
             </ul>
           </div>
@@ -96,5 +53,6 @@ TodoList.propTypes = {
   todos: React.PropTypes.arrayOf(React.PropTypes.shape({id: React.PropTypes.number, name: React.PropTypes.string})),
   todoList: React.PropTypes.shape({id: React.PropTypes.number, name: React.PropTypes.string}),
   onAddTodo: React.PropTypes.func,
+  onDestroyTodo: React.PropTypes.func,
   onUpdateTodo: React.PropTypes.func
 };

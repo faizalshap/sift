@@ -36,15 +36,51 @@ export default class BigRocksApp extends React.Component {
     this.api.getTodos(todoList.id).then(todos => this.setState({ todos: todos }));
   }
 
+  addTodoList(name) {
+    this.setState({
+      todoListsAreLoading: true
+    });
+
+    this.api.addTodoList({ name }).then(todoList => {
+      this.setState({
+        todoLists: [ ...this.state.todoLists, todoList ],
+        todoListsAreLoading: false,
+        todoList: todoList,
+        todos: []
+      });
+    });
+  }
+
+  destroyTodoList(destroyedTodoList) {
+    this.setState({
+      todoListsAreLoading: true
+    });
+
+
+    this.api.destroyTodoList(destroyedTodoList.id).then(() => {
+      const newTodoLists = _.reject(this.state.todoLists, todoList => todoList.id == destroyedTodoList.id);
+
+      if (this.state.todoList.id == destroyedTodoList.id) {
+        this.showTodos(newTodoLists[0]);
+      }
+
+      this.setState({
+        todoListsAreLoading: false,
+        todoLists: newTodoLists,
+        currentTodos: _.reject(this.state.currentTodos, todo => todo.todolistId == destroyedTodoList.id)
+      });
+    })
+  }
+
   addTodo(todoName) {
     let todo = {
-      for_today: null,
-      is_big_rock: false,
+      isCurrent: null,
+      isBigRock: false,
       name: todoName,
-      percent_complete: 0,
-      todolist_id: this.state.todoList.id,
+      percentComplete: 0,
+      todolistId: this.state.todoList.id,
       key: Math.round(Math.random() * 1000),
-      created_at: new Date().toISOString().substring(0, 19).replace('T', ' ')
+      createdAt: new Date().toISOString().substring(0, 19).replace('T', ' ')
     };
     let oldTodos = this.state.todos;
 
@@ -52,6 +88,29 @@ export default class BigRocksApp extends React.Component {
 
     this.api.addTodo(this.state.todoList.id, todo).then(persistedTodo => {
       this.setState({ todos: [...(oldTodos || []), persistedTodo]});
+    });
+  }
+
+  destroyTodo(destroyedTodo) {
+    let oldTodoLists = {
+      todos: this.state.todos,
+      currentTodos: this.state.currentTodos
+    };
+
+    _.each(oldTodoLists, (todoList, todoListKey) => {
+      this.setState({
+        [todoListKey]: _.reject(oldTodoLists[todoListKey], todo => todo.id == destroyedTodo.id)
+      });
+    });
+
+    this.api.destroyTodo(destroyedTodo.listId, destroyedTodo.id).catch(error => {
+      alert('error: ' + error);
+
+      _.each(oldTodoLists, (todoList, todoListKey) => {
+        this.setState({
+          [todoListKey]: todoList
+        });
+      });
     });
   }
 
@@ -75,10 +134,10 @@ export default class BigRocksApp extends React.Component {
       }
 
       if (todoListKey == 'currentTodos') {
-        if (updatedTodo.is_current && !todoWasInCurrent) {
+        if (updatedTodo.isCurrent && !todoWasInCurrent) {
           // Add to current if not there and it should be
           newTodoList = [...newTodoList, updatedTodo];
-        } else if (!updatedTodo.is_current && todoWasInCurrent) {
+        } else if (!updatedTodo.isCurrent && todoWasInCurrent) {
           // Remove from current if there and it shouldn't be
           newTodoList = _.reject(newTodoList, todo => todo.id == updatedTodo.id);
         }
@@ -89,7 +148,7 @@ export default class BigRocksApp extends React.Component {
       });
     });
 
-    this.api.updateTodo(updatedTodo.todolist_id, updatedTodo.id, updatedTodo).catch(error => {
+    this.api.updateTodo(updatedTodo.todolistId, updatedTodo.id, updatedTodo).catch(error => {
       alert('error: ' + error);
 
       _.each(oldTodoLists, (todoList, todoListKey) => {
@@ -113,9 +172,9 @@ export default class BigRocksApp extends React.Component {
           <a href="/">TeamGantt</a>
         </header>
         <div className='content'>
-          {!this.state.isFullscreen && (<TodoListSidebar todoLists={this.state.todoLists} currentList={this.state.todoList} onClickList={this.showTodos.bind(this)}/>)}
-          {!this.state.isFullscreen && (<TodoList onAddTodo={this.addTodo.bind(this)} onUpdateTodo={this.updateTodo.bind(this)} todoList={this.state.todoList} todos={this.state.todos}/>)}
-          <CurrentTodoList isFullscreen={this.state.isFullscreen} onToggleFullscreen={this.toggleFullscreen.bind(this)} currentTodos={this.state.currentTodos} onUpdateTodo={this.updateTodo.bind(this)} />
+          {!this.state.isFullscreen && (<TodoListSidebar todoListsAreLoading={this.state.todoListsAreLoading} todoLists={this.state.todoLists} currentList={this.state.todoList} onClickList={this.showTodos.bind(this)} onAddTodoList={this.addTodoList.bind(this)} onDestroyTodoList={this.destroyTodoList.bind(this)}/>)}
+          {!this.state.isFullscreen && (<TodoList onAddTodo={this.addTodo.bind(this)} onDestroyTodo={this.destroyTodo.bind(this)} onUpdateTodo={this.updateTodo.bind(this)} todoList={this.state.todoList} todos={this.state.todos}/>)}
+          <CurrentTodoList isFullscreen={this.state.isFullscreen} onToggleFullscreen={this.toggleFullscreen.bind(this)} onDestroyTodo={this.destroyTodo.bind(this)} currentTodos={this.state.currentTodos} onUpdateTodo={this.updateTodo.bind(this)} />
         </div>
       </div>
     );
@@ -124,8 +183,8 @@ export default class BigRocksApp extends React.Component {
 
 BigRocksApp.propTypes = {
   currentUser: React.PropTypes.shape({
-    user_id: React.PropTypes.number,
-    user_key: React.PropTypes.string,
-    user_token: React.PropTypes.string
+    userId: React.PropTypes.number,
+    userKey: React.PropTypes.string,
+    userToken: React.PropTypes.string
   })
 }

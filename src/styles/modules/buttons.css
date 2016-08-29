@@ -1,0 +1,10 @@
+button {
+  cursor: pointer;
+
+  &.link {
+    border: none;
+    background: transparent;
+    display: inline;
+    padding: 0;
+  }
+}

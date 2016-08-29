@@ -18,6 +18,9 @@
   .todo-list-links {
     margin-top: 10px;
   }
+  .inbox {
+    background: url(/src/img/inbox-icon.svg) 34px center no-repeat;
+  }
   li {
     cursor: pointer;
     padding: 15px 0 15px 55px;
@@ -33,15 +36,44 @@
       color: #373636;
     }
 
+    .name {
+      display: inline;
+    }
+
+    .destroy {
+      visibility: hidden;
+      font-size: 20px;
+      height: 16px;
+      line-height: 16px;
+      float: right;
+      margin-right: 15px;
+
+      &:hover {
+        opacity: 0.4;
+      }
+    }
+
     &:hover {
-      text-decoration: underline;
+      .name {
+        text-decoration: underline;
+      }
+
+      .destroy {
+        visibility: visible;
+      }
     }
   }
-  .add-item {
-    height: 21px;
-    width: 21px;
-    margin: -19px 18px 0 0;
-    float: right;
-    background-image: url(/src/img/btn-add-item.png);
+  .add-todo-list {
+    border: 0;
+    outline: none;
+    padding: 15px 0 15px 85px;
+    background: white url(/src/img/btn-add-item.svg) 55px center no-repeat;
+
+    &::placeholder {
+      color: #5CBCD6;
+      text-transform: uppercase;
+      letter-spacing: 1.71px;
+      font-size: 0.7em;
+    }
   }
 }

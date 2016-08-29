@@ -1,50 +1,21 @@
 import React from 'react';
+import Todo from './todo';
 require('../styles/modules/current-todos');
 require('../styles/modules/icons');
 
 export default class CurrentTodoList extends React.Component {
-  onCheck(todo) {
-    let updatedTodo = {
-      ...todo,
-      percent_complete: (todo.percent_complete == 100 ? 0 : 100)
-    };
-
-    this.props.onUpdateTodo(updatedTodo);
-  }
-
   bigRocks() {
     return _(this.props.currentTodos)
-      .filter(todo => todo.is_big_rock)
-      .sortBy(['percent_complete', 'created_at'])
+      .filter(todo => todo.isBigRock)
+      .sortBy(['percentComplete', 'createdAt'])
       .value();
   }
 
   otherCurrentTodos() {
     return _(this.props.currentTodos)
-      .reject(todo => todo.is_big_rock)
-      .sortBy(['percent_complete', 'created_at'])
+      .reject(todo => todo.isBigRock)
+      .sortBy(['percentComplete', 'createdAt'])
       .value();
-  }
-
-  onToggleCurrent(todo) {
-    let updatedTodo = {
-      ...todo,
-      is_current: !todo.is_current
-    };
-
-    this.props.onUpdateTodo(updatedTodo);
-  }
-
-  onToggleBigRock(todo) {
-    let isNowBigRock = !todo.is_big_rock;
-
-    let updatedTodo = {
-      ...todo,
-      is_current: (isNowBigRock ? true : todo.is_current),
-      is_big_rock: isNowBigRock
-    };
-
-    this.props.onUpdateTodo(updatedTodo);
   }
 
   render() {
@@ -66,38 +37,14 @@ export default class CurrentTodoList extends React.Component {
 
           <ul className='big-rocks'>
             {_.map(this.bigRocks(), todo => {
-              return (
-                <li className={`todo ${todo.percent_complete == 100 && 'checked'}`} key={todo.id || todo.key} onDoubleClick={_.partial(this.onToggleBigRock.bind(this), todo)}>
-                  <div className='checkbox-col'>
-                    <div className={`checkbox ${todo.percent_complete == 100 && 'checked'}`} onClick={_.partial(this.onCheck.bind(this), todo)} />
-                  </div>
-                  <div className='todo-name-col'>
-                    {todo.name}
-                  </div>
-                  <div className='current-button-col'>
-                    <button onClick={_.partial(this.onToggleCurrent.bind(this), todo)} className={`current-button ${todo.is_current && 'active'}`} />
-                  </div>
-                </li>
-              );
+              return (<Todo todo={todo} key={todo.id || todo.key} onDestroyTodo={this.props.onDestroyTodo} onUpdateTodo={this.props.onUpdateTodo} />);
             })}
           </ul>
 
           <h2 className='other-current-header'>Other</h2>
           <ul className='other-rocks'>
             {_.map(this.otherCurrentTodos(), todo => {
-              return (
-                <li className={`todo ${todo.percent_complete == 100 && 'checked'}`} key={todo.id || todo.key} onDoubleClick={_.partial(this.onToggleBigRock.bind(this), todo)}>
-                  <div className='checkbox-col'>
-                    <div className={`checkbox ${todo.percent_complete == 100 && 'checked'}`} onClick={_.partial(this.onCheck.bind(this), todo)} />
-                  </div>
-                  <div className='todo-name-col'>
-                    {todo.name}
-                  </div>
-                  <div className='current-button-col'>
-                    <button onClick={_.partial(this.onToggleCurrent.bind(this), todo)} className={`current-button ${todo.is_current && 'active'}`} />
-                  </div>
-                </li>
-              );
+              return (<Todo todo={todo} key={todo.id || todo.key} onDestroyTodo={this.props.onDestroyTodo} onUpdateTodo={this.props.onUpdateTodo} />);
             })}
           </ul>
         </div>
@@ -111,6 +58,7 @@ CurrentTodoList.propTypes = {
     id: React.PropTypes.number,
     name: React.PropTypes.string
   })),
+  onDestroyTodo: React.PropTypes.func,
   onUpdateTodo: React.PropTypes.func,
   onToggleFullscreen: React.PropTypes.func,
   isFullscreen: React.PropTypes.bool
