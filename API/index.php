@@ -2,7 +2,7 @@
   //SET HEADERS
   header('Access-Control-Allow-Origin: *');
   header('Access-Control-Allow-Methods: OPTIONS, GET, POST, PUT, DELETE, PATCH');
-  header('Access-Control-Allow-Headers: Origin, X-Requested-Wit, S-Api-Key, S-User-Token, Content-Type, X-Requested-With, Authorization, Accept.');
+  header('Access-Control-Allow-Headers: Origin, S-Api-Key, S-User-Token, Content-Type, X-Requested-With, Authorization, Accept.');
   header('Cache-Control: no-cache, must-revalidate'); // HTTP/1.1
   header('Expires: Sat, 26 Jul 1997 05:00:00 GMT'); // Date in the past
   header('Content-Type: application/json');
