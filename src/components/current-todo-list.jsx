@@ -37,14 +37,14 @@ export default class CurrentTodoList extends React.Component {
 
           <ul className='big-rocks'>
             {_.map(this.bigRocks(), todo => {
-              return (<Todo todo={todo} key={todo.id || todo.key} onUpdateTodo={this.props.onUpdateTodo} />);
+              return (<Todo todo={todo} key={todo.id || todo.key} onDestroyTodo={this.props.onDestroyTodo} onUpdateTodo={this.props.onUpdateTodo} />);
             })}
           </ul>
 
           <h2 className='other-current-header'>Other</h2>
           <ul className='other-rocks'>
             {_.map(this.otherCurrentTodos(), todo => {
-              return (<Todo todo={todo} key={todo.id || todo.key} onUpdateTodo={this.props.onUpdateTodo} />);
+              return (<Todo todo={todo} key={todo.id || todo.key} onDestroyTodo={this.props.onDestroyTodo} onUpdateTodo={this.props.onUpdateTodo} />);
             })}
           </ul>
         </div>
@@ -58,6 +58,7 @@ CurrentTodoList.propTypes = {
     id: React.PropTypes.number,
     name: React.PropTypes.string
   })),
+  onDestroyTodo: React.PropTypes.func,
   onUpdateTodo: React.PropTypes.func,
   onToggleFullscreen: React.PropTypes.func,
   isFullscreen: React.PropTypes.bool

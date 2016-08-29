@@ -55,6 +55,29 @@ export default class BigRocksApp extends React.Component {
     });
   }
 
+  destroyTodo(destroyedTodo) {
+    let oldTodoLists = {
+      todos: this.state.todos,
+      currentTodos: this.state.currentTodos
+    };
+
+    _.each(oldTodoLists, (todoList, todoListKey) => {
+      this.setState({
+        [todoListKey]: _.reject(oldTodoLists[todoListKey], todo => todo.id == destroyedTodo.id)
+      });
+    });
+
+    this.api.destroyTodo(destroyedTodo.listId, destroyedTodo.id).catch(error => {
+      alert('error: ' + error);
+
+      _.each(oldTodoLists, (todoList, todoListKey) => {
+        this.setState({
+          [todoListKey]: todoList
+        });
+      });
+    });
+  }
+
   // You should be ashamed of yourself... even for a hackathon.
   updateTodo(updatedTodo) {
     let oldTodoLists = {
@@ -114,8 +137,8 @@ export default class BigRocksApp extends React.Component {
         </header>
         <div className='content'>
           {!this.state.isFullscreen && (<TodoListSidebar todoLists={this.state.todoLists} currentList={this.state.todoList} onClickList={this.showTodos.bind(this)}/>)}
-          {!this.state.isFullscreen && (<TodoList onAddTodo={this.addTodo.bind(this)} onUpdateTodo={this.updateTodo.bind(this)} todoList={this.state.todoList} todos={this.state.todos}/>)}
-          <CurrentTodoList isFullscreen={this.state.isFullscreen} onToggleFullscreen={this.toggleFullscreen.bind(this)} currentTodos={this.state.currentTodos} onUpdateTodo={this.updateTodo.bind(this)} />
+          {!this.state.isFullscreen && (<TodoList onAddTodo={this.addTodo.bind(this)} onDestroyTodo={this.destroyTodo.bind(this)} onUpdateTodo={this.updateTodo.bind(this)} todoList={this.state.todoList} todos={this.state.todos}/>)}
+          <CurrentTodoList isFullscreen={this.state.isFullscreen} onToggleFullscreen={this.toggleFullscreen.bind(this)} onDestroyTodo={this.destroyTodo.bind(this)} currentTodos={this.state.currentTodos} onUpdateTodo={this.updateTodo.bind(this)} />
         </div>
       </div>
     );

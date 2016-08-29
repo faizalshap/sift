@@ -50,6 +50,12 @@ export default class Api {
     });
   }
 
+  destroyTodo(todoListId, todoId) {
+    return this.apiReq(`todolists/${todoListId}/todos/${todoId}`, {
+      method: 'delete'
+    });
+  }
+
   updateTodo(todoListId, todoId, updatedTodo) {
     return this.apiReq(`todolists/${todoListId}/todos/${todoId}`, {
       method: 'put',

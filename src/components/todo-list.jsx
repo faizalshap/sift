@@ -38,7 +38,7 @@ export default class TodoList extends React.Component {
           <div className='todo-list-inner'>
             <ul>
               {_(this.props.todos).sortBy(['percentComplete', 'createdAt']).map(todo => {
-                return (<Todo todo={todo} key={todo.id || todo.key} onUpdateTodo={this.props.onUpdateTodo} />);
+                return (<Todo todo={todo} key={todo.id || todo.key} onDestroyTodo={this.props.onDestroyTodo} onUpdateTodo={this.props.onUpdateTodo} />);
               }).value()}
             </ul>
           </div>
@@ -53,5 +53,6 @@ TodoList.propTypes = {
   todos: React.PropTypes.arrayOf(React.PropTypes.shape({id: React.PropTypes.number, name: React.PropTypes.string})),
   todoList: React.PropTypes.shape({id: React.PropTypes.number, name: React.PropTypes.string}),
   onAddTodo: React.PropTypes.func,
+  onDestroyTodo: React.PropTypes.func,
   onUpdateTodo: React.PropTypes.func
 };

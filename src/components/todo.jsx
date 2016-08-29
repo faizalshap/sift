@@ -34,6 +34,15 @@ export default class Todo extends React.Component {
     this.props.onUpdateTodo(updatedTodo);
   }
 
+  onDestroyTodo() {
+    const { todo } = this.props;
+    const confirmDestroy = confirm(`Are you sure you want to delete "${todo.name}"?  This can't be undone.`);
+
+    if (confirmDestroy) {
+      this.props.onDestroyTodo(todo);
+    }
+  }
+
   render() {
     const { todo } = this.props;
 
@@ -46,6 +55,7 @@ export default class Todo extends React.Component {
           {todo.name}
         </div>
         <div className='current-button-col'>
+          <button onClick={this.onDestroyTodo.bind(this)} className='destroy'>×</button>
           <button onClick={this.onToggleCurrent.bind(this)} className={`current-button ${todo.isCurrent && 'active'}`} />
         </div>
       </li>
@@ -62,5 +72,6 @@ Todo.propTypes = {
     name: React.PropTypes.string,
     percentComplete: React.PropTypes.number
   }),
+  onDestroyTodo: React.PropTypes.func,
   onUpdateTodo: React.PropTypes.func
 }
