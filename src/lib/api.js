@@ -8,7 +8,7 @@ export default class Api {
 
   apiReq(path, options) {
     let reqOptions = {
-      url: `${process.env.API_URL}/${path}`,
+      url: `${API_URL}/${path}`,
       headers: {
         'S-Api-Key': this.user.userKey,
         'S-User-Token': this.user.userToken
