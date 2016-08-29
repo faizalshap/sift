@@ -33,7 +33,9 @@ module.exports = {
     }]
   },
   postcss: function () {
-    return [precss, postcssImport,
+    return [
+      precss,
+      postcssImport,
       customProperties,
       nested,
       lost(),
