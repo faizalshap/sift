@@ -62,4 +62,11 @@ export default class Api {
       data: updatedTodo
     });
   }
+
+  addTodoList(todoList) {
+    return this.apiReq(`todolists`, {
+      method: 'post',
+      data: todoList
+    })
+  }
 };
