@@ -75,7 +75,7 @@
 /* 2 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/**
+	/* WEBPACK VAR INJECTION */(function(process) {/**
 	 * Copyright 2013-present, Facebook, Inc.
 	 * All rights reserved.
 	 *
@@ -90,17 +90,17 @@
 
 	'use strict';
 
-	var ReactDOMComponentTree = __webpack_require__(3);
-	var ReactDefaultInjection = __webpack_require__(8);
+	var ReactDOMComponentTree = __webpack_require__(4);
+	var ReactDefaultInjection = __webpack_require__(9);
 	var ReactMount = __webpack_require__(155);
-	var ReactReconciler = __webpack_require__(34);
-	var ReactUpdates = __webpack_require__(31);
+	var ReactReconciler = __webpack_require__(35);
+	var ReactUpdates = __webpack_require__(32);
 	var ReactVersion = __webpack_require__(160);
 
 	var findDOMNode = __webpack_require__(161);
 	var getHostComponentFromComposite = __webpack_require__(162);
 	var renderSubtreeIntoContainer = __webpack_require__(163);
-	var warning = __webpack_require__(17);
+	var warning = __webpack_require__(18);
 
 	ReactDefaultInjection.inject();
 
@@ -139,8 +139,8 @@
 	  });
 	}
 
-	if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
-	  var ExecutionEnvironment = __webpack_require__(21);
+	if (process.env.NODE_ENV !== 'production') {
+	  var ExecutionEnvironment = __webpack_require__(22);
 	  if (ExecutionEnvironment.canUseDOM && window.top === window.self) {
 
 	    // First check if devtools is not installed
@@ -154,13 +154,13 @@
 	    }
 
 	    var testFunc = function testFn() {};
-	    ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? warning((testFunc.name || testFunc.toString()).indexOf('testFn') !== -1, 'It looks like you\'re using a minified copy of the development build ' + 'of React. When deploying React apps to production, make sure to use ' + 'the production build which skips development warnings and is faster. ' + 'See https://fb.me/react-minification for more details.') : void 0;
+	    process.env.NODE_ENV !== 'production' ? warning((testFunc.name || testFunc.toString()).indexOf('testFn') !== -1, 'It looks like you\'re using a minified copy of the development build ' + 'of React. When deploying React apps to production, make sure to use ' + 'the production build which skips development warnings and is faster. ' + 'See https://fb.me/react-minification for more details.') : void 0;
 
 	    // If we're in IE8, check to see if we are in compatibility mode and provide
 	    // information on preventing compatibility mode
 	    var ieCompatibilityMode = document.documentMode && document.documentMode < 8;
 
-	    ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? warning(!ieCompatibilityMode, 'Internet Explorer is running in compatibility mode; please add the ' + 'following tag to your HTML to prevent this from happening: ' + '<meta http-equiv="X-UA-Compatible" content="IE=edge" />') : void 0;
+	    process.env.NODE_ENV !== 'production' ? warning(!ieCompatibilityMode, 'Internet Explorer is running in compatibility mode; please add the ' + 'following tag to your HTML to prevent this from happening: ' + '<meta http-equiv="X-UA-Compatible" content="IE=edge" />') : void 0;
 
 	    var expectedFeatures = [
 	    // shims
@@ -168,15 +168,15 @@
 
 	    for (var i = 0; i < expectedFeatures.length; i++) {
 	      if (!expectedFeatures[i]) {
-	        ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? warning(false, 'One or more ES5 shims expected by React are not available: ' + 'https://fb.me/react-warning-polyfills') : void 0;
+	        process.env.NODE_ENV !== 'production' ? warning(false, 'One or more ES5 shims expected by React are not available: ' + 'https://fb.me/react-warning-polyfills') : void 0;
 	        break;
 	      }
 	    }
 	  }
 	}
 
-	if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
-	  var ReactInstrumentation = __webpack_require__(37);
+	if (process.env.NODE_ENV !== 'production') {
+	  var ReactInstrumentation = __webpack_require__(38);
 	  var ReactDOMUnknownPropertyHook = __webpack_require__(164);
 	  var ReactDOMNullInputValuePropHook = __webpack_require__(165);
 
@@ -185,12 +185,179 @@
 	}
 
 	module.exports = ReactDOM;
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ },
 /* 3 */
+/***/ function(module, exports) {
+
+	// shim for using process in browser
+	var process = module.exports = {};
+
+	// cached from whatever global is present so that test runners that stub it
+	// don't break things.  But we need to wrap it in a try catch in case it is
+	// wrapped in strict mode code which doesn't define any globals.  It's inside a
+	// function because try/catches deoptimize in certain engines.
+
+	var cachedSetTimeout;
+	var cachedClearTimeout;
+
+	(function () {
+	    try {
+	        cachedSetTimeout = setTimeout;
+	    } catch (e) {
+	        cachedSetTimeout = function () {
+	            throw new Error('setTimeout is not defined');
+	        }
+	    }
+	    try {
+	        cachedClearTimeout = clearTimeout;
+	    } catch (e) {
+	        cachedClearTimeout = function () {
+	            throw new Error('clearTimeout is not defined');
+	        }
+	    }
+	} ())
+	function runTimeout(fun) {
+	    if (cachedSetTimeout === setTimeout) {
+	        //normal enviroments in sane situations
+	        return setTimeout(fun, 0);
+	    }
+	    try {
+	        // when when somebody has screwed with setTimeout but no I.E. maddness
+	        return cachedSetTimeout(fun, 0);
+	    } catch(e){
+	        try {
+	            // When we are in I.E. but the script has been evaled so I.E. doesn't trust the global object when called normally
+	            return cachedSetTimeout.call(null, fun, 0);
+	        } catch(e){
+	            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error
+	            return cachedSetTimeout.call(this, fun, 0);
+	        }
+	    }
+
+
+	}
+	function runClearTimeout(marker) {
+	    if (cachedClearTimeout === clearTimeout) {
+	        //normal enviroments in sane situations
+	        return clearTimeout(marker);
+	    }
+	    try {
+	        // when when somebody has screwed with setTimeout but no I.E. maddness
+	        return cachedClearTimeout(marker);
+	    } catch (e){
+	        try {
+	            // When we are in I.E. but the script has been evaled so I.E. doesn't  trust the global object when called normally
+	            return cachedClearTimeout.call(null, marker);
+	        } catch (e){
+	            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error.
+	            // Some versions of I.E. have different rules for clearTimeout vs setTimeout
+	            return cachedClearTimeout.call(this, marker);
+	        }
+	    }
+
+
+
+	}
+	var queue = [];
+	var draining = false;
+	var currentQueue;
+	var queueIndex = -1;
+
+	function cleanUpNextTick() {
+	    if (!draining || !currentQueue) {
+	        return;
+	    }
+	    draining = false;
+	    if (currentQueue.length) {
+	        queue = currentQueue.concat(queue);
+	    } else {
+	        queueIndex = -1;
+	    }
+	    if (queue.length) {
+	        drainQueue();
+	    }
+	}
+
+	function drainQueue() {
+	    if (draining) {
+	        return;
+	    }
+	    var timeout = runTimeout(cleanUpNextTick);
+	    draining = true;
+
+	    var len = queue.length;
+	    while(len) {
+	        currentQueue = queue;
+	        queue = [];
+	        while (++queueIndex < len) {
+	            if (currentQueue) {
+	                currentQueue[queueIndex].run();
+	            }
+	        }
+	        queueIndex = -1;
+	        len = queue.length;
+	    }
+	    currentQueue = null;
+	    draining = false;
+	    runClearTimeout(timeout);
+	}
+
+	process.nextTick = function (fun) {
+	    var args = new Array(arguments.length - 1);
+	    if (arguments.length > 1) {
+	        for (var i = 1; i < arguments.length; i++) {
+	            args[i - 1] = arguments[i];
+	        }
+	    }
+	    queue.push(new Item(fun, args));
+	    if (queue.length === 1 && !draining) {
+	        runTimeout(drainQueue);
+	    }
+	};
+
+	// v8 likes predictible objects
+	function Item(fun, array) {
+	    this.fun = fun;
+	    this.array = array;
+	}
+	Item.prototype.run = function () {
+	    this.fun.apply(null, this.array);
+	};
+	process.title = 'browser';
+	process.browser = true;
+	process.env = {};
+	process.argv = [];
+	process.version = ''; // empty string to avoid regexp issues
+	process.versions = {};
+
+	function noop() {}
+
+	process.on = noop;
+	process.addListener = noop;
+	process.once = noop;
+	process.off = noop;
+	process.removeListener = noop;
+	process.removeAllListeners = noop;
+	process.emit = noop;
+
+	process.binding = function (name) {
+	    throw new Error('process.binding is not supported');
+	};
+
+	process.cwd = function () { return '/' };
+	process.chdir = function (dir) {
+	    throw new Error('process.chdir is not supported');
+	};
+	process.umask = function() { return 0; };
+
+
+/***/ },
+/* 4 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/**
+	/* WEBPACK VAR INJECTION */(function(process) {/**
 	 * Copyright 2013-present, Facebook, Inc.
 	 * All rights reserved.
 	 *
@@ -203,12 +370,12 @@
 
 	'use strict';
 
-	var _prodInvariant = __webpack_require__(4);
+	var _prodInvariant = __webpack_require__(5);
 
-	var DOMProperty = __webpack_require__(5);
-	var ReactDOMComponentFlags = __webpack_require__(7);
+	var DOMProperty = __webpack_require__(6);
+	var ReactDOMComponentFlags = __webpack_require__(8);
 
-	var invariant = __webpack_require__(6);
+	var invariant = __webpack_require__(7);
 
 	var ATTR_NAME = DOMProperty.ID_ATTRIBUTE_NAME;
 	var Flags = ReactDOMComponentFlags;
@@ -286,7 +453,7 @@
 	      }
 	    }
 	    // We reached the end of the DOM children without finding an ID match.
-	     true ? ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? invariant(false, 'Unable to find element with ID %s.', childID) : _prodInvariant('32', childID) : void 0;
+	     true ? process.env.NODE_ENV !== 'production' ? invariant(false, 'Unable to find element with ID %s.', childID) : _prodInvariant('32', childID) : void 0;
 	  }
 	  inst._flags |= Flags.hasCachedChildNodes;
 	}
@@ -345,7 +512,7 @@
 	function getNodeFromInstance(inst) {
 	  // Without this first invariant, passing a non-DOM-component triggers the next
 	  // invariant for a missing parent, which is super confusing.
-	  !(inst._hostNode !== undefined) ? ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? invariant(false, 'getNodeFromInstance: Invalid argument.') : _prodInvariant('33') : void 0;
+	  !(inst._hostNode !== undefined) ? process.env.NODE_ENV !== 'production' ? invariant(false, 'getNodeFromInstance: Invalid argument.') : _prodInvariant('33') : void 0;
 
 	  if (inst._hostNode) {
 	    return inst._hostNode;
@@ -355,7 +522,7 @@
 	  var parents = [];
 	  while (!inst._hostNode) {
 	    parents.push(inst);
-	    !inst._hostParent ? ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? invariant(false, 'React DOM tree root should always have a node reference.') : _prodInvariant('34') : void 0;
+	    !inst._hostParent ? process.env.NODE_ENV !== 'production' ? invariant(false, 'React DOM tree root should always have a node reference.') : _prodInvariant('34') : void 0;
 	    inst = inst._hostParent;
 	  }
 
@@ -378,9 +545,10 @@
 	};
 
 	module.exports = ReactDOMComponentTree;
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ },
-/* 4 */
+/* 5 */
 /***/ function(module, exports) {
 
 	/**
@@ -424,10 +592,10 @@
 	module.exports = reactProdInvariant;
 
 /***/ },
-/* 5 */
+/* 6 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/**
+	/* WEBPACK VAR INJECTION */(function(process) {/**
 	 * Copyright 2013-present, Facebook, Inc.
 	 * All rights reserved.
 	 *
@@ -440,9 +608,9 @@
 
 	'use strict';
 
-	var _prodInvariant = __webpack_require__(4);
+	var _prodInvariant = __webpack_require__(5);
 
-	var invariant = __webpack_require__(6);
+	var invariant = __webpack_require__(7);
 
 	function checkMask(value, bitmask) {
 	  return (value & bitmask) === bitmask;
@@ -500,7 +668,7 @@
 	    }
 
 	    for (var propName in Properties) {
-	      !!DOMProperty.properties.hasOwnProperty(propName) ? ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? invariant(false, 'injectDOMPropertyConfig(...): You\'re trying to inject DOM property \'%s\' which has already been injected. You may be accidentally injecting the same DOM property config twice, or you may be injecting two configs that have conflicting property names.', propName) : _prodInvariant('48', propName) : void 0;
+	      !!DOMProperty.properties.hasOwnProperty(propName) ? process.env.NODE_ENV !== 'production' ? invariant(false, 'injectDOMPropertyConfig(...): You\'re trying to inject DOM property \'%s\' which has already been injected. You may be accidentally injecting the same DOM property config twice, or you may be injecting two configs that have conflicting property names.', propName) : _prodInvariant('48', propName) : void 0;
 
 	      var lowerCased = propName.toLowerCase();
 	      var propConfig = Properties[propName];
@@ -517,16 +685,16 @@
 	        hasPositiveNumericValue: checkMask(propConfig, Injection.HAS_POSITIVE_NUMERIC_VALUE),
 	        hasOverloadedBooleanValue: checkMask(propConfig, Injection.HAS_OVERLOADED_BOOLEAN_VALUE)
 	      };
-	      !(propertyInfo.hasBooleanValue + propertyInfo.hasNumericValue + propertyInfo.hasOverloadedBooleanValue <= 1) ? ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? invariant(false, 'DOMProperty: Value can be one of boolean, overloaded boolean, or numeric value, but not a combination: %s', propName) : _prodInvariant('50', propName) : void 0;
+	      !(propertyInfo.hasBooleanValue + propertyInfo.hasNumericValue + propertyInfo.hasOverloadedBooleanValue <= 1) ? process.env.NODE_ENV !== 'production' ? invariant(false, 'DOMProperty: Value can be one of boolean, overloaded boolean, or numeric value, but not a combination: %s', propName) : _prodInvariant('50', propName) : void 0;
 
-	      if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	      if (process.env.NODE_ENV !== 'production') {
 	        DOMProperty.getPossibleStandardName[lowerCased] = propName;
 	      }
 
 	      if (DOMAttributeNames.hasOwnProperty(propName)) {
 	        var attributeName = DOMAttributeNames[propName];
 	        propertyInfo.attributeName = attributeName;
-	        if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	        if (process.env.NODE_ENV !== 'production') {
 	          DOMProperty.getPossibleStandardName[attributeName] = propName;
 	        }
 	      }
@@ -608,7 +776,7 @@
 	   * to warn in the case of missing properties. Available only in __DEV__.
 	   * @type {Object}
 	   */
-	  getPossibleStandardName: ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? {} : null,
+	  getPossibleStandardName: process.env.NODE_ENV !== 'production' ? {} : null,
 
 	  /**
 	   * All of the isCustomAttribute() functions that have been injected.
@@ -633,12 +801,13 @@
 	};
 
 	module.exports = DOMProperty;
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ },
-/* 6 */
+/* 7 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/**
+	/* WEBPACK VAR INJECTION */(function(process) {/**
 	 * Copyright (c) 2013-present, Facebook, Inc.
 	 * All rights reserved.
 	 *
@@ -662,7 +831,7 @@
 	 */
 
 	function invariant(condition, format, a, b, c, d, e, f) {
-	  if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	  if (process.env.NODE_ENV !== 'production') {
 	    if (format === undefined) {
 	      throw new Error('invariant requires an error message argument');
 	    }
@@ -687,9 +856,10 @@
 	}
 
 	module.exports = invariant;
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ },
-/* 7 */
+/* 8 */
 /***/ function(module, exports) {
 
 	/**
@@ -712,7 +882,7 @@
 	module.exports = ReactDOMComponentFlags;
 
 /***/ },
-/* 8 */
+/* 9 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -728,14 +898,14 @@
 
 	'use strict';
 
-	var BeforeInputEventPlugin = __webpack_require__(9);
-	var ChangeEventPlugin = __webpack_require__(30);
-	var DefaultEventPluginOrder = __webpack_require__(50);
-	var EnterLeaveEventPlugin = __webpack_require__(51);
-	var HTMLDOMPropertyConfig = __webpack_require__(56);
-	var ReactComponentBrowserEnvironment = __webpack_require__(57);
-	var ReactDOMComponent = __webpack_require__(71);
-	var ReactDOMComponentTree = __webpack_require__(3);
+	var BeforeInputEventPlugin = __webpack_require__(10);
+	var ChangeEventPlugin = __webpack_require__(31);
+	var DefaultEventPluginOrder = __webpack_require__(51);
+	var EnterLeaveEventPlugin = __webpack_require__(52);
+	var HTMLDOMPropertyConfig = __webpack_require__(57);
+	var ReactComponentBrowserEnvironment = __webpack_require__(58);
+	var ReactDOMComponent = __webpack_require__(72);
+	var ReactDOMComponentTree = __webpack_require__(4);
 	var ReactDOMEmptyComponent = __webpack_require__(123);
 	var ReactDOMTreeTraversal = __webpack_require__(124);
 	var ReactDOMTextComponent = __webpack_require__(125);
@@ -801,7 +971,7 @@
 	};
 
 /***/ },
-/* 9 */
+/* 10 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -817,14 +987,14 @@
 
 	'use strict';
 
-	var EventConstants = __webpack_require__(10);
-	var EventPropagators = __webpack_require__(12);
-	var ExecutionEnvironment = __webpack_require__(21);
-	var FallbackCompositionState = __webpack_require__(22);
-	var SyntheticCompositionEvent = __webpack_require__(26);
-	var SyntheticInputEvent = __webpack_require__(28);
+	var EventConstants = __webpack_require__(11);
+	var EventPropagators = __webpack_require__(13);
+	var ExecutionEnvironment = __webpack_require__(22);
+	var FallbackCompositionState = __webpack_require__(23);
+	var SyntheticCompositionEvent = __webpack_require__(27);
+	var SyntheticInputEvent = __webpack_require__(29);
 
-	var keyOf = __webpack_require__(29);
+	var keyOf = __webpack_require__(30);
 
 	var END_KEYCODES = [9, 13, 27, 32]; // Tab, Return, Esc, Space
 	var START_KEYCODE = 229;
@@ -1194,7 +1364,7 @@
 	module.exports = BeforeInputEventPlugin;
 
 /***/ },
-/* 10 */
+/* 11 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -1210,7 +1380,7 @@
 
 	'use strict';
 
-	var keyMirror = __webpack_require__(11);
+	var keyMirror = __webpack_require__(12);
 
 	var PropagationPhases = keyMirror({ bubbled: null, captured: null });
 
@@ -1296,10 +1466,10 @@
 	module.exports = EventConstants;
 
 /***/ },
-/* 11 */
+/* 12 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/**
+	/* WEBPACK VAR INJECTION */(function(process) {/**
 	 * Copyright (c) 2013-present, Facebook, Inc.
 	 * All rights reserved.
 	 *
@@ -1312,7 +1482,7 @@
 
 	'use strict';
 
-	var invariant = __webpack_require__(6);
+	var invariant = __webpack_require__(7);
 
 	/**
 	 * Constructs an enumeration with keys equal to their value.
@@ -1335,7 +1505,7 @@
 	var keyMirror = function keyMirror(obj) {
 	  var ret = {};
 	  var key;
-	  !(obj instanceof Object && !Array.isArray(obj)) ? ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? invariant(false, 'keyMirror(...): Argument must be an object.') : invariant(false) : void 0;
+	  !(obj instanceof Object && !Array.isArray(obj)) ? process.env.NODE_ENV !== 'production' ? invariant(false, 'keyMirror(...): Argument must be an object.') : invariant(false) : void 0;
 	  for (key in obj) {
 	    if (!obj.hasOwnProperty(key)) {
 	      continue;
@@ -1346,12 +1516,13 @@
 	};
 
 	module.exports = keyMirror;
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ },
-/* 12 */
+/* 13 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/**
+	/* WEBPACK VAR INJECTION */(function(process) {/**
 	 * Copyright 2013-present, Facebook, Inc.
 	 * All rights reserved.
 	 *
@@ -1364,13 +1535,13 @@
 
 	'use strict';
 
-	var EventConstants = __webpack_require__(10);
-	var EventPluginHub = __webpack_require__(13);
-	var EventPluginUtils = __webpack_require__(15);
+	var EventConstants = __webpack_require__(11);
+	var EventPluginHub = __webpack_require__(14);
+	var EventPluginUtils = __webpack_require__(16);
 
-	var accumulateInto = __webpack_require__(19);
-	var forEachAccumulated = __webpack_require__(20);
-	var warning = __webpack_require__(17);
+	var accumulateInto = __webpack_require__(20);
+	var forEachAccumulated = __webpack_require__(21);
+	var warning = __webpack_require__(18);
 
 	var PropagationPhases = EventConstants.PropagationPhases;
 	var getListener = EventPluginHub.getListener;
@@ -1391,8 +1562,8 @@
 	 * "dispatch" object that pairs the event with the listener.
 	 */
 	function accumulateDirectionalDispatches(inst, upwards, event) {
-	  if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
-	    ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? warning(inst, 'Dispatching inst must not be null') : void 0;
+	  if (process.env.NODE_ENV !== 'production') {
+	    process.env.NODE_ENV !== 'production' ? warning(inst, 'Dispatching inst must not be null') : void 0;
 	  }
 	  var phase = upwards ? PropagationPhases.bubbled : PropagationPhases.captured;
 	  var listener = listenerAtPhase(inst, event, phase);
@@ -1488,12 +1659,13 @@
 	};
 
 	module.exports = EventPropagators;
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ },
-/* 13 */
+/* 14 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/**
+	/* WEBPACK VAR INJECTION */(function(process) {/**
 	 * Copyright 2013-present, Facebook, Inc.
 	 * All rights reserved.
 	 *
@@ -1506,15 +1678,15 @@
 
 	'use strict';
 
-	var _prodInvariant = __webpack_require__(4);
+	var _prodInvariant = __webpack_require__(5);
 
-	var EventPluginRegistry = __webpack_require__(14);
-	var EventPluginUtils = __webpack_require__(15);
-	var ReactErrorUtils = __webpack_require__(16);
+	var EventPluginRegistry = __webpack_require__(15);
+	var EventPluginUtils = __webpack_require__(16);
+	var ReactErrorUtils = __webpack_require__(17);
 
-	var accumulateInto = __webpack_require__(19);
-	var forEachAccumulated = __webpack_require__(20);
-	var invariant = __webpack_require__(6);
+	var accumulateInto = __webpack_require__(20);
+	var forEachAccumulated = __webpack_require__(21);
+	var invariant = __webpack_require__(7);
 
 	/**
 	 * Internal store for event listeners
@@ -1606,7 +1778,7 @@
 	   * @param {function} listener The callback to store.
 	   */
 	  putListener: function (inst, registrationName, listener) {
-	    !(typeof listener === 'function') ? ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? invariant(false, 'Expected %s listener to be a function, instead got type %s', registrationName, typeof listener) : _prodInvariant('94', registrationName, typeof listener) : void 0;
+	    !(typeof listener === 'function') ? process.env.NODE_ENV !== 'production' ? invariant(false, 'Expected %s listener to be a function, instead got type %s', registrationName, typeof listener) : _prodInvariant('94', registrationName, typeof listener) : void 0;
 
 	    var key = getDictionaryKey(inst);
 	    var bankForRegistrationName = listenerBank[registrationName] || (listenerBank[registrationName] = {});
@@ -1725,7 +1897,7 @@
 	    } else {
 	      forEachAccumulated(processingEventQueue, executeDispatchesAndReleaseTopLevel);
 	    }
-	    !!eventQueue ? ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? invariant(false, 'processEventQueue(): Additional events were enqueued while processing an event queue. Support for this has not yet been implemented.') : _prodInvariant('95') : void 0;
+	    !!eventQueue ? process.env.NODE_ENV !== 'production' ? invariant(false, 'processEventQueue(): Additional events were enqueued while processing an event queue. Support for this has not yet been implemented.') : _prodInvariant('95') : void 0;
 	    // This would be a good time to rethrow if any of the event handlers threw.
 	    ReactErrorUtils.rethrowCaughtError();
 	  },
@@ -1744,12 +1916,13 @@
 	};
 
 	module.exports = EventPluginHub;
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ },
-/* 14 */
+/* 15 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/**
+	/* WEBPACK VAR INJECTION */(function(process) {/**
 	 * Copyright 2013-present, Facebook, Inc.
 	 * All rights reserved.
 	 *
@@ -1762,9 +1935,9 @@
 
 	'use strict';
 
-	var _prodInvariant = __webpack_require__(4);
+	var _prodInvariant = __webpack_require__(5);
 
-	var invariant = __webpack_require__(6);
+	var invariant = __webpack_require__(7);
 
 	/**
 	 * Injectable ordering of event plugins.
@@ -1789,15 +1962,15 @@
 	  for (var pluginName in namesToPlugins) {
 	    var PluginModule = namesToPlugins[pluginName];
 	    var pluginIndex = EventPluginOrder.indexOf(pluginName);
-	    !(pluginIndex > -1) ? ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? invariant(false, 'EventPluginRegistry: Cannot inject event plugins that do not exist in the plugin ordering, `%s`.', pluginName) : _prodInvariant('96', pluginName) : void 0;
+	    !(pluginIndex > -1) ? process.env.NODE_ENV !== 'production' ? invariant(false, 'EventPluginRegistry: Cannot inject event plugins that do not exist in the plugin ordering, `%s`.', pluginName) : _prodInvariant('96', pluginName) : void 0;
 	    if (EventPluginRegistry.plugins[pluginIndex]) {
 	      continue;
 	    }
-	    !PluginModule.extractEvents ? ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? invariant(false, 'EventPluginRegistry: Event plugins must implement an `extractEvents` method, but `%s` does not.', pluginName) : _prodInvariant('97', pluginName) : void 0;
+	    !PluginModule.extractEvents ? process.env.NODE_ENV !== 'production' ? invariant(false, 'EventPluginRegistry: Event plugins must implement an `extractEvents` method, but `%s` does not.', pluginName) : _prodInvariant('97', pluginName) : void 0;
 	    EventPluginRegistry.plugins[pluginIndex] = PluginModule;
 	    var publishedEvents = PluginModule.eventTypes;
 	    for (var eventName in publishedEvents) {
-	      !publishEventForPlugin(publishedEvents[eventName], PluginModule, eventName) ? ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? invariant(false, 'EventPluginRegistry: Failed to publish event `%s` for plugin `%s`.', eventName, pluginName) : _prodInvariant('98', eventName, pluginName) : void 0;
+	      !publishEventForPlugin(publishedEvents[eventName], PluginModule, eventName) ? process.env.NODE_ENV !== 'production' ? invariant(false, 'EventPluginRegistry: Failed to publish event `%s` for plugin `%s`.', eventName, pluginName) : _prodInvariant('98', eventName, pluginName) : void 0;
 	    }
 	  }
 	}
@@ -1811,7 +1984,7 @@
 	 * @private
 	 */
 	function publishEventForPlugin(dispatchConfig, PluginModule, eventName) {
-	  !!EventPluginRegistry.eventNameDispatchConfigs.hasOwnProperty(eventName) ? ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? invariant(false, 'EventPluginHub: More than one plugin attempted to publish the same event name, `%s`.', eventName) : _prodInvariant('99', eventName) : void 0;
+	  !!EventPluginRegistry.eventNameDispatchConfigs.hasOwnProperty(eventName) ? process.env.NODE_ENV !== 'production' ? invariant(false, 'EventPluginHub: More than one plugin attempted to publish the same event name, `%s`.', eventName) : _prodInvariant('99', eventName) : void 0;
 	  EventPluginRegistry.eventNameDispatchConfigs[eventName] = dispatchConfig;
 
 	  var phasedRegistrationNames = dispatchConfig.phasedRegistrationNames;
@@ -1839,11 +2012,11 @@
 	 * @private
 	 */
 	function publishRegistrationName(registrationName, PluginModule, eventName) {
-	  !!EventPluginRegistry.registrationNameModules[registrationName] ? ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? invariant(false, 'EventPluginHub: More than one plugin attempted to publish the same registration name, `%s`.', registrationName) : _prodInvariant('100', registrationName) : void 0;
+	  !!EventPluginRegistry.registrationNameModules[registrationName] ? process.env.NODE_ENV !== 'production' ? invariant(false, 'EventPluginHub: More than one plugin attempted to publish the same registration name, `%s`.', registrationName) : _prodInvariant('100', registrationName) : void 0;
 	  EventPluginRegistry.registrationNameModules[registrationName] = PluginModule;
 	  EventPluginRegistry.registrationNameDependencies[registrationName] = PluginModule.eventTypes[eventName].dependencies;
 
-	  if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	  if (process.env.NODE_ENV !== 'production') {
 	    var lowerCasedName = registrationName.toLowerCase();
 	    EventPluginRegistry.possibleRegistrationNames[lowerCasedName] = registrationName;
 
@@ -1886,7 +2059,7 @@
 	   * only in __DEV__.
 	   * @type {Object}
 	   */
-	  possibleRegistrationNames: ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? {} : null,
+	  possibleRegistrationNames: process.env.NODE_ENV !== 'production' ? {} : null,
 
 	  /**
 	   * Injects an ordering of plugins (by plugin name). This allows the ordering
@@ -1898,7 +2071,7 @@
 	   * @see {EventPluginHub.injection.injectEventPluginOrder}
 	   */
 	  injectEventPluginOrder: function (InjectedEventPluginOrder) {
-	    !!EventPluginOrder ? ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? invariant(false, 'EventPluginRegistry: Cannot inject event plugin ordering more than once. You are likely trying to load more than one copy of React.') : _prodInvariant('101') : void 0;
+	    !!EventPluginOrder ? process.env.NODE_ENV !== 'production' ? invariant(false, 'EventPluginRegistry: Cannot inject event plugin ordering more than once. You are likely trying to load more than one copy of React.') : _prodInvariant('101') : void 0;
 	    // Clone the ordering so it cannot be dynamically mutated.
 	    EventPluginOrder = Array.prototype.slice.call(InjectedEventPluginOrder);
 	    recomputePluginOrdering();
@@ -1922,7 +2095,7 @@
 	      }
 	      var PluginModule = injectedNamesToPlugins[pluginName];
 	      if (!namesToPlugins.hasOwnProperty(pluginName) || namesToPlugins[pluginName] !== PluginModule) {
-	        !!namesToPlugins[pluginName] ? ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? invariant(false, 'EventPluginRegistry: Cannot inject two different event plugins using the same name, `%s`.', pluginName) : _prodInvariant('102', pluginName) : void 0;
+	        !!namesToPlugins[pluginName] ? process.env.NODE_ENV !== 'production' ? invariant(false, 'EventPluginRegistry: Cannot inject two different event plugins using the same name, `%s`.', pluginName) : _prodInvariant('102', pluginName) : void 0;
 	        namesToPlugins[pluginName] = PluginModule;
 	        isOrderingDirty = true;
 	      }
@@ -1983,7 +2156,7 @@
 	      }
 	    }
 
-	    if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	    if (process.env.NODE_ENV !== 'production') {
 	      var possibleRegistrationNames = EventPluginRegistry.possibleRegistrationNames;
 	      for (var lowerCasedName in possibleRegistrationNames) {
 	        if (possibleRegistrationNames.hasOwnProperty(lowerCasedName)) {
@@ -1996,12 +2169,13 @@
 	};
 
 	module.exports = EventPluginRegistry;
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ },
-/* 15 */
+/* 16 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/**
+	/* WEBPACK VAR INJECTION */(function(process) {/**
 	 * Copyright 2013-present, Facebook, Inc.
 	 * All rights reserved.
 	 *
@@ -2014,13 +2188,13 @@
 
 	'use strict';
 
-	var _prodInvariant = __webpack_require__(4);
+	var _prodInvariant = __webpack_require__(5);
 
-	var EventConstants = __webpack_require__(10);
-	var ReactErrorUtils = __webpack_require__(16);
+	var EventConstants = __webpack_require__(11);
+	var ReactErrorUtils = __webpack_require__(17);
 
-	var invariant = __webpack_require__(6);
-	var warning = __webpack_require__(17);
+	var invariant = __webpack_require__(7);
+	var warning = __webpack_require__(18);
 
 	/**
 	 * Injected dependencies:
@@ -2035,14 +2209,14 @@
 	var injection = {
 	  injectComponentTree: function (Injected) {
 	    ComponentTree = Injected;
-	    if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
-	      ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? warning(Injected && Injected.getNodeFromInstance && Injected.getInstanceFromNode, 'EventPluginUtils.injection.injectComponentTree(...): Injected ' + 'module is missing getNodeFromInstance or getInstanceFromNode.') : void 0;
+	    if (process.env.NODE_ENV !== 'production') {
+	      process.env.NODE_ENV !== 'production' ? warning(Injected && Injected.getNodeFromInstance && Injected.getInstanceFromNode, 'EventPluginUtils.injection.injectComponentTree(...): Injected ' + 'module is missing getNodeFromInstance or getInstanceFromNode.') : void 0;
 	    }
 	  },
 	  injectTreeTraversal: function (Injected) {
 	    TreeTraversal = Injected;
-	    if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
-	      ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? warning(Injected && Injected.isAncestor && Injected.getLowestCommonAncestor, 'EventPluginUtils.injection.injectTreeTraversal(...): Injected ' + 'module is missing isAncestor or getLowestCommonAncestor.') : void 0;
+	    if (process.env.NODE_ENV !== 'production') {
+	      process.env.NODE_ENV !== 'production' ? warning(Injected && Injected.isAncestor && Injected.getLowestCommonAncestor, 'EventPluginUtils.injection.injectTreeTraversal(...): Injected ' + 'module is missing isAncestor or getLowestCommonAncestor.') : void 0;
 	    }
 	  }
 	};
@@ -2061,7 +2235,7 @@
 	}
 
 	var validateEventDispatches;
-	if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	if (process.env.NODE_ENV !== 'production') {
 	  validateEventDispatches = function (event) {
 	    var dispatchListeners = event._dispatchListeners;
 	    var dispatchInstances = event._dispatchInstances;
@@ -2072,7 +2246,7 @@
 	    var instancesIsArr = Array.isArray(dispatchInstances);
 	    var instancesLen = instancesIsArr ? dispatchInstances.length : dispatchInstances ? 1 : 0;
 
-	    ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? warning(instancesIsArr === listenersIsArr && instancesLen === listenersLen, 'EventPluginUtils: Invalid `event`.') : void 0;
+	    process.env.NODE_ENV !== 'production' ? warning(instancesIsArr === listenersIsArr && instancesLen === listenersLen, 'EventPluginUtils: Invalid `event`.') : void 0;
 	  };
 	}
 
@@ -2100,7 +2274,7 @@
 	function executeDispatchesInOrder(event, simulated) {
 	  var dispatchListeners = event._dispatchListeners;
 	  var dispatchInstances = event._dispatchInstances;
-	  if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	  if (process.env.NODE_ENV !== 'production') {
 	    validateEventDispatches(event);
 	  }
 	  if (Array.isArray(dispatchListeners)) {
@@ -2128,7 +2302,7 @@
 	function executeDispatchesInOrderStopAtTrueImpl(event) {
 	  var dispatchListeners = event._dispatchListeners;
 	  var dispatchInstances = event._dispatchInstances;
-	  if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	  if (process.env.NODE_ENV !== 'production') {
 	    validateEventDispatches(event);
 	  }
 	  if (Array.isArray(dispatchListeners)) {
@@ -2169,12 +2343,12 @@
 	 * @return {*} The return value of executing the single dispatch.
 	 */
 	function executeDirectDispatch(event) {
-	  if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	  if (process.env.NODE_ENV !== 'production') {
 	    validateEventDispatches(event);
 	  }
 	  var dispatchListener = event._dispatchListeners;
 	  var dispatchInstance = event._dispatchInstances;
-	  !!Array.isArray(dispatchListener) ? ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? invariant(false, 'executeDirectDispatch(...): Invalid `event`.') : _prodInvariant('103') : void 0;
+	  !!Array.isArray(dispatchListener) ? process.env.NODE_ENV !== 'production' ? invariant(false, 'executeDirectDispatch(...): Invalid `event`.') : _prodInvariant('103') : void 0;
 	  event.currentTarget = dispatchListener ? EventPluginUtils.getNodeFromInstance(dispatchInstance) : null;
 	  var res = dispatchListener ? dispatchListener(event) : null;
 	  event.currentTarget = null;
@@ -2230,12 +2404,13 @@
 	};
 
 	module.exports = EventPluginUtils;
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ },
-/* 16 */
+/* 17 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/**
+	/* WEBPACK VAR INJECTION */(function(process) {/**
 	 * Copyright 2013-present, Facebook, Inc.
 	 * All rights reserved.
 	 *
@@ -2291,7 +2466,7 @@
 	  }
 	};
 
-	if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	if (process.env.NODE_ENV !== 'production') {
 	  /**
 	   * To help development we can get better devtools integration by simulating a
 	   * real browser event.
@@ -2311,12 +2486,13 @@
 	}
 
 	module.exports = ReactErrorUtils;
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ },
-/* 17 */
+/* 18 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/**
+	/* WEBPACK VAR INJECTION */(function(process) {/**
 	 * Copyright 2014-2015, Facebook, Inc.
 	 * All rights reserved.
 	 *
@@ -2328,7 +2504,7 @@
 
 	'use strict';
 
-	var emptyFunction = __webpack_require__(18);
+	var emptyFunction = __webpack_require__(19);
 
 	/**
 	 * Similar to invariant but only logs a warning if the condition is not met.
@@ -2339,7 +2515,7 @@
 
 	var warning = emptyFunction;
 
-	if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	if (process.env.NODE_ENV !== 'production') {
 	  (function () {
 	    var printWarning = function printWarning(format) {
 	      for (var _len = arguments.length, args = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
@@ -2382,9 +2558,10 @@
 	}
 
 	module.exports = warning;
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ },
-/* 18 */
+/* 19 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -2427,10 +2604,10 @@
 	module.exports = emptyFunction;
 
 /***/ },
-/* 19 */
+/* 20 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/**
+	/* WEBPACK VAR INJECTION */(function(process) {/**
 	 * Copyright 2014-present, Facebook, Inc.
 	 * All rights reserved.
 	 *
@@ -2444,9 +2621,9 @@
 
 	'use strict';
 
-	var _prodInvariant = __webpack_require__(4);
+	var _prodInvariant = __webpack_require__(5);
 
-	var invariant = __webpack_require__(6);
+	var invariant = __webpack_require__(7);
 
 	/**
 	 * Accumulates items that must not be null or undefined into the first one. This
@@ -2462,7 +2639,7 @@
 	 */
 
 	function accumulateInto(current, next) {
-	  !(next != null) ? ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? invariant(false, 'accumulateInto(...): Accumulated items must not be null or undefined.') : _prodInvariant('30') : void 0;
+	  !(next != null) ? process.env.NODE_ENV !== 'production' ? invariant(false, 'accumulateInto(...): Accumulated items must not be null or undefined.') : _prodInvariant('30') : void 0;
 
 	  if (current == null) {
 	    return next;
@@ -2488,9 +2665,10 @@
 	}
 
 	module.exports = accumulateInto;
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ },
-/* 20 */
+/* 21 */
 /***/ function(module, exports) {
 
 	/**
@@ -2526,7 +2704,7 @@
 	module.exports = forEachAccumulated;
 
 /***/ },
-/* 21 */
+/* 22 */
 /***/ function(module, exports) {
 
 	/**
@@ -2566,7 +2744,7 @@
 	module.exports = ExecutionEnvironment;
 
 /***/ },
-/* 22 */
+/* 23 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -2582,11 +2760,11 @@
 
 	'use strict';
 
-	var _assign = __webpack_require__(23);
+	var _assign = __webpack_require__(24);
 
-	var PooledClass = __webpack_require__(24);
+	var PooledClass = __webpack_require__(25);
 
-	var getTextContentAccessor = __webpack_require__(25);
+	var getTextContentAccessor = __webpack_require__(26);
 
 	/**
 	 * This helper class stores information about text content of a target node,
@@ -2666,7 +2844,7 @@
 	module.exports = FallbackCompositionState;
 
 /***/ },
-/* 23 */
+/* 24 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -2755,10 +2933,10 @@
 
 
 /***/ },
-/* 24 */
+/* 25 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/**
+	/* WEBPACK VAR INJECTION */(function(process) {/**
 	 * Copyright 2013-present, Facebook, Inc.
 	 * All rights reserved.
 	 *
@@ -2771,9 +2949,9 @@
 
 	'use strict';
 
-	var _prodInvariant = __webpack_require__(4);
+	var _prodInvariant = __webpack_require__(5);
 
-	var invariant = __webpack_require__(6);
+	var invariant = __webpack_require__(7);
 
 	/**
 	 * Static poolers. Several custom versions for each potential number of
@@ -2839,7 +3017,7 @@
 
 	var standardReleaser = function (instance) {
 	  var Klass = this;
-	  !(instance instanceof Klass) ? ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? invariant(false, 'Trying to release an instance into a pool of a different type.') : _prodInvariant('25') : void 0;
+	  !(instance instanceof Klass) ? process.env.NODE_ENV !== 'production' ? invariant(false, 'Trying to release an instance into a pool of a different type.') : _prodInvariant('25') : void 0;
 	  instance.destructor();
 	  if (Klass.instancePool.length < Klass.poolSize) {
 	    Klass.instancePool.push(instance);
@@ -2879,9 +3057,10 @@
 	};
 
 	module.exports = PooledClass;
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ },
-/* 25 */
+/* 26 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -2897,7 +3076,7 @@
 
 	'use strict';
 
-	var ExecutionEnvironment = __webpack_require__(21);
+	var ExecutionEnvironment = __webpack_require__(22);
 
 	var contentKey = null;
 
@@ -2919,7 +3098,7 @@
 	module.exports = getTextContentAccessor;
 
 /***/ },
-/* 26 */
+/* 27 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -2935,7 +3114,7 @@
 
 	'use strict';
 
-	var SyntheticEvent = __webpack_require__(27);
+	var SyntheticEvent = __webpack_require__(28);
 
 	/**
 	 * @interface Event
@@ -2960,10 +3139,10 @@
 	module.exports = SyntheticCompositionEvent;
 
 /***/ },
-/* 27 */
+/* 28 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/**
+	/* WEBPACK VAR INJECTION */(function(process) {/**
 	 * Copyright 2013-present, Facebook, Inc.
 	 * All rights reserved.
 	 *
@@ -2976,12 +3155,12 @@
 
 	'use strict';
 
-	var _assign = __webpack_require__(23);
+	var _assign = __webpack_require__(24);
 
-	var PooledClass = __webpack_require__(24);
+	var PooledClass = __webpack_require__(25);
 
-	var emptyFunction = __webpack_require__(18);
-	var warning = __webpack_require__(17);
+	var emptyFunction = __webpack_require__(19);
+	var warning = __webpack_require__(18);
 
 	var didWarnForAddedNewProperty = false;
 	var isProxySupported = typeof Proxy === 'function';
@@ -3026,7 +3205,7 @@
 	 * @param {DOMEventTarget} nativeEventTarget Target node.
 	 */
 	function SyntheticEvent(dispatchConfig, targetInst, nativeEvent, nativeEventTarget) {
-	  if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	  if (process.env.NODE_ENV !== 'production') {
 	    // these have a getter/setter for warnings
 	    delete this.nativeEvent;
 	    delete this.preventDefault;
@@ -3042,7 +3221,7 @@
 	    if (!Interface.hasOwnProperty(propName)) {
 	      continue;
 	    }
-	    if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	    if (process.env.NODE_ENV !== 'production') {
 	      delete this[propName]; // this has a getter/setter for warnings
 	    }
 	    var normalize = Interface[propName];
@@ -3127,7 +3306,7 @@
 	  destructor: function () {
 	    var Interface = this.constructor.Interface;
 	    for (var propName in Interface) {
-	      if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	      if (process.env.NODE_ENV !== 'production') {
 	        Object.defineProperty(this, propName, getPooledWarningPropertyDefinition(propName, Interface[propName]));
 	      } else {
 	        this[propName] = null;
@@ -3136,7 +3315,7 @@
 	    for (var i = 0; i < shouldBeReleasedProperties.length; i++) {
 	      this[shouldBeReleasedProperties[i]] = null;
 	    }
-	    if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	    if (process.env.NODE_ENV !== 'production') {
 	      Object.defineProperty(this, 'nativeEvent', getPooledWarningPropertyDefinition('nativeEvent', null));
 	      Object.defineProperty(this, 'preventDefault', getPooledWarningPropertyDefinition('preventDefault', emptyFunction));
 	      Object.defineProperty(this, 'stopPropagation', getPooledWarningPropertyDefinition('stopPropagation', emptyFunction));
@@ -3147,7 +3326,7 @@
 
 	SyntheticEvent.Interface = EventInterface;
 
-	if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	if (process.env.NODE_ENV !== 'production') {
 	  if (isProxySupported) {
 	    /*eslint-disable no-func-assign */
 	    SyntheticEvent = new Proxy(SyntheticEvent, {
@@ -3158,7 +3337,7 @@
 	        return new Proxy(constructor.apply(that, args), {
 	          set: function (target, prop, value) {
 	            if (prop !== 'isPersistent' && !target.constructor.Interface.hasOwnProperty(prop) && shouldBeReleasedProperties.indexOf(prop) === -1) {
-	              ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? warning(didWarnForAddedNewProperty || target.isPersistent(), 'This synthetic event is reused for performance reasons. If you\'re ' + 'seeing this, you\'re adding a new property in the synthetic event object. ' + 'The property is never released. See ' + 'https://fb.me/react-event-pooling for more information.') : void 0;
+	              process.env.NODE_ENV !== 'production' ? warning(didWarnForAddedNewProperty || target.isPersistent(), 'This synthetic event is reused for performance reasons. If you\'re ' + 'seeing this, you\'re adding a new property in the synthetic event object. ' + 'The property is never released. See ' + 'https://fb.me/react-event-pooling for more information.') : void 0;
 	              didWarnForAddedNewProperty = true;
 	            }
 	            target[prop] = value;
@@ -3227,12 +3406,13 @@
 
 	  function warn(action, result) {
 	    var warningCondition = false;
-	    ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? warning(warningCondition, 'This synthetic event is reused for performance reasons. If you\'re seeing this, ' + 'you\'re %s `%s` on a released/nullified synthetic event. %s. ' + 'If you must keep the original synthetic event around, use event.persist(). ' + 'See https://fb.me/react-event-pooling for more information.', action, propName, result) : void 0;
+	    process.env.NODE_ENV !== 'production' ? warning(warningCondition, 'This synthetic event is reused for performance reasons. If you\'re seeing this, ' + 'you\'re %s `%s` on a released/nullified synthetic event. %s. ' + 'If you must keep the original synthetic event around, use event.persist(). ' + 'See https://fb.me/react-event-pooling for more information.', action, propName, result) : void 0;
 	  }
 	}
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ },
-/* 28 */
+/* 29 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -3248,7 +3428,7 @@
 
 	'use strict';
 
-	var SyntheticEvent = __webpack_require__(27);
+	var SyntheticEvent = __webpack_require__(28);
 
 	/**
 	 * @interface Event
@@ -3274,7 +3454,7 @@
 	module.exports = SyntheticInputEvent;
 
 /***/ },
-/* 29 */
+/* 30 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -3313,7 +3493,7 @@
 	module.exports = keyOf;
 
 /***/ },
-/* 30 */
+/* 31 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -3329,18 +3509,18 @@
 
 	'use strict';
 
-	var EventConstants = __webpack_require__(10);
-	var EventPluginHub = __webpack_require__(13);
-	var EventPropagators = __webpack_require__(12);
-	var ExecutionEnvironment = __webpack_require__(21);
-	var ReactDOMComponentTree = __webpack_require__(3);
-	var ReactUpdates = __webpack_require__(31);
-	var SyntheticEvent = __webpack_require__(27);
+	var EventConstants = __webpack_require__(11);
+	var EventPluginHub = __webpack_require__(14);
+	var EventPropagators = __webpack_require__(13);
+	var ExecutionEnvironment = __webpack_require__(22);
+	var ReactDOMComponentTree = __webpack_require__(4);
+	var ReactUpdates = __webpack_require__(32);
+	var SyntheticEvent = __webpack_require__(28);
 
-	var getEventTarget = __webpack_require__(47);
-	var isEventSupported = __webpack_require__(48);
-	var isTextInputElement = __webpack_require__(49);
-	var keyOf = __webpack_require__(29);
+	var getEventTarget = __webpack_require__(48);
+	var isEventSupported = __webpack_require__(49);
+	var isTextInputElement = __webpack_require__(50);
+	var keyOf = __webpack_require__(30);
 
 	var topLevelTypes = EventConstants.topLevelTypes;
 
@@ -3643,10 +3823,10 @@
 	module.exports = ChangeEventPlugin;
 
 /***/ },
-/* 31 */
+/* 32 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/**
+	/* WEBPACK VAR INJECTION */(function(process) {/**
 	 * Copyright 2013-present, Facebook, Inc.
 	 * All rights reserved.
 	 *
@@ -3659,16 +3839,16 @@
 
 	'use strict';
 
-	var _prodInvariant = __webpack_require__(4),
-	    _assign = __webpack_require__(23);
+	var _prodInvariant = __webpack_require__(5),
+	    _assign = __webpack_require__(24);
 
-	var CallbackQueue = __webpack_require__(32);
-	var PooledClass = __webpack_require__(24);
-	var ReactFeatureFlags = __webpack_require__(33);
-	var ReactReconciler = __webpack_require__(34);
-	var Transaction = __webpack_require__(46);
+	var CallbackQueue = __webpack_require__(33);
+	var PooledClass = __webpack_require__(25);
+	var ReactFeatureFlags = __webpack_require__(34);
+	var ReactReconciler = __webpack_require__(35);
+	var Transaction = __webpack_require__(47);
 
-	var invariant = __webpack_require__(6);
+	var invariant = __webpack_require__(7);
 
 	var dirtyComponents = [];
 	var updateBatchNumber = 0;
@@ -3678,7 +3858,7 @@
 	var batchingStrategy = null;
 
 	function ensureInjected() {
-	  !(ReactUpdates.ReactReconcileTransaction && batchingStrategy) ? ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? invariant(false, 'ReactUpdates: must inject a reconcile transaction class and batching strategy') : _prodInvariant('123') : void 0;
+	  !(ReactUpdates.ReactReconcileTransaction && batchingStrategy) ? process.env.NODE_ENV !== 'production' ? invariant(false, 'ReactUpdates: must inject a reconcile transaction class and batching strategy') : _prodInvariant('123') : void 0;
 	}
 
 	var NESTED_UPDATES = {
@@ -3759,7 +3939,7 @@
 
 	function runBatchedUpdates(transaction) {
 	  var len = transaction.dirtyComponentsLength;
-	  !(len === dirtyComponents.length) ? ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? invariant(false, 'Expected flush transaction\'s stored dirty-components length (%s) to match dirty-components array length (%s).', len, dirtyComponents.length) : _prodInvariant('124', len, dirtyComponents.length) : void 0;
+	  !(len === dirtyComponents.length) ? process.env.NODE_ENV !== 'production' ? invariant(false, 'Expected flush transaction\'s stored dirty-components length (%s) to match dirty-components array length (%s).', len, dirtyComponents.length) : _prodInvariant('124', len, dirtyComponents.length) : void 0;
 
 	  // Since reconciling a component higher in the owner hierarchy usually (not
 	  // always -- see shouldComponentUpdate()) will reconcile children, reconcile
@@ -3861,21 +4041,21 @@
 	 * if no updates are currently being performed.
 	 */
 	function asap(callback, context) {
-	  !batchingStrategy.isBatchingUpdates ? ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? invariant(false, 'ReactUpdates.asap: Can\'t enqueue an asap callback in a context whereupdates are not being batched.') : _prodInvariant('125') : void 0;
+	  !batchingStrategy.isBatchingUpdates ? process.env.NODE_ENV !== 'production' ? invariant(false, 'ReactUpdates.asap: Can\'t enqueue an asap callback in a context whereupdates are not being batched.') : _prodInvariant('125') : void 0;
 	  asapCallbackQueue.enqueue(callback, context);
 	  asapEnqueued = true;
 	}
 
 	var ReactUpdatesInjection = {
 	  injectReconcileTransaction: function (ReconcileTransaction) {
-	    !ReconcileTransaction ? ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? invariant(false, 'ReactUpdates: must provide a reconcile transaction class') : _prodInvariant('126') : void 0;
+	    !ReconcileTransaction ? process.env.NODE_ENV !== 'production' ? invariant(false, 'ReactUpdates: must provide a reconcile transaction class') : _prodInvariant('126') : void 0;
 	    ReactUpdates.ReactReconcileTransaction = ReconcileTransaction;
 	  },
 
 	  injectBatchingStrategy: function (_batchingStrategy) {
-	    !_batchingStrategy ? ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? invariant(false, 'ReactUpdates: must provide a batching strategy') : _prodInvariant('127') : void 0;
-	    !(typeof _batchingStrategy.batchedUpdates === 'function') ? ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? invariant(false, 'ReactUpdates: must provide a batchedUpdates() function') : _prodInvariant('128') : void 0;
-	    !(typeof _batchingStrategy.isBatchingUpdates === 'boolean') ? ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? invariant(false, 'ReactUpdates: must provide an isBatchingUpdates boolean attribute') : _prodInvariant('129') : void 0;
+	    !_batchingStrategy ? process.env.NODE_ENV !== 'production' ? invariant(false, 'ReactUpdates: must provide a batching strategy') : _prodInvariant('127') : void 0;
+	    !(typeof _batchingStrategy.batchedUpdates === 'function') ? process.env.NODE_ENV !== 'production' ? invariant(false, 'ReactUpdates: must provide a batchedUpdates() function') : _prodInvariant('128') : void 0;
+	    !(typeof _batchingStrategy.isBatchingUpdates === 'boolean') ? process.env.NODE_ENV !== 'production' ? invariant(false, 'ReactUpdates: must provide an isBatchingUpdates boolean attribute') : _prodInvariant('129') : void 0;
 	    batchingStrategy = _batchingStrategy;
 	  }
 	};
@@ -3897,12 +4077,13 @@
 	};
 
 	module.exports = ReactUpdates;
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ },
-/* 32 */
+/* 33 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/**
+	/* WEBPACK VAR INJECTION */(function(process) {/**
 	 * Copyright 2013-present, Facebook, Inc.
 	 * All rights reserved.
 	 *
@@ -3915,12 +4096,12 @@
 
 	'use strict';
 
-	var _prodInvariant = __webpack_require__(4),
-	    _assign = __webpack_require__(23);
+	var _prodInvariant = __webpack_require__(5),
+	    _assign = __webpack_require__(24);
 
-	var PooledClass = __webpack_require__(24);
+	var PooledClass = __webpack_require__(25);
 
-	var invariant = __webpack_require__(6);
+	var invariant = __webpack_require__(7);
 
 	/**
 	 * A specialized pseudo-event module to help keep track of components waiting to
@@ -3964,7 +4145,7 @@
 	    var callbacks = this._callbacks;
 	    var contexts = this._contexts;
 	    if (callbacks) {
-	      !(callbacks.length === contexts.length) ? ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? invariant(false, 'Mismatched list of contexts in callback queue') : _prodInvariant('24') : void 0;
+	      !(callbacks.length === contexts.length) ? process.env.NODE_ENV !== 'production' ? invariant(false, 'Mismatched list of contexts in callback queue') : _prodInvariant('24') : void 0;
 	      this._callbacks = null;
 	      this._contexts = null;
 	      for (var i = 0; i < callbacks.length; i++) {
@@ -4008,9 +4189,10 @@
 	PooledClass.addPoolingTo(CallbackQueue);
 
 	module.exports = CallbackQueue;
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ },
-/* 33 */
+/* 34 */
 /***/ function(module, exports) {
 
 	/**
@@ -4037,10 +4219,10 @@
 	module.exports = ReactFeatureFlags;
 
 /***/ },
-/* 34 */
+/* 35 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/**
+	/* WEBPACK VAR INJECTION */(function(process) {/**
 	 * Copyright 2013-present, Facebook, Inc.
 	 * All rights reserved.
 	 *
@@ -4053,10 +4235,10 @@
 
 	'use strict';
 
-	var ReactRef = __webpack_require__(35);
-	var ReactInstrumentation = __webpack_require__(37);
+	var ReactRef = __webpack_require__(36);
+	var ReactInstrumentation = __webpack_require__(38);
 
-	var warning = __webpack_require__(17);
+	var warning = __webpack_require__(18);
 
 	/**
 	 * Helper to call ReactRef.attachRefs with this composite component, split out
@@ -4081,7 +4263,7 @@
 	   */
 	  mountComponent: function (internalInstance, transaction, hostParent, hostContainerInfo, context, parentDebugID // 0 in production and for roots
 	  ) {
-	    if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	    if (process.env.NODE_ENV !== 'production') {
 	      if (internalInstance._debugID !== 0) {
 	        ReactInstrumentation.debugTool.onBeforeMountComponent(internalInstance._debugID, internalInstance._currentElement, parentDebugID);
 	      }
@@ -4090,7 +4272,7 @@
 	    if (internalInstance._currentElement && internalInstance._currentElement.ref != null) {
 	      transaction.getReactMountReady().enqueue(attachRefs, internalInstance);
 	    }
-	    if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	    if (process.env.NODE_ENV !== 'production') {
 	      if (internalInstance._debugID !== 0) {
 	        ReactInstrumentation.debugTool.onMountComponent(internalInstance._debugID);
 	      }
@@ -4113,14 +4295,14 @@
 	   * @internal
 	   */
 	  unmountComponent: function (internalInstance, safely) {
-	    if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	    if (process.env.NODE_ENV !== 'production') {
 	      if (internalInstance._debugID !== 0) {
 	        ReactInstrumentation.debugTool.onBeforeUnmountComponent(internalInstance._debugID);
 	      }
 	    }
 	    ReactRef.detachRefs(internalInstance, internalInstance._currentElement);
 	    internalInstance.unmountComponent(safely);
-	    if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	    if (process.env.NODE_ENV !== 'production') {
 	      if (internalInstance._debugID !== 0) {
 	        ReactInstrumentation.debugTool.onUnmountComponent(internalInstance._debugID);
 	      }
@@ -4153,7 +4335,7 @@
 	      return;
 	    }
 
-	    if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	    if (process.env.NODE_ENV !== 'production') {
 	      if (internalInstance._debugID !== 0) {
 	        ReactInstrumentation.debugTool.onBeforeUpdateComponent(internalInstance._debugID, nextElement);
 	      }
@@ -4171,7 +4353,7 @@
 	      transaction.getReactMountReady().enqueue(attachRefs, internalInstance);
 	    }
 
-	    if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	    if (process.env.NODE_ENV !== 'production') {
 	      if (internalInstance._debugID !== 0) {
 	        ReactInstrumentation.debugTool.onUpdateComponent(internalInstance._debugID);
 	      }
@@ -4189,16 +4371,16 @@
 	    if (internalInstance._updateBatchNumber !== updateBatchNumber) {
 	      // The component's enqueued batch number should always be the current
 	      // batch or the following one.
-	      ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? warning(internalInstance._updateBatchNumber == null || internalInstance._updateBatchNumber === updateBatchNumber + 1, 'performUpdateIfNecessary: Unexpected batch number (current %s, ' + 'pending %s)', updateBatchNumber, internalInstance._updateBatchNumber) : void 0;
+	      process.env.NODE_ENV !== 'production' ? warning(internalInstance._updateBatchNumber == null || internalInstance._updateBatchNumber === updateBatchNumber + 1, 'performUpdateIfNecessary: Unexpected batch number (current %s, ' + 'pending %s)', updateBatchNumber, internalInstance._updateBatchNumber) : void 0;
 	      return;
 	    }
-	    if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	    if (process.env.NODE_ENV !== 'production') {
 	      if (internalInstance._debugID !== 0) {
 	        ReactInstrumentation.debugTool.onBeforeUpdateComponent(internalInstance._debugID, internalInstance._currentElement);
 	      }
 	    }
 	    internalInstance.performUpdateIfNecessary(transaction);
-	    if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	    if (process.env.NODE_ENV !== 'production') {
 	      if (internalInstance._debugID !== 0) {
 	        ReactInstrumentation.debugTool.onUpdateComponent(internalInstance._debugID);
 	      }
@@ -4208,9 +4390,10 @@
 	};
 
 	module.exports = ReactReconciler;
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ },
-/* 35 */
+/* 36 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -4226,7 +4409,7 @@
 
 	'use strict';
 
-	var ReactOwner = __webpack_require__(36);
+	var ReactOwner = __webpack_require__(37);
 
 	var ReactRef = {};
 
@@ -4295,10 +4478,10 @@
 	module.exports = ReactRef;
 
 /***/ },
-/* 36 */
+/* 37 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/**
+	/* WEBPACK VAR INJECTION */(function(process) {/**
 	 * Copyright 2013-present, Facebook, Inc.
 	 * All rights reserved.
 	 *
@@ -4311,9 +4494,9 @@
 
 	'use strict';
 
-	var _prodInvariant = __webpack_require__(4);
+	var _prodInvariant = __webpack_require__(5);
 
-	var invariant = __webpack_require__(6);
+	var invariant = __webpack_require__(7);
 
 	/**
 	 * ReactOwners are capable of storing references to owned components.
@@ -4366,7 +4549,7 @@
 	   * @internal
 	   */
 	  addComponentAsRefTo: function (component, ref, owner) {
-	    !ReactOwner.isValidOwner(owner) ? ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? invariant(false, 'addComponentAsRefTo(...): Only a ReactOwner can have refs. You might be adding a ref to a component that was not created inside a component\'s `render` method, or you have multiple copies of React loaded (details: https://fb.me/react-refs-must-have-owner).') : _prodInvariant('119') : void 0;
+	    !ReactOwner.isValidOwner(owner) ? process.env.NODE_ENV !== 'production' ? invariant(false, 'addComponentAsRefTo(...): Only a ReactOwner can have refs. You might be adding a ref to a component that was not created inside a component\'s `render` method, or you have multiple copies of React loaded (details: https://fb.me/react-refs-must-have-owner).') : _prodInvariant('119') : void 0;
 	    owner.attachRef(ref, component);
 	  },
 
@@ -4380,7 +4563,7 @@
 	   * @internal
 	   */
 	  removeComponentAsRefFrom: function (component, ref, owner) {
-	    !ReactOwner.isValidOwner(owner) ? ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? invariant(false, 'removeComponentAsRefFrom(...): Only a ReactOwner can have refs. You might be removing a ref to a component that was not created inside a component\'s `render` method, or you have multiple copies of React loaded (details: https://fb.me/react-refs-must-have-owner).') : _prodInvariant('120') : void 0;
+	    !ReactOwner.isValidOwner(owner) ? process.env.NODE_ENV !== 'production' ? invariant(false, 'removeComponentAsRefFrom(...): Only a ReactOwner can have refs. You might be removing a ref to a component that was not created inside a component\'s `render` method, or you have multiple copies of React loaded (details: https://fb.me/react-refs-must-have-owner).') : _prodInvariant('120') : void 0;
 	    var ownerPublicInstance = owner.getPublicInstance();
 	    // Check that `component`'s owner is still alive and that `component` is still the current ref
 	    // because we do not want to detach the ref if another component stole it.
@@ -4392,12 +4575,13 @@
 	};
 
 	module.exports = ReactOwner;
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ },
-/* 37 */
+/* 38 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/**
+	/* WEBPACK VAR INJECTION */(function(process) {/**
 	 * Copyright 2016-present, Facebook, Inc.
 	 * All rights reserved.
 	 *
@@ -4412,18 +4596,19 @@
 
 	var debugTool = null;
 
-	if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
-	  var ReactDebugTool = __webpack_require__(38);
+	if (process.env.NODE_ENV !== 'production') {
+	  var ReactDebugTool = __webpack_require__(39);
 	  debugTool = ReactDebugTool;
 	}
 
 	module.exports = { debugTool: debugTool };
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ },
-/* 38 */
+/* 39 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/**
+	/* WEBPACK VAR INJECTION */(function(process) {/**
 	 * Copyright 2016-present, Facebook, Inc.
 	 * All rights reserved.
 	 *
@@ -4436,14 +4621,14 @@
 
 	'use strict';
 
-	var ReactInvalidSetStateWarningHook = __webpack_require__(39);
-	var ReactHostOperationHistoryHook = __webpack_require__(40);
-	var ReactComponentTreeHook = __webpack_require__(41);
-	var ReactChildrenMutationWarningHook = __webpack_require__(43);
-	var ExecutionEnvironment = __webpack_require__(21);
+	var ReactInvalidSetStateWarningHook = __webpack_require__(40);
+	var ReactHostOperationHistoryHook = __webpack_require__(41);
+	var ReactComponentTreeHook = __webpack_require__(42);
+	var ReactChildrenMutationWarningHook = __webpack_require__(44);
+	var ExecutionEnvironment = __webpack_require__(22);
 
-	var performanceNow = __webpack_require__(44);
-	var warning = __webpack_require__(17);
+	var performanceNow = __webpack_require__(45);
+	var warning = __webpack_require__(18);
 
 	var hooks = [];
 	var didHookThrowForEvent = {};
@@ -4452,7 +4637,7 @@
 	  try {
 	    fn.call(context, arg1, arg2, arg3, arg4, arg5);
 	  } catch (e) {
-	    ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? warning(didHookThrowForEvent[event], 'Exception thrown by hook while handling %s: %s', event, e + '\n' + e.stack) : void 0;
+	    process.env.NODE_ENV !== 'production' ? warning(didHookThrowForEvent[event], 'Exception thrown by hook while handling %s: %s', event, e + '\n' + e.stack) : void 0;
 	    didHookThrowForEvent[event] = true;
 	  }
 	}
@@ -4536,7 +4721,7 @@
 	    return;
 	  }
 	  if (!debugID) {
-	    ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? warning(false, 'ReactDebugTool: debugID may not be empty.') : void 0;
+	    process.env.NODE_ENV !== 'production' ? warning(false, 'ReactDebugTool: debugID may not be empty.') : void 0;
 	  }
 	}
 
@@ -4545,7 +4730,7 @@
 	    return;
 	  }
 	  if (currentTimerType && !lifeCycleTimerHasWarned) {
-	    ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? warning(false, 'There is an internal error in the React performance measurement code. ' + 'Did not expect %s timer to start while %s timer is still in ' + 'progress for %s instance.', timerType, currentTimerType || 'no', debugID === currentTimerDebugID ? 'the same' : 'another') : void 0;
+	    process.env.NODE_ENV !== 'production' ? warning(false, 'There is an internal error in the React performance measurement code. ' + 'Did not expect %s timer to start while %s timer is still in ' + 'progress for %s instance.', timerType, currentTimerType || 'no', debugID === currentTimerDebugID ? 'the same' : 'another') : void 0;
 	    lifeCycleTimerHasWarned = true;
 	  }
 	  currentTimerStartTime = performanceNow();
@@ -4559,7 +4744,7 @@
 	    return;
 	  }
 	  if (currentTimerType !== timerType && !lifeCycleTimerHasWarned) {
-	    ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? warning(false, 'There is an internal error in the React performance measurement code. ' + 'We did not expect %s timer to stop while %s timer is still in ' + 'progress for %s instance. Please report this as a bug in React.', timerType, currentTimerType || 'no', debugID === currentTimerDebugID ? 'the same' : 'another') : void 0;
+	    process.env.NODE_ENV !== 'production' ? warning(false, 'There is an internal error in the React performance measurement code. ' + 'We did not expect %s timer to stop while %s timer is still in ' + 'progress for %s instance. Please report this as a bug in React.', timerType, currentTimerType || 'no', debugID === currentTimerDebugID ? 'the same' : 'another') : void 0;
 	    lifeCycleTimerHasWarned = true;
 	  }
 	  if (isProfiling) {
@@ -4730,12 +4915,13 @@
 	}
 
 	module.exports = ReactDebugTool;
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ },
-/* 39 */
+/* 40 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/**
+	/* WEBPACK VAR INJECTION */(function(process) {/**
 	 * Copyright 2016-present, Facebook, Inc.
 	 * All rights reserved.
 	 *
@@ -4748,13 +4934,13 @@
 
 	'use strict';
 
-	var warning = __webpack_require__(17);
+	var warning = __webpack_require__(18);
 
-	if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	if (process.env.NODE_ENV !== 'production') {
 	  var processingChildContext = false;
 
 	  var warnInvalidSetState = function () {
-	    ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? warning(!processingChildContext, 'setState(...): Cannot call setState() inside getChildContext()') : void 0;
+	    process.env.NODE_ENV !== 'production' ? warning(!processingChildContext, 'setState(...): Cannot call setState() inside getChildContext()') : void 0;
 	  };
 	}
 
@@ -4771,9 +4957,10 @@
 	};
 
 	module.exports = ReactInvalidSetStateWarningHook;
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ },
-/* 40 */
+/* 41 */
 /***/ function(module, exports) {
 
 	/**
@@ -4815,10 +5002,10 @@
 	module.exports = ReactHostOperationHistoryHook;
 
 /***/ },
-/* 41 */
+/* 42 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/**
+	/* WEBPACK VAR INJECTION */(function(process) {/**
 	 * Copyright 2016-present, Facebook, Inc.
 	 * All rights reserved.
 	 *
@@ -4831,12 +5018,12 @@
 
 	'use strict';
 
-	var _prodInvariant = __webpack_require__(4);
+	var _prodInvariant = __webpack_require__(5);
 
-	var ReactCurrentOwner = __webpack_require__(42);
+	var ReactCurrentOwner = __webpack_require__(43);
 
-	var invariant = __webpack_require__(6);
-	var warning = __webpack_require__(17);
+	var invariant = __webpack_require__(7);
+	var warning = __webpack_require__(18);
 
 	function isNative(fn) {
 	  // Based on isNative() from Lodash
@@ -4998,7 +5185,7 @@
 	  if (ownerID) {
 	    ownerName = ReactComponentTreeHook.getDisplayName(ownerID);
 	  }
-	  ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? warning(element, 'ReactComponentTreeHook: Missing React element for debugID %s when ' + 'building stack', id) : void 0;
+	  process.env.NODE_ENV !== 'production' ? warning(element, 'ReactComponentTreeHook: Missing React element for debugID %s when ' + 'building stack', id) : void 0;
 	  return describeComponentFrame(name, element && element._source, ownerName);
 	}
 
@@ -5010,16 +5197,16 @@
 	    for (var i = 0; i < nextChildIDs.length; i++) {
 	      var nextChildID = nextChildIDs[i];
 	      var nextChild = get(nextChildID);
-	      !nextChild ? ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? invariant(false, 'Expected hook events to fire for the child before its parent includes it in onSetChildren().') : _prodInvariant('140') : void 0;
-	      !(nextChild.childIDs != null || typeof nextChild.element !== 'object' || nextChild.element == null) ? ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? invariant(false, 'Expected onSetChildren() to fire for a container child before its parent includes it in onSetChildren().') : _prodInvariant('141') : void 0;
-	      !nextChild.isMounted ? ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? invariant(false, 'Expected onMountComponent() to fire for the child before its parent includes it in onSetChildren().') : _prodInvariant('71') : void 0;
+	      !nextChild ? process.env.NODE_ENV !== 'production' ? invariant(false, 'Expected hook events to fire for the child before its parent includes it in onSetChildren().') : _prodInvariant('140') : void 0;
+	      !(nextChild.childIDs != null || typeof nextChild.element !== 'object' || nextChild.element == null) ? process.env.NODE_ENV !== 'production' ? invariant(false, 'Expected onSetChildren() to fire for a container child before its parent includes it in onSetChildren().') : _prodInvariant('141') : void 0;
+	      !nextChild.isMounted ? process.env.NODE_ENV !== 'production' ? invariant(false, 'Expected onMountComponent() to fire for the child before its parent includes it in onSetChildren().') : _prodInvariant('71') : void 0;
 	      if (nextChild.parentID == null) {
 	        nextChild.parentID = id;
 	        // TODO: This shouldn't be necessary but mounting a new root during in
 	        // componentWillMount currently causes not-yet-mounted components to
 	        // be purged from our tree data so their parent ID is missing.
 	      }
-	      !(nextChild.parentID === id) ? ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? invariant(false, 'Expected onBeforeMountComponent() parent and onSetChildren() to be consistent (%s has parents %s and %s).', nextChildID, nextChild.parentID, id) : _prodInvariant('142', nextChildID, nextChild.parentID, id) : void 0;
+	      !(nextChild.parentID === id) ? process.env.NODE_ENV !== 'production' ? invariant(false, 'Expected onBeforeMountComponent() parent and onSetChildren() to be consistent (%s has parents %s and %s).', nextChildID, nextChild.parentID, id) : _prodInvariant('142', nextChildID, nextChild.parentID, id) : void 0;
 	    }
 	  },
 	  onBeforeMountComponent: function (id, element, parentID) {
@@ -5160,9 +5347,10 @@
 	};
 
 	module.exports = ReactComponentTreeHook;
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ },
-/* 42 */
+/* 43 */
 /***/ function(module, exports) {
 
 	/**
@@ -5198,10 +5386,10 @@
 	module.exports = ReactCurrentOwner;
 
 /***/ },
-/* 43 */
+/* 44 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/**
+	/* WEBPACK VAR INJECTION */(function(process) {/**
 	 * Copyright 2013-present, Facebook, Inc.
 	 * All rights reserved.
 	 *
@@ -5214,9 +5402,9 @@
 
 	'use strict';
 
-	var ReactComponentTreeHook = __webpack_require__(41);
+	var ReactComponentTreeHook = __webpack_require__(42);
 
-	var warning = __webpack_require__(17);
+	var warning = __webpack_require__(18);
 
 	function handleElement(debugID, element) {
 	  if (element == null) {
@@ -5241,7 +5429,7 @@
 	    }
 	  }
 	  if (!Array.isArray(element._shadowChildren) || isMutated) {
-	    ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? warning(false, 'Component\'s children should not be mutated.%s', ReactComponentTreeHook.getStackAddendumByID(debugID)) : void 0;
+	    process.env.NODE_ENV !== 'production' ? warning(false, 'Component\'s children should not be mutated.%s', ReactComponentTreeHook.getStackAddendumByID(debugID)) : void 0;
 	  }
 	}
 
@@ -5255,9 +5443,10 @@
 	};
 
 	module.exports = ReactChildrenMutationWarningHook;
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ },
-/* 44 */
+/* 45 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -5273,7 +5462,7 @@
 	 * @typechecks
 	 */
 
-	var performance = __webpack_require__(45);
+	var performance = __webpack_require__(46);
 
 	var performanceNow;
 
@@ -5295,7 +5484,7 @@
 	module.exports = performanceNow;
 
 /***/ },
-/* 45 */
+/* 46 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -5311,7 +5500,7 @@
 
 	'use strict';
 
-	var ExecutionEnvironment = __webpack_require__(21);
+	var ExecutionEnvironment = __webpack_require__(22);
 
 	var performance;
 
@@ -5322,10 +5511,10 @@
 	module.exports = performance || {};
 
 /***/ },
-/* 46 */
+/* 47 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/**
+	/* WEBPACK VAR INJECTION */(function(process) {/**
 	 * Copyright 2013-present, Facebook, Inc.
 	 * All rights reserved.
 	 *
@@ -5338,9 +5527,9 @@
 
 	'use strict';
 
-	var _prodInvariant = __webpack_require__(4);
+	var _prodInvariant = __webpack_require__(5);
 
-	var invariant = __webpack_require__(6);
+	var invariant = __webpack_require__(7);
 
 	/**
 	 * `Transaction` creates a black box that is able to wrap any method such that
@@ -5451,7 +5640,7 @@
 	   * @return {*} Return value from `method`.
 	   */
 	  perform: function (method, scope, a, b, c, d, e, f) {
-	    !!this.isInTransaction() ? ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? invariant(false, 'Transaction.perform(...): Cannot initialize a transaction when there is already an outstanding transaction.') : _prodInvariant('27') : void 0;
+	    !!this.isInTransaction() ? process.env.NODE_ENV !== 'production' ? invariant(false, 'Transaction.perform(...): Cannot initialize a transaction when there is already an outstanding transaction.') : _prodInvariant('27') : void 0;
 	    var errorThrown;
 	    var ret;
 	    try {
@@ -5515,7 +5704,7 @@
 	   * invoked).
 	   */
 	  closeAll: function (startIndex) {
-	    !this.isInTransaction() ? ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? invariant(false, 'Transaction.closeAll(): Cannot close transaction when none are open.') : _prodInvariant('28') : void 0;
+	    !this.isInTransaction() ? process.env.NODE_ENV !== 'production' ? invariant(false, 'Transaction.closeAll(): Cannot close transaction when none are open.') : _prodInvariant('28') : void 0;
 	    var transactionWrappers = this.transactionWrappers;
 	    for (var i = startIndex; i < transactionWrappers.length; i++) {
 	      var wrapper = transactionWrappers[i];
@@ -5558,9 +5747,10 @@
 	};
 
 	module.exports = Transaction;
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ },
-/* 47 */
+/* 48 */
 /***/ function(module, exports) {
 
 	/**
@@ -5600,7 +5790,7 @@
 	module.exports = getEventTarget;
 
 /***/ },
-/* 48 */
+/* 49 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -5616,7 +5806,7 @@
 
 	'use strict';
 
-	var ExecutionEnvironment = __webpack_require__(21);
+	var ExecutionEnvironment = __webpack_require__(22);
 
 	var useHasFeature;
 	if (ExecutionEnvironment.canUseDOM) {
@@ -5665,7 +5855,7 @@
 	module.exports = isEventSupported;
 
 /***/ },
-/* 49 */
+/* 50 */
 /***/ function(module, exports) {
 
 	/**
@@ -5721,7 +5911,7 @@
 	module.exports = isTextInputElement;
 
 /***/ },
-/* 50 */
+/* 51 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -5737,7 +5927,7 @@
 
 	'use strict';
 
-	var keyOf = __webpack_require__(29);
+	var keyOf = __webpack_require__(30);
 
 	/**
 	 * Module that is injectable into `EventPluginHub`, that specifies a
@@ -5753,7 +5943,7 @@
 	module.exports = DefaultEventPluginOrder;
 
 /***/ },
-/* 51 */
+/* 52 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -5769,12 +5959,12 @@
 
 	'use strict';
 
-	var EventConstants = __webpack_require__(10);
-	var EventPropagators = __webpack_require__(12);
-	var ReactDOMComponentTree = __webpack_require__(3);
-	var SyntheticMouseEvent = __webpack_require__(52);
+	var EventConstants = __webpack_require__(11);
+	var EventPropagators = __webpack_require__(13);
+	var ReactDOMComponentTree = __webpack_require__(4);
+	var SyntheticMouseEvent = __webpack_require__(53);
 
-	var keyOf = __webpack_require__(29);
+	var keyOf = __webpack_require__(30);
 
 	var topLevelTypes = EventConstants.topLevelTypes;
 
@@ -5863,7 +6053,7 @@
 	module.exports = EnterLeaveEventPlugin;
 
 /***/ },
-/* 52 */
+/* 53 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -5879,10 +6069,10 @@
 
 	'use strict';
 
-	var SyntheticUIEvent = __webpack_require__(53);
-	var ViewportMetrics = __webpack_require__(54);
+	var SyntheticUIEvent = __webpack_require__(54);
+	var ViewportMetrics = __webpack_require__(55);
 
-	var getEventModifierState = __webpack_require__(55);
+	var getEventModifierState = __webpack_require__(56);
 
 	/**
 	 * @interface MouseEvent
@@ -5940,7 +6130,7 @@
 	module.exports = SyntheticMouseEvent;
 
 /***/ },
-/* 53 */
+/* 54 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -5956,9 +6146,9 @@
 
 	'use strict';
 
-	var SyntheticEvent = __webpack_require__(27);
+	var SyntheticEvent = __webpack_require__(28);
 
-	var getEventTarget = __webpack_require__(47);
+	var getEventTarget = __webpack_require__(48);
 
 	/**
 	 * @interface UIEvent
@@ -6004,7 +6194,7 @@
 	module.exports = SyntheticUIEvent;
 
 /***/ },
-/* 54 */
+/* 55 */
 /***/ function(module, exports) {
 
 	/**
@@ -6036,7 +6226,7 @@
 	module.exports = ViewportMetrics;
 
 /***/ },
-/* 55 */
+/* 56 */
 /***/ function(module, exports) {
 
 	/**
@@ -6084,7 +6274,7 @@
 	module.exports = getEventModifierState;
 
 /***/ },
-/* 56 */
+/* 57 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -6100,7 +6290,7 @@
 
 	'use strict';
 
-	var DOMProperty = __webpack_require__(5);
+	var DOMProperty = __webpack_require__(6);
 
 	var MUST_USE_PROPERTY = DOMProperty.injection.MUST_USE_PROPERTY;
 	var HAS_BOOLEAN_VALUE = DOMProperty.injection.HAS_BOOLEAN_VALUE;
@@ -6298,7 +6488,7 @@
 	module.exports = HTMLDOMPropertyConfig;
 
 /***/ },
-/* 57 */
+/* 58 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -6314,8 +6504,8 @@
 
 	'use strict';
 
-	var DOMChildrenOperations = __webpack_require__(58);
-	var ReactDOMIDOperations = __webpack_require__(70);
+	var DOMChildrenOperations = __webpack_require__(59);
+	var ReactDOMIDOperations = __webpack_require__(71);
 
 	/**
 	 * Abstracts away all functionality of the reconciler that requires knowledge of
@@ -6333,10 +6523,10 @@
 	module.exports = ReactComponentBrowserEnvironment;
 
 /***/ },
-/* 58 */
+/* 59 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/**
+	/* WEBPACK VAR INJECTION */(function(process) {/**
 	 * Copyright 2013-present, Facebook, Inc.
 	 * All rights reserved.
 	 *
@@ -6349,15 +6539,15 @@
 
 	'use strict';
 
-	var DOMLazyTree = __webpack_require__(59);
-	var Danger = __webpack_require__(65);
-	var ReactMultiChildUpdateTypes = __webpack_require__(69);
-	var ReactDOMComponentTree = __webpack_require__(3);
-	var ReactInstrumentation = __webpack_require__(37);
+	var DOMLazyTree = __webpack_require__(60);
+	var Danger = __webpack_require__(66);
+	var ReactMultiChildUpdateTypes = __webpack_require__(70);
+	var ReactDOMComponentTree = __webpack_require__(4);
+	var ReactInstrumentation = __webpack_require__(38);
 
-	var createMicrosoftUnsafeLocalFunction = __webpack_require__(62);
-	var setInnerHTML = __webpack_require__(61);
-	var setTextContent = __webpack_require__(63);
+	var createMicrosoftUnsafeLocalFunction = __webpack_require__(63);
+	var setInnerHTML = __webpack_require__(62);
+	var setTextContent = __webpack_require__(64);
 
 	function getNodeAfter(parentNode, node) {
 	  // Special case for text components, which return [open, close] comments
@@ -6449,13 +6639,13 @@
 	    }
 	  }
 
-	  if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	  if (process.env.NODE_ENV !== 'production') {
 	    ReactInstrumentation.debugTool.onHostOperation(ReactDOMComponentTree.getInstanceFromNode(openingComment)._debugID, 'replace text', stringText);
 	  }
 	}
 
 	var dangerouslyReplaceNodeWithMarkup = Danger.dangerouslyReplaceNodeWithMarkup;
-	if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	if (process.env.NODE_ENV !== 'production') {
 	  dangerouslyReplaceNodeWithMarkup = function (oldChild, markup, prevInstance) {
 	    Danger.dangerouslyReplaceNodeWithMarkup(oldChild, markup);
 	    if (prevInstance._debugID !== 0) {
@@ -6486,7 +6676,7 @@
 	   * @internal
 	   */
 	  processUpdates: function (parentNode, updates) {
-	    if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	    if (process.env.NODE_ENV !== 'production') {
 	      var parentNodeDebugID = ReactDOMComponentTree.getInstanceFromNode(parentNode)._debugID;
 	    }
 
@@ -6495,31 +6685,31 @@
 	      switch (update.type) {
 	        case ReactMultiChildUpdateTypes.INSERT_MARKUP:
 	          insertLazyTreeChildAt(parentNode, update.content, getNodeAfter(parentNode, update.afterNode));
-	          if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	          if (process.env.NODE_ENV !== 'production') {
 	            ReactInstrumentation.debugTool.onHostOperation(parentNodeDebugID, 'insert child', { toIndex: update.toIndex, content: update.content.toString() });
 	          }
 	          break;
 	        case ReactMultiChildUpdateTypes.MOVE_EXISTING:
 	          moveChild(parentNode, update.fromNode, getNodeAfter(parentNode, update.afterNode));
-	          if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	          if (process.env.NODE_ENV !== 'production') {
 	            ReactInstrumentation.debugTool.onHostOperation(parentNodeDebugID, 'move child', { fromIndex: update.fromIndex, toIndex: update.toIndex });
 	          }
 	          break;
 	        case ReactMultiChildUpdateTypes.SET_MARKUP:
 	          setInnerHTML(parentNode, update.content);
-	          if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	          if (process.env.NODE_ENV !== 'production') {
 	            ReactInstrumentation.debugTool.onHostOperation(parentNodeDebugID, 'replace children', update.content.toString());
 	          }
 	          break;
 	        case ReactMultiChildUpdateTypes.TEXT_CONTENT:
 	          setTextContent(parentNode, update.content);
-	          if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	          if (process.env.NODE_ENV !== 'production') {
 	            ReactInstrumentation.debugTool.onHostOperation(parentNodeDebugID, 'replace text', update.content.toString());
 	          }
 	          break;
 	        case ReactMultiChildUpdateTypes.REMOVE_NODE:
 	          removeChild(parentNode, update.fromNode);
-	          if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	          if (process.env.NODE_ENV !== 'production') {
 	            ReactInstrumentation.debugTool.onHostOperation(parentNodeDebugID, 'remove child', { fromIndex: update.fromIndex });
 	          }
 	          break;
@@ -6530,9 +6720,10 @@
 	};
 
 	module.exports = DOMChildrenOperations;
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ },
-/* 59 */
+/* 60 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -6548,11 +6739,11 @@
 
 	'use strict';
 
-	var DOMNamespaces = __webpack_require__(60);
-	var setInnerHTML = __webpack_require__(61);
+	var DOMNamespaces = __webpack_require__(61);
+	var setInnerHTML = __webpack_require__(62);
 
-	var createMicrosoftUnsafeLocalFunction = __webpack_require__(62);
-	var setTextContent = __webpack_require__(63);
+	var createMicrosoftUnsafeLocalFunction = __webpack_require__(63);
+	var setTextContent = __webpack_require__(64);
 
 	var ELEMENT_NODE_TYPE = 1;
 	var DOCUMENT_FRAGMENT_NODE_TYPE = 11;
@@ -6655,7 +6846,7 @@
 	module.exports = DOMLazyTree;
 
 /***/ },
-/* 60 */
+/* 61 */
 /***/ function(module, exports) {
 
 	/**
@@ -6680,7 +6871,7 @@
 	module.exports = DOMNamespaces;
 
 /***/ },
-/* 61 */
+/* 62 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -6696,13 +6887,13 @@
 
 	'use strict';
 
-	var ExecutionEnvironment = __webpack_require__(21);
-	var DOMNamespaces = __webpack_require__(60);
+	var ExecutionEnvironment = __webpack_require__(22);
+	var DOMNamespaces = __webpack_require__(61);
 
 	var WHITESPACE_TEST = /^[ \r\n\t\f]/;
 	var NONVISIBLE_TEST = /<(!--|link|noscript|meta|script|style)[ \r\n\t\f\/>]/;
 
-	var createMicrosoftUnsafeLocalFunction = __webpack_require__(62);
+	var createMicrosoftUnsafeLocalFunction = __webpack_require__(63);
 
 	// SVG temp container for IE lacking innerHTML
 	var reusableSVGContainer;
@@ -6783,7 +6974,7 @@
 	module.exports = setInnerHTML;
 
 /***/ },
-/* 62 */
+/* 63 */
 /***/ function(module, exports) {
 
 	/**
@@ -6820,7 +7011,7 @@
 	module.exports = createMicrosoftUnsafeLocalFunction;
 
 /***/ },
-/* 63 */
+/* 64 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -6836,9 +7027,9 @@
 
 	'use strict';
 
-	var ExecutionEnvironment = __webpack_require__(21);
-	var escapeTextContentForBrowser = __webpack_require__(64);
-	var setInnerHTML = __webpack_require__(61);
+	var ExecutionEnvironment = __webpack_require__(22);
+	var escapeTextContentForBrowser = __webpack_require__(65);
+	var setInnerHTML = __webpack_require__(62);
 
 	/**
 	 * Set the textContent property of a node, ensuring that whitespace is preserved
@@ -6873,7 +7064,7 @@
 	module.exports = setTextContent;
 
 /***/ },
-/* 64 */
+/* 65 */
 /***/ function(module, exports) {
 
 	/**
@@ -7001,10 +7192,10 @@
 	module.exports = escapeTextContentForBrowser;
 
 /***/ },
-/* 65 */
+/* 66 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/**
+	/* WEBPACK VAR INJECTION */(function(process) {/**
 	 * Copyright 2013-present, Facebook, Inc.
 	 * All rights reserved.
 	 *
@@ -7017,14 +7208,14 @@
 
 	'use strict';
 
-	var _prodInvariant = __webpack_require__(4);
+	var _prodInvariant = __webpack_require__(5);
 
-	var DOMLazyTree = __webpack_require__(59);
-	var ExecutionEnvironment = __webpack_require__(21);
+	var DOMLazyTree = __webpack_require__(60);
+	var ExecutionEnvironment = __webpack_require__(22);
 
-	var createNodesFromMarkup = __webpack_require__(66);
-	var emptyFunction = __webpack_require__(18);
-	var invariant = __webpack_require__(6);
+	var createNodesFromMarkup = __webpack_require__(67);
+	var emptyFunction = __webpack_require__(19);
+	var invariant = __webpack_require__(7);
 
 	var Danger = {
 
@@ -7037,9 +7228,9 @@
 	   * @internal
 	   */
 	  dangerouslyReplaceNodeWithMarkup: function (oldChild, markup) {
-	    !ExecutionEnvironment.canUseDOM ? ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? invariant(false, 'dangerouslyReplaceNodeWithMarkup(...): Cannot render markup in a worker thread. Make sure `window` and `document` are available globally before requiring React when unit testing or use ReactDOMServer.renderToString() for server rendering.') : _prodInvariant('56') : void 0;
-	    !markup ? ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? invariant(false, 'dangerouslyReplaceNodeWithMarkup(...): Missing markup.') : _prodInvariant('57') : void 0;
-	    !(oldChild.nodeName !== 'HTML') ? ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? invariant(false, 'dangerouslyReplaceNodeWithMarkup(...): Cannot replace markup of the <html> node. This is because browser quirks make this unreliable and/or slow. If you want to render to the root you must use server rendering. See ReactDOMServer.renderToString().') : _prodInvariant('58') : void 0;
+	    !ExecutionEnvironment.canUseDOM ? process.env.NODE_ENV !== 'production' ? invariant(false, 'dangerouslyReplaceNodeWithMarkup(...): Cannot render markup in a worker thread. Make sure `window` and `document` are available globally before requiring React when unit testing or use ReactDOMServer.renderToString() for server rendering.') : _prodInvariant('56') : void 0;
+	    !markup ? process.env.NODE_ENV !== 'production' ? invariant(false, 'dangerouslyReplaceNodeWithMarkup(...): Missing markup.') : _prodInvariant('57') : void 0;
+	    !(oldChild.nodeName !== 'HTML') ? process.env.NODE_ENV !== 'production' ? invariant(false, 'dangerouslyReplaceNodeWithMarkup(...): Cannot replace markup of the <html> node. This is because browser quirks make this unreliable and/or slow. If you want to render to the root you must use server rendering. See ReactDOMServer.renderToString().') : _prodInvariant('58') : void 0;
 
 	    if (typeof markup === 'string') {
 	      var newChild = createNodesFromMarkup(markup, emptyFunction)[0];
@@ -7052,12 +7243,13 @@
 	};
 
 	module.exports = Danger;
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ },
-/* 66 */
+/* 67 */
 /***/ function(module, exports, __webpack_require__) {
 
-	'use strict';
+	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
 
 	/**
 	 * Copyright (c) 2013-present, Facebook, Inc.
@@ -7072,11 +7264,11 @@
 
 	/*eslint-disable fb-www/unsafe-html*/
 
-	var ExecutionEnvironment = __webpack_require__(21);
+	var ExecutionEnvironment = __webpack_require__(22);
 
-	var createArrayFromMixed = __webpack_require__(67);
-	var getMarkupWrap = __webpack_require__(68);
-	var invariant = __webpack_require__(6);
+	var createArrayFromMixed = __webpack_require__(68);
+	var getMarkupWrap = __webpack_require__(69);
+	var invariant = __webpack_require__(7);
 
 	/**
 	 * Dummy container used to render all markup.
@@ -7111,7 +7303,7 @@
 	 */
 	function createNodesFromMarkup(markup, handleScript) {
 	  var node = dummyNode;
-	  !!!dummyNode ? ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? invariant(false, 'createNodesFromMarkup dummy not initialized') : invariant(false) : void 0;
+	  !!!dummyNode ? process.env.NODE_ENV !== 'production' ? invariant(false, 'createNodesFromMarkup dummy not initialized') : invariant(false) : void 0;
 	  var nodeName = getNodeName(markup);
 
 	  var wrap = nodeName && getMarkupWrap(nodeName);
@@ -7128,7 +7320,7 @@
 
 	  var scripts = node.getElementsByTagName('script');
 	  if (scripts.length) {
-	    !handleScript ? ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? invariant(false, 'createNodesFromMarkup(...): Unexpected <script> element rendered.') : invariant(false) : void 0;
+	    !handleScript ? process.env.NODE_ENV !== 'production' ? invariant(false, 'createNodesFromMarkup(...): Unexpected <script> element rendered.') : invariant(false) : void 0;
 	    createArrayFromMixed(scripts).forEach(handleScript);
 	  }
 
@@ -7140,12 +7332,13 @@
 	}
 
 	module.exports = createNodesFromMarkup;
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ },
-/* 67 */
+/* 68 */
 /***/ function(module, exports, __webpack_require__) {
 
-	'use strict';
+	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
 
 	/**
 	 * Copyright (c) 2013-present, Facebook, Inc.
@@ -7158,7 +7351,7 @@
 	 * @typechecks
 	 */
 
-	var invariant = __webpack_require__(6);
+	var invariant = __webpack_require__(7);
 
 	/**
 	 * Convert array-like objects to arrays.
@@ -7174,13 +7367,13 @@
 
 	  // Some browsers builtin objects can report typeof 'function' (e.g. NodeList
 	  // in old versions of Safari).
-	  !(!Array.isArray(obj) && (typeof obj === 'object' || typeof obj === 'function')) ? ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? invariant(false, 'toArray: Array-like object expected') : invariant(false) : void 0;
+	  !(!Array.isArray(obj) && (typeof obj === 'object' || typeof obj === 'function')) ? process.env.NODE_ENV !== 'production' ? invariant(false, 'toArray: Array-like object expected') : invariant(false) : void 0;
 
-	  !(typeof length === 'number') ? ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? invariant(false, 'toArray: Object needs a length property') : invariant(false) : void 0;
+	  !(typeof length === 'number') ? process.env.NODE_ENV !== 'production' ? invariant(false, 'toArray: Object needs a length property') : invariant(false) : void 0;
 
-	  !(length === 0 || length - 1 in obj) ? ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? invariant(false, 'toArray: Object should have keys for indices') : invariant(false) : void 0;
+	  !(length === 0 || length - 1 in obj) ? process.env.NODE_ENV !== 'production' ? invariant(false, 'toArray: Object should have keys for indices') : invariant(false) : void 0;
 
-	  !(typeof obj.callee !== 'function') ? ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? invariant(false, 'toArray: Object can\'t be `arguments`. Use rest params ' + '(function(...args) {}) or Array.from() instead.') : invariant(false) : void 0;
+	  !(typeof obj.callee !== 'function') ? process.env.NODE_ENV !== 'production' ? invariant(false, 'toArray: Object can\'t be `arguments`. Use rest params ' + '(function(...args) {}) or Array.from() instead.') : invariant(false) : void 0;
 
 	  // Old IE doesn't give collections access to hasOwnProperty. Assume inputs
 	  // without method will throw during the slice call and skip straight to the
@@ -7271,12 +7464,13 @@
 	}
 
 	module.exports = createArrayFromMixed;
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ },
-/* 68 */
+/* 69 */
 /***/ function(module, exports, __webpack_require__) {
 
-	'use strict';
+	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
 
 	/**
 	 * Copyright (c) 2013-present, Facebook, Inc.
@@ -7290,9 +7484,9 @@
 
 	/*eslint-disable fb-www/unsafe-html */
 
-	var ExecutionEnvironment = __webpack_require__(21);
+	var ExecutionEnvironment = __webpack_require__(22);
 
-	var invariant = __webpack_require__(6);
+	var invariant = __webpack_require__(7);
 
 	/**
 	 * Dummy container used to detect which wraps are necessary.
@@ -7354,7 +7548,7 @@
 	 * @return {?array} Markup wrap configuration, if applicable.
 	 */
 	function getMarkupWrap(nodeName) {
-	  !!!dummyNode ? ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? invariant(false, 'Markup wrapping node not initialized') : invariant(false) : void 0;
+	  !!!dummyNode ? process.env.NODE_ENV !== 'production' ? invariant(false, 'Markup wrapping node not initialized') : invariant(false) : void 0;
 	  if (!markupWrap.hasOwnProperty(nodeName)) {
 	    nodeName = '*';
 	  }
@@ -7370,9 +7564,10 @@
 	}
 
 	module.exports = getMarkupWrap;
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ },
-/* 69 */
+/* 70 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -7388,7 +7583,7 @@
 
 	'use strict';
 
-	var keyMirror = __webpack_require__(11);
+	var keyMirror = __webpack_require__(12);
 
 	/**
 	 * When a component's children are updated, a series of update configuration
@@ -7409,7 +7604,7 @@
 	module.exports = ReactMultiChildUpdateTypes;
 
 /***/ },
-/* 70 */
+/* 71 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -7425,8 +7620,8 @@
 
 	'use strict';
 
-	var DOMChildrenOperations = __webpack_require__(58);
-	var ReactDOMComponentTree = __webpack_require__(3);
+	var DOMChildrenOperations = __webpack_require__(59);
+	var ReactDOMComponentTree = __webpack_require__(4);
 
 	/**
 	 * Operations used to process updates to DOM nodes.
@@ -7448,10 +7643,10 @@
 	module.exports = ReactDOMIDOperations;
 
 /***/ },
-/* 71 */
+/* 72 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/**
+	/* WEBPACK VAR INJECTION */(function(process) {/**
 	 * Copyright 2013-present, Facebook, Inc.
 	 * All rights reserved.
 	 *
@@ -7466,38 +7661,38 @@
 
 	'use strict';
 
-	var _prodInvariant = __webpack_require__(4),
-	    _assign = __webpack_require__(23);
+	var _prodInvariant = __webpack_require__(5),
+	    _assign = __webpack_require__(24);
 
-	var AutoFocusUtils = __webpack_require__(72);
-	var CSSPropertyOperations = __webpack_require__(74);
-	var DOMLazyTree = __webpack_require__(59);
-	var DOMNamespaces = __webpack_require__(60);
-	var DOMProperty = __webpack_require__(5);
-	var DOMPropertyOperations = __webpack_require__(82);
-	var EventConstants = __webpack_require__(10);
-	var EventPluginHub = __webpack_require__(13);
-	var EventPluginRegistry = __webpack_require__(14);
-	var ReactBrowserEventEmitter = __webpack_require__(84);
-	var ReactDOMButton = __webpack_require__(87);
-	var ReactDOMComponentFlags = __webpack_require__(7);
-	var ReactDOMComponentTree = __webpack_require__(3);
-	var ReactDOMInput = __webpack_require__(89);
-	var ReactDOMOption = __webpack_require__(98);
-	var ReactDOMSelect = __webpack_require__(102);
-	var ReactDOMTextarea = __webpack_require__(103);
-	var ReactInstrumentation = __webpack_require__(37);
-	var ReactMultiChild = __webpack_require__(104);
+	var AutoFocusUtils = __webpack_require__(73);
+	var CSSPropertyOperations = __webpack_require__(75);
+	var DOMLazyTree = __webpack_require__(60);
+	var DOMNamespaces = __webpack_require__(61);
+	var DOMProperty = __webpack_require__(6);
+	var DOMPropertyOperations = __webpack_require__(83);
+	var EventConstants = __webpack_require__(11);
+	var EventPluginHub = __webpack_require__(14);
+	var EventPluginRegistry = __webpack_require__(15);
+	var ReactBrowserEventEmitter = __webpack_require__(85);
+	var ReactDOMButton = __webpack_require__(88);
+	var ReactDOMComponentFlags = __webpack_require__(8);
+	var ReactDOMComponentTree = __webpack_require__(4);
+	var ReactDOMInput = __webpack_require__(90);
+	var ReactDOMOption = __webpack_require__(99);
+	var ReactDOMSelect = __webpack_require__(103);
+	var ReactDOMTextarea = __webpack_require__(104);
+	var ReactInstrumentation = __webpack_require__(38);
+	var ReactMultiChild = __webpack_require__(105);
 	var ReactServerRenderingTransaction = __webpack_require__(119);
 
-	var emptyFunction = __webpack_require__(18);
-	var escapeTextContentForBrowser = __webpack_require__(64);
-	var invariant = __webpack_require__(6);
-	var isEventSupported = __webpack_require__(48);
-	var keyOf = __webpack_require__(29);
+	var emptyFunction = __webpack_require__(19);
+	var escapeTextContentForBrowser = __webpack_require__(65);
+	var invariant = __webpack_require__(7);
+	var isEventSupported = __webpack_require__(49);
+	var keyOf = __webpack_require__(30);
 	var shallowEqual = __webpack_require__(114);
 	var validateDOMNesting = __webpack_require__(122);
-	var warning = __webpack_require__(17);
+	var warning = __webpack_require__(18);
 
 	var Flags = ReactDOMComponentFlags;
 	var deleteListener = EventPluginHub.deleteListener;
@@ -7581,7 +7776,7 @@
 
 	  styleMutationWarning[hash] = true;
 
-	  ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? warning(false, '`%s` was passed a style object that has previously been mutated. ' + 'Mutating `style` is deprecated. Consider cloning it beforehand. Check ' + 'the `render` %s. Previous style: %s. Mutated style: %s.', componentName, owner ? 'of `' + ownerName + '`' : 'using <' + componentName + '>', friendlyStringify(style1), friendlyStringify(style2)) : void 0;
+	  process.env.NODE_ENV !== 'production' ? warning(false, '`%s` was passed a style object that has previously been mutated. ' + 'Mutating `style` is deprecated. Consider cloning it beforehand. Check ' + 'the `render` %s. Previous style: %s. Mutated style: %s.', componentName, owner ? 'of `' + ownerName + '`' : 'using <' + componentName + '>', friendlyStringify(style1), friendlyStringify(style2)) : void 0;
 	}
 
 	/**
@@ -7594,28 +7789,28 @@
 	  }
 	  // Note the use of `==` which checks for null or undefined.
 	  if (voidElementTags[component._tag]) {
-	    !(props.children == null && props.dangerouslySetInnerHTML == null) ? ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? invariant(false, '%s is a void element tag and must neither have `children` nor use `dangerouslySetInnerHTML`.%s', component._tag, component._currentElement._owner ? ' Check the render method of ' + component._currentElement._owner.getName() + '.' : '') : _prodInvariant('137', component._tag, component._currentElement._owner ? ' Check the render method of ' + component._currentElement._owner.getName() + '.' : '') : void 0;
+	    !(props.children == null && props.dangerouslySetInnerHTML == null) ? process.env.NODE_ENV !== 'production' ? invariant(false, '%s is a void element tag and must neither have `children` nor use `dangerouslySetInnerHTML`.%s', component._tag, component._currentElement._owner ? ' Check the render method of ' + component._currentElement._owner.getName() + '.' : '') : _prodInvariant('137', component._tag, component._currentElement._owner ? ' Check the render method of ' + component._currentElement._owner.getName() + '.' : '') : void 0;
 	  }
 	  if (props.dangerouslySetInnerHTML != null) {
-	    !(props.children == null) ? ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? invariant(false, 'Can only set one of `children` or `props.dangerouslySetInnerHTML`.') : _prodInvariant('60') : void 0;
-	    !(typeof props.dangerouslySetInnerHTML === 'object' && HTML in props.dangerouslySetInnerHTML) ? ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? invariant(false, '`props.dangerouslySetInnerHTML` must be in the form `{__html: ...}`. Please visit https://fb.me/react-invariant-dangerously-set-inner-html for more information.') : _prodInvariant('61') : void 0;
+	    !(props.children == null) ? process.env.NODE_ENV !== 'production' ? invariant(false, 'Can only set one of `children` or `props.dangerouslySetInnerHTML`.') : _prodInvariant('60') : void 0;
+	    !(typeof props.dangerouslySetInnerHTML === 'object' && HTML in props.dangerouslySetInnerHTML) ? process.env.NODE_ENV !== 'production' ? invariant(false, '`props.dangerouslySetInnerHTML` must be in the form `{__html: ...}`. Please visit https://fb.me/react-invariant-dangerously-set-inner-html for more information.') : _prodInvariant('61') : void 0;
 	  }
-	  if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
-	    ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? warning(props.innerHTML == null, 'Directly setting property `innerHTML` is not permitted. ' + 'For more information, lookup documentation on `dangerouslySetInnerHTML`.') : void 0;
-	    ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? warning(props.suppressContentEditableWarning || !props.contentEditable || props.children == null, 'A component is `contentEditable` and contains `children` managed by ' + 'React. It is now your responsibility to guarantee that none of ' + 'those nodes are unexpectedly modified or duplicated. This is ' + 'probably not intentional.') : void 0;
-	    ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? warning(props.onFocusIn == null && props.onFocusOut == null, 'React uses onFocus and onBlur instead of onFocusIn and onFocusOut. ' + 'All React events are normalized to bubble, so onFocusIn and onFocusOut ' + 'are not needed/supported by React.') : void 0;
+	  if (process.env.NODE_ENV !== 'production') {
+	    process.env.NODE_ENV !== 'production' ? warning(props.innerHTML == null, 'Directly setting property `innerHTML` is not permitted. ' + 'For more information, lookup documentation on `dangerouslySetInnerHTML`.') : void 0;
+	    process.env.NODE_ENV !== 'production' ? warning(props.suppressContentEditableWarning || !props.contentEditable || props.children == null, 'A component is `contentEditable` and contains `children` managed by ' + 'React. It is now your responsibility to guarantee that none of ' + 'those nodes are unexpectedly modified or duplicated. This is ' + 'probably not intentional.') : void 0;
+	    process.env.NODE_ENV !== 'production' ? warning(props.onFocusIn == null && props.onFocusOut == null, 'React uses onFocus and onBlur instead of onFocusIn and onFocusOut. ' + 'All React events are normalized to bubble, so onFocusIn and onFocusOut ' + 'are not needed/supported by React.') : void 0;
 	  }
-	  !(props.style == null || typeof props.style === 'object') ? ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? invariant(false, 'The `style` prop expects a mapping from style properties to values, not a string. For example, style={{marginRight: spacing + \'em\'}} when using JSX.%s', getDeclarationErrorAddendum(component)) : _prodInvariant('62', getDeclarationErrorAddendum(component)) : void 0;
+	  !(props.style == null || typeof props.style === 'object') ? process.env.NODE_ENV !== 'production' ? invariant(false, 'The `style` prop expects a mapping from style properties to values, not a string. For example, style={{marginRight: spacing + \'em\'}} when using JSX.%s', getDeclarationErrorAddendum(component)) : _prodInvariant('62', getDeclarationErrorAddendum(component)) : void 0;
 	}
 
 	function enqueuePutListener(inst, registrationName, listener, transaction) {
 	  if (transaction instanceof ReactServerRenderingTransaction) {
 	    return;
 	  }
-	  if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	  if (process.env.NODE_ENV !== 'production') {
 	    // IE8 has no API for event capturing and the `onScroll` event doesn't
 	    // bubble.
-	    ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? warning(registrationName !== 'onScroll' || isEventSupported('scroll', true), 'This browser doesn\'t support the `onScroll` event') : void 0;
+	    process.env.NODE_ENV !== 'production' ? warning(registrationName !== 'onScroll' || isEventSupported('scroll', true), 'This browser doesn\'t support the `onScroll` event') : void 0;
 	  }
 	  var containerInfo = inst._hostContainerInfo;
 	  var isDocumentFragment = containerInfo._node && containerInfo._node.nodeType === DOC_FRAGMENT_TYPE;
@@ -7649,7 +7844,7 @@
 	}
 
 	var setContentChildForInstrumentation = emptyFunction;
-	if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	if (process.env.NODE_ENV !== 'production') {
 	  setContentChildForInstrumentation = function (content) {
 	    var hasExistingContent = this._contentDebugID != null;
 	    var debugID = this._debugID;
@@ -7708,9 +7903,9 @@
 	  var inst = this;
 	  // If a component renders to null or if another component fatals and causes
 	  // the state of the tree to be corrupted, `node` here can be null.
-	  !inst._rootNodeID ? ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? invariant(false, 'Must be mounted to trap events') : _prodInvariant('63') : void 0;
+	  !inst._rootNodeID ? process.env.NODE_ENV !== 'production' ? invariant(false, 'Must be mounted to trap events') : _prodInvariant('63') : void 0;
 	  var node = getNode(inst);
-	  !node ? ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? invariant(false, 'trapBubbledEvent(...): Requires node to be rendered.') : _prodInvariant('64') : void 0;
+	  !node ? process.env.NODE_ENV !== 'production' ? invariant(false, 'trapBubbledEvent(...): Requires node to be rendered.') : _prodInvariant('64') : void 0;
 
 	  switch (inst._tag) {
 	    case 'iframe':
@@ -7794,7 +7989,7 @@
 
 	function validateDangerousTag(tag) {
 	  if (!hasOwnProperty.call(validatedTagCache, tag)) {
-	    !VALID_TAG_REGEX.test(tag) ? ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? invariant(false, 'Invalid tag: %s', tag) : _prodInvariant('65', tag) : void 0;
+	    !VALID_TAG_REGEX.test(tag) ? process.env.NODE_ENV !== 'production' ? invariant(false, 'Invalid tag: %s', tag) : _prodInvariant('65', tag) : void 0;
 	    validatedTagCache[tag] = true;
 	  }
 	}
@@ -7836,7 +8031,7 @@
 	  this._wrapperState = null;
 	  this._topLevelWrapper = null;
 	  this._flags = 0;
-	  if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	  if (process.env.NODE_ENV !== 'production') {
 	    this._ancestorInfo = null;
 	    setContentChildForInstrumentation.call(this, null);
 	  }
@@ -7928,7 +8123,7 @@
 	    }
 	    this._namespaceURI = namespaceURI;
 
-	    if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	    if (process.env.NODE_ENV !== 'production') {
 	      var parentInfo;
 	      if (hostParent != null) {
 	        parentInfo = hostParent._ancestorInfo;
@@ -8047,7 +8242,7 @@
 	      } else {
 	        if (propKey === STYLE) {
 	          if (propValue) {
-	            if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	            if (process.env.NODE_ENV !== 'production') {
 	              // See `_updateDOMProperties`. style block
 	              this._previousStyle = propValue;
 	            }
@@ -8106,7 +8301,7 @@
 	      if (contentToUse != null) {
 	        // TODO: Validate that text is allowed as a child of this node
 	        ret = escapeTextContentForBrowser(contentToUse);
-	        if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	        if (process.env.NODE_ENV !== 'production') {
 	          setContentChildForInstrumentation.call(this, contentToUse);
 	        }
 	      } else if (childrenToUse != null) {
@@ -8143,7 +8338,7 @@
 	      var childrenToUse = contentToUse != null ? null : props.children;
 	      if (contentToUse != null) {
 	        // TODO: Validate that text is allowed as a child of this node
-	        if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	        if (process.env.NODE_ENV !== 'production') {
 	          setContentChildForInstrumentation.call(this, contentToUse);
 	        }
 	        DOMLazyTree.queueText(lazyTree, contentToUse);
@@ -8285,7 +8480,7 @@
 	      }
 	      if (propKey === STYLE) {
 	        if (nextProp) {
-	          if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	          if (process.env.NODE_ENV !== 'production') {
 	            checkAndWarnForMutatedStyle(this._previousStyleCopy, this._previousStyle, this);
 	            this._previousStyle = nextProp;
 	          }
@@ -8367,7 +8562,7 @@
 	      this.updateChildren(null, transaction, context);
 	    } else if (lastHasContentOrHtml && !nextHasContentOrHtml) {
 	      this.updateTextContent('');
-	      if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	      if (process.env.NODE_ENV !== 'production') {
 	        ReactInstrumentation.debugTool.onSetChildren(this._debugID, []);
 	      }
 	    }
@@ -8375,7 +8570,7 @@
 	    if (nextContent != null) {
 	      if (lastContent !== nextContent) {
 	        this.updateTextContent('' + nextContent);
-	        if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	        if (process.env.NODE_ENV !== 'production') {
 	          setContentChildForInstrumentation.call(this, nextContent);
 	        }
 	      }
@@ -8383,11 +8578,11 @@
 	      if (lastHtml !== nextHtml) {
 	        this.updateMarkup('' + nextHtml);
 	      }
-	      if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	      if (process.env.NODE_ENV !== 'production') {
 	        ReactInstrumentation.debugTool.onSetChildren(this._debugID, []);
 	      }
 	    } else if (nextChildren != null) {
-	      if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	      if (process.env.NODE_ENV !== 'production') {
 	        setContentChildForInstrumentation.call(this, null);
 	      }
 
@@ -8431,7 +8626,7 @@
 	         * take advantage of React's reconciliation for styling and <title>
 	         * management. So we just document it and throw in dangerous cases.
 	         */
-	         true ? ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? invariant(false, '<%s> tried to unmount. Because of cross-browser quirks it is impossible to unmount some top-level components (eg <html>, <head>, and <body>) reliably and efficiently. To fix this, have a single top-level component that never unmounts render these elements.', this._tag) : _prodInvariant('66', this._tag) : void 0;
+	         true ? process.env.NODE_ENV !== 'production' ? invariant(false, '<%s> tried to unmount. Because of cross-browser quirks it is impossible to unmount some top-level components (eg <html>, <head>, and <body>) reliably and efficiently. To fix this, have a single top-level component that never unmounts render these elements.', this._tag) : _prodInvariant('66', this._tag) : void 0;
 	        break;
 	    }
 
@@ -8442,7 +8637,7 @@
 	    this._domID = 0;
 	    this._wrapperState = null;
 
-	    if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	    if (process.env.NODE_ENV !== 'production') {
 	      setContentChildForInstrumentation.call(this, null);
 	    }
 	  },
@@ -8456,9 +8651,10 @@
 	_assign(ReactDOMComponent.prototype, ReactDOMComponent.Mixin, ReactMultiChild.Mixin);
 
 	module.exports = ReactDOMComponent;
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ },
-/* 72 */
+/* 73 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -8474,9 +8670,9 @@
 
 	'use strict';
 
-	var ReactDOMComponentTree = __webpack_require__(3);
+	var ReactDOMComponentTree = __webpack_require__(4);
 
-	var focusNode = __webpack_require__(73);
+	var focusNode = __webpack_require__(74);
 
 	var AutoFocusUtils = {
 	  focusDOMComponent: function () {
@@ -8487,7 +8683,7 @@
 	module.exports = AutoFocusUtils;
 
 /***/ },
-/* 73 */
+/* 74 */
 /***/ function(module, exports) {
 
 	/**
@@ -8518,10 +8714,10 @@
 	module.exports = focusNode;
 
 /***/ },
-/* 74 */
+/* 75 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/**
+	/* WEBPACK VAR INJECTION */(function(process) {/**
 	 * Copyright 2013-present, Facebook, Inc.
 	 * All rights reserved.
 	 *
@@ -8534,15 +8730,15 @@
 
 	'use strict';
 
-	var CSSProperty = __webpack_require__(75);
-	var ExecutionEnvironment = __webpack_require__(21);
-	var ReactInstrumentation = __webpack_require__(37);
+	var CSSProperty = __webpack_require__(76);
+	var ExecutionEnvironment = __webpack_require__(22);
+	var ReactInstrumentation = __webpack_require__(38);
 
-	var camelizeStyleName = __webpack_require__(76);
-	var dangerousStyleValue = __webpack_require__(78);
-	var hyphenateStyleName = __webpack_require__(79);
-	var memoizeStringOnly = __webpack_require__(81);
-	var warning = __webpack_require__(17);
+	var camelizeStyleName = __webpack_require__(77);
+	var dangerousStyleValue = __webpack_require__(79);
+	var hyphenateStyleName = __webpack_require__(80);
+	var memoizeStringOnly = __webpack_require__(82);
+	var warning = __webpack_require__(18);
 
 	var processStyleName = memoizeStringOnly(function (styleName) {
 	  return hyphenateStyleName(styleName);
@@ -8564,7 +8760,7 @@
 	  }
 	}
 
-	if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	if (process.env.NODE_ENV !== 'production') {
 	  // 'msTransform' is correct, but the other prefixes should be capitalized
 	  var badVendoredStyleNamePattern = /^(?:webkit|moz|o)[A-Z]/;
 
@@ -8581,7 +8777,7 @@
 	    }
 
 	    warnedStyleNames[name] = true;
-	    ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? warning(false, 'Unsupported style property %s. Did you mean %s?%s', name, camelizeStyleName(name), checkRenderMessage(owner)) : void 0;
+	    process.env.NODE_ENV !== 'production' ? warning(false, 'Unsupported style property %s. Did you mean %s?%s', name, camelizeStyleName(name), checkRenderMessage(owner)) : void 0;
 	  };
 
 	  var warnBadVendoredStyleName = function (name, owner) {
@@ -8590,7 +8786,7 @@
 	    }
 
 	    warnedStyleNames[name] = true;
-	    ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? warning(false, 'Unsupported vendor-prefixed style property %s. Did you mean %s?%s', name, name.charAt(0).toUpperCase() + name.slice(1), checkRenderMessage(owner)) : void 0;
+	    process.env.NODE_ENV !== 'production' ? warning(false, 'Unsupported vendor-prefixed style property %s. Did you mean %s?%s', name, name.charAt(0).toUpperCase() + name.slice(1), checkRenderMessage(owner)) : void 0;
 	  };
 
 	  var warnStyleValueWithSemicolon = function (name, value, owner) {
@@ -8599,7 +8795,7 @@
 	    }
 
 	    warnedStyleValues[value] = true;
-	    ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? warning(false, 'Style property values shouldn\'t contain a semicolon.%s ' + 'Try "%s: %s" instead.', checkRenderMessage(owner), name, value.replace(badStyleValueWithSemicolonPattern, '')) : void 0;
+	    process.env.NODE_ENV !== 'production' ? warning(false, 'Style property values shouldn\'t contain a semicolon.%s ' + 'Try "%s: %s" instead.', checkRenderMessage(owner), name, value.replace(badStyleValueWithSemicolonPattern, '')) : void 0;
 	  };
 
 	  var warnStyleValueIsNaN = function (name, value, owner) {
@@ -8608,7 +8804,7 @@
 	    }
 
 	    warnedForNaNValue = true;
-	    ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? warning(false, '`NaN` is an invalid value for the `%s` css style property.%s', name, checkRenderMessage(owner)) : void 0;
+	    process.env.NODE_ENV !== 'production' ? warning(false, '`NaN` is an invalid value for the `%s` css style property.%s', name, checkRenderMessage(owner)) : void 0;
 	  };
 
 	  var checkRenderMessage = function (owner) {
@@ -8670,7 +8866,7 @@
 	        continue;
 	      }
 	      var styleValue = styles[styleName];
-	      if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	      if (process.env.NODE_ENV !== 'production') {
 	        warnValidStyle(styleName, styleValue, component);
 	      }
 	      if (styleValue != null) {
@@ -8690,7 +8886,7 @@
 	   * @param {ReactDOMComponent} component
 	   */
 	  setValueForStyles: function (node, styles, component) {
-	    if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	    if (process.env.NODE_ENV !== 'production') {
 	      ReactInstrumentation.debugTool.onHostOperation(component._debugID, 'update styles', styles);
 	    }
 
@@ -8699,7 +8895,7 @@
 	      if (!styles.hasOwnProperty(styleName)) {
 	        continue;
 	      }
-	      if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	      if (process.env.NODE_ENV !== 'production') {
 	        warnValidStyle(styleName, styles[styleName], component);
 	      }
 	      var styleValue = dangerousStyleValue(styleName, styles[styleName], component);
@@ -8726,9 +8922,10 @@
 	};
 
 	module.exports = CSSPropertyOperations;
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ },
-/* 75 */
+/* 76 */
 /***/ function(module, exports) {
 
 	/**
@@ -8881,7 +9078,7 @@
 	module.exports = CSSProperty;
 
 /***/ },
-/* 76 */
+/* 77 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -8897,7 +9094,7 @@
 
 	'use strict';
 
-	var camelize = __webpack_require__(77);
+	var camelize = __webpack_require__(78);
 
 	var msPattern = /^-ms-/;
 
@@ -8925,7 +9122,7 @@
 	module.exports = camelizeStyleName;
 
 /***/ },
-/* 77 */
+/* 78 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -8961,10 +9158,10 @@
 	module.exports = camelize;
 
 /***/ },
-/* 78 */
+/* 79 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/**
+	/* WEBPACK VAR INJECTION */(function(process) {/**
 	 * Copyright 2013-present, Facebook, Inc.
 	 * All rights reserved.
 	 *
@@ -8977,8 +9174,8 @@
 
 	'use strict';
 
-	var CSSProperty = __webpack_require__(75);
-	var warning = __webpack_require__(17);
+	var CSSProperty = __webpack_require__(76);
+	var warning = __webpack_require__(18);
 
 	var isUnitlessNumber = CSSProperty.isUnitlessNumber;
 	var styleWarnings = {};
@@ -9015,7 +9212,7 @@
 	  }
 
 	  if (typeof value === 'string') {
-	    if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	    if (process.env.NODE_ENV !== 'production') {
 	      // Allow '0' to pass through without warning. 0 is already special and
 	      // doesn't require units, so we don't need to warn about it.
 	      if (component && value !== '0') {
@@ -9033,7 +9230,7 @@
 	          }
 	        }
 	        if (!warned) {
-	          ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? warning(false, 'a `%s` tag (owner: `%s`) was passed a numeric string value ' + 'for CSS property `%s` (value: `%s`) which will be treated ' + 'as a unitless number in a future version of React.', component._currentElement.type, ownerName || 'unknown', name, value) : void 0;
+	          process.env.NODE_ENV !== 'production' ? warning(false, 'a `%s` tag (owner: `%s`) was passed a numeric string value ' + 'for CSS property `%s` (value: `%s`) which will be treated ' + 'as a unitless number in a future version of React.', component._currentElement.type, ownerName || 'unknown', name, value) : void 0;
 	        }
 	      }
 	    }
@@ -9043,9 +9240,10 @@
 	}
 
 	module.exports = dangerousStyleValue;
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ },
-/* 79 */
+/* 80 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -9061,7 +9259,7 @@
 
 	'use strict';
 
-	var hyphenate = __webpack_require__(80);
+	var hyphenate = __webpack_require__(81);
 
 	var msPattern = /^ms-/;
 
@@ -9088,7 +9286,7 @@
 	module.exports = hyphenateStyleName;
 
 /***/ },
-/* 80 */
+/* 81 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -9125,7 +9323,7 @@
 	module.exports = hyphenate;
 
 /***/ },
-/* 81 */
+/* 82 */
 /***/ function(module, exports) {
 
 	/**
@@ -9159,10 +9357,10 @@
 	module.exports = memoizeStringOnly;
 
 /***/ },
-/* 82 */
+/* 83 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/**
+	/* WEBPACK VAR INJECTION */(function(process) {/**
 	 * Copyright 2013-present, Facebook, Inc.
 	 * All rights reserved.
 	 *
@@ -9175,12 +9373,12 @@
 
 	'use strict';
 
-	var DOMProperty = __webpack_require__(5);
-	var ReactDOMComponentTree = __webpack_require__(3);
-	var ReactInstrumentation = __webpack_require__(37);
+	var DOMProperty = __webpack_require__(6);
+	var ReactDOMComponentTree = __webpack_require__(4);
+	var ReactInstrumentation = __webpack_require__(38);
 
-	var quoteAttributeValueForBrowser = __webpack_require__(83);
-	var warning = __webpack_require__(17);
+	var quoteAttributeValueForBrowser = __webpack_require__(84);
+	var warning = __webpack_require__(18);
 
 	var VALID_ATTRIBUTE_NAME_REGEX = new RegExp('^[' + DOMProperty.ATTRIBUTE_NAME_START_CHAR + '][' + DOMProperty.ATTRIBUTE_NAME_CHAR + ']*$');
 	var illegalAttributeNameCache = {};
@@ -9198,7 +9396,7 @@
 	    return true;
 	  }
 	  illegalAttributeNameCache[attributeName] = true;
-	  ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? warning(false, 'Invalid attribute name: `%s`', attributeName) : void 0;
+	  process.env.NODE_ENV !== 'production' ? warning(false, 'Invalid attribute name: `%s`', attributeName) : void 0;
 	  return false;
 	}
 
@@ -9312,7 +9510,7 @@
 	      return;
 	    }
 
-	    if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	    if (process.env.NODE_ENV !== 'production') {
 	      var payload = {};
 	      payload[name] = value;
 	      ReactInstrumentation.debugTool.onHostOperation(ReactDOMComponentTree.getInstanceFromNode(node)._debugID, 'update attribute', payload);
@@ -9329,7 +9527,7 @@
 	      node.setAttribute(name, '' + value);
 	    }
 
-	    if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	    if (process.env.NODE_ENV !== 'production') {
 	      var payload = {};
 	      payload[name] = value;
 	      ReactInstrumentation.debugTool.onHostOperation(ReactDOMComponentTree.getInstanceFromNode(node)._debugID, 'update attribute', payload);
@@ -9344,7 +9542,7 @@
 	   */
 	  deleteValueForAttribute: function (node, name) {
 	    node.removeAttribute(name);
-	    if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	    if (process.env.NODE_ENV !== 'production') {
 	      ReactInstrumentation.debugTool.onHostOperation(ReactDOMComponentTree.getInstanceFromNode(node)._debugID, 'remove attribute', name);
 	    }
 	  },
@@ -9375,7 +9573,7 @@
 	      node.removeAttribute(name);
 	    }
 
-	    if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	    if (process.env.NODE_ENV !== 'production') {
 	      ReactInstrumentation.debugTool.onHostOperation(ReactDOMComponentTree.getInstanceFromNode(node)._debugID, 'remove attribute', name);
 	    }
 	  }
@@ -9383,9 +9581,10 @@
 	};
 
 	module.exports = DOMPropertyOperations;
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ },
-/* 83 */
+/* 84 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -9401,7 +9600,7 @@
 
 	'use strict';
 
-	var escapeTextContentForBrowser = __webpack_require__(64);
+	var escapeTextContentForBrowser = __webpack_require__(65);
 
 	/**
 	 * Escapes attribute value to prevent scripting attacks.
@@ -9416,7 +9615,7 @@
 	module.exports = quoteAttributeValueForBrowser;
 
 /***/ },
-/* 84 */
+/* 85 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -9432,15 +9631,15 @@
 
 	'use strict';
 
-	var _assign = __webpack_require__(23);
+	var _assign = __webpack_require__(24);
 
-	var EventConstants = __webpack_require__(10);
-	var EventPluginRegistry = __webpack_require__(14);
-	var ReactEventEmitterMixin = __webpack_require__(85);
-	var ViewportMetrics = __webpack_require__(54);
+	var EventConstants = __webpack_require__(11);
+	var EventPluginRegistry = __webpack_require__(15);
+	var ReactEventEmitterMixin = __webpack_require__(86);
+	var ViewportMetrics = __webpack_require__(55);
 
-	var getVendorPrefixedEventName = __webpack_require__(86);
-	var isEventSupported = __webpack_require__(48);
+	var getVendorPrefixedEventName = __webpack_require__(87);
+	var isEventSupported = __webpack_require__(49);
 
 	/**
 	 * Summary of `ReactBrowserEventEmitter` event handling:
@@ -9738,7 +9937,7 @@
 	module.exports = ReactBrowserEventEmitter;
 
 /***/ },
-/* 85 */
+/* 86 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -9754,7 +9953,7 @@
 
 	'use strict';
 
-	var EventPluginHub = __webpack_require__(13);
+	var EventPluginHub = __webpack_require__(14);
 
 	function runEventQueueInBatch(events) {
 	  EventPluginHub.enqueueEvents(events);
@@ -9776,7 +9975,7 @@
 	module.exports = ReactEventEmitterMixin;
 
 /***/ },
-/* 86 */
+/* 87 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -9792,7 +9991,7 @@
 
 	'use strict';
 
-	var ExecutionEnvironment = __webpack_require__(21);
+	var ExecutionEnvironment = __webpack_require__(22);
 
 	/**
 	 * Generate a mapping of standard vendor prefixes using the defined style property and event name.
@@ -9882,7 +10081,7 @@
 	module.exports = getVendorPrefixedEventName;
 
 /***/ },
-/* 87 */
+/* 88 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -9898,7 +10097,7 @@
 
 	'use strict';
 
-	var DisabledInputUtils = __webpack_require__(88);
+	var DisabledInputUtils = __webpack_require__(89);
 
 	/**
 	 * Implements a <button> host component that does not receive mouse events
@@ -9911,7 +10110,7 @@
 	module.exports = ReactDOMButton;
 
 /***/ },
-/* 88 */
+/* 89 */
 /***/ function(module, exports) {
 
 	/**
@@ -9966,10 +10165,10 @@
 	module.exports = DisabledInputUtils;
 
 /***/ },
-/* 89 */
+/* 90 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/**
+	/* WEBPACK VAR INJECTION */(function(process) {/**
 	 * Copyright 2013-present, Facebook, Inc.
 	 * All rights reserved.
 	 *
@@ -9982,17 +10181,17 @@
 
 	'use strict';
 
-	var _prodInvariant = __webpack_require__(4),
-	    _assign = __webpack_require__(23);
+	var _prodInvariant = __webpack_require__(5),
+	    _assign = __webpack_require__(24);
 
-	var DisabledInputUtils = __webpack_require__(88);
-	var DOMPropertyOperations = __webpack_require__(82);
-	var LinkedValueUtils = __webpack_require__(90);
-	var ReactDOMComponentTree = __webpack_require__(3);
-	var ReactUpdates = __webpack_require__(31);
+	var DisabledInputUtils = __webpack_require__(89);
+	var DOMPropertyOperations = __webpack_require__(83);
+	var LinkedValueUtils = __webpack_require__(91);
+	var ReactDOMComponentTree = __webpack_require__(4);
+	var ReactUpdates = __webpack_require__(32);
 
-	var invariant = __webpack_require__(6);
-	var warning = __webpack_require__(17);
+	var invariant = __webpack_require__(7);
+	var warning = __webpack_require__(18);
 
 	var didWarnValueLink = false;
 	var didWarnCheckedLink = false;
@@ -10057,25 +10256,25 @@
 	  },
 
 	  mountWrapper: function (inst, props) {
-	    if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	    if (process.env.NODE_ENV !== 'production') {
 	      LinkedValueUtils.checkPropTypes('input', props, inst._currentElement._owner);
 
 	      var owner = inst._currentElement._owner;
 
 	      if (props.valueLink !== undefined && !didWarnValueLink) {
-	        ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? warning(false, '`valueLink` prop on `input` is deprecated; set `value` and `onChange` instead.') : void 0;
+	        process.env.NODE_ENV !== 'production' ? warning(false, '`valueLink` prop on `input` is deprecated; set `value` and `onChange` instead.') : void 0;
 	        didWarnValueLink = true;
 	      }
 	      if (props.checkedLink !== undefined && !didWarnCheckedLink) {
-	        ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? warning(false, '`checkedLink` prop on `input` is deprecated; set `value` and `onChange` instead.') : void 0;
+	        process.env.NODE_ENV !== 'production' ? warning(false, '`checkedLink` prop on `input` is deprecated; set `value` and `onChange` instead.') : void 0;
 	        didWarnCheckedLink = true;
 	      }
 	      if (props.checked !== undefined && props.defaultChecked !== undefined && !didWarnCheckedDefaultChecked) {
-	        ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? warning(false, '%s contains an input of type %s with both checked and defaultChecked props. ' + 'Input elements must be either controlled or uncontrolled ' + '(specify either the checked prop, or the defaultChecked prop, but not ' + 'both). Decide between using a controlled or uncontrolled input ' + 'element and remove one of these props. More info: ' + 'https://fb.me/react-controlled-components', owner && owner.getName() || 'A component', props.type) : void 0;
+	        process.env.NODE_ENV !== 'production' ? warning(false, '%s contains an input of type %s with both checked and defaultChecked props. ' + 'Input elements must be either controlled or uncontrolled ' + '(specify either the checked prop, or the defaultChecked prop, but not ' + 'both). Decide between using a controlled or uncontrolled input ' + 'element and remove one of these props. More info: ' + 'https://fb.me/react-controlled-components', owner && owner.getName() || 'A component', props.type) : void 0;
 	        didWarnCheckedDefaultChecked = true;
 	      }
 	      if (props.value !== undefined && props.defaultValue !== undefined && !didWarnValueDefaultValue) {
-	        ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? warning(false, '%s contains an input of type %s with both value and defaultValue props. ' + 'Input elements must be either controlled or uncontrolled ' + '(specify either the value prop, or the defaultValue prop, but not ' + 'both). Decide between using a controlled or uncontrolled input ' + 'element and remove one of these props. More info: ' + 'https://fb.me/react-controlled-components', owner && owner.getName() || 'A component', props.type) : void 0;
+	        process.env.NODE_ENV !== 'production' ? warning(false, '%s contains an input of type %s with both value and defaultValue props. ' + 'Input elements must be either controlled or uncontrolled ' + '(specify either the value prop, or the defaultValue prop, but not ' + 'both). Decide between using a controlled or uncontrolled input ' + 'element and remove one of these props. More info: ' + 'https://fb.me/react-controlled-components', owner && owner.getName() || 'A component', props.type) : void 0;
 	        didWarnValueDefaultValue = true;
 	      }
 	    }
@@ -10088,7 +10287,7 @@
 	      onChange: _handleChange.bind(inst)
 	    };
 
-	    if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	    if (process.env.NODE_ENV !== 'production') {
 	      inst._wrapperState.controlled = isControlled(props);
 	    }
 	  },
@@ -10096,16 +10295,16 @@
 	  updateWrapper: function (inst) {
 	    var props = inst._currentElement.props;
 
-	    if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	    if (process.env.NODE_ENV !== 'production') {
 	      var controlled = isControlled(props);
 	      var owner = inst._currentElement._owner;
 
 	      if (!inst._wrapperState.controlled && controlled && !didWarnUncontrolledToControlled) {
-	        ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? warning(false, '%s is changing an uncontrolled input of type %s to be controlled. ' + 'Input elements should not switch from uncontrolled to controlled (or vice versa). ' + 'Decide between using a controlled or uncontrolled input ' + 'element for the lifetime of the component. More info: https://fb.me/react-controlled-components', owner && owner.getName() || 'A component', props.type) : void 0;
+	        process.env.NODE_ENV !== 'production' ? warning(false, '%s is changing an uncontrolled input of type %s to be controlled. ' + 'Input elements should not switch from uncontrolled to controlled (or vice versa). ' + 'Decide between using a controlled or uncontrolled input ' + 'element for the lifetime of the component. More info: https://fb.me/react-controlled-components', owner && owner.getName() || 'A component', props.type) : void 0;
 	        didWarnUncontrolledToControlled = true;
 	      }
 	      if (inst._wrapperState.controlled && !controlled && !didWarnControlledToUncontrolled) {
-	        ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? warning(false, '%s is changing a controlled input of type %s to be uncontrolled. ' + 'Input elements should not switch from controlled to uncontrolled (or vice versa). ' + 'Decide between using a controlled or uncontrolled input ' + 'element for the lifetime of the component. More info: https://fb.me/react-controlled-components', owner && owner.getName() || 'A component', props.type) : void 0;
+	        process.env.NODE_ENV !== 'production' ? warning(false, '%s is changing a controlled input of type %s to be uncontrolled. ' + 'Input elements should not switch from controlled to uncontrolled (or vice versa). ' + 'Decide between using a controlled or uncontrolled input ' + 'element for the lifetime of the component. More info: https://fb.me/react-controlled-components', owner && owner.getName() || 'A component', props.type) : void 0;
 	        didWarnControlledToUncontrolled = true;
 	      }
 	    }
@@ -10226,7 +10425,7 @@
 	      // That's probably okay; we don't support it just as we don't support
 	      // mixing React radio buttons with non-React ones.
 	      var otherInstance = ReactDOMComponentTree.getInstanceFromNode(otherNode);
-	      !otherInstance ? ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? invariant(false, 'ReactDOMInput: Mixing React and non-React radio inputs with the same `name` is not supported.') : _prodInvariant('90') : void 0;
+	      !otherInstance ? process.env.NODE_ENV !== 'production' ? invariant(false, 'ReactDOMInput: Mixing React and non-React radio inputs with the same `name` is not supported.') : _prodInvariant('90') : void 0;
 	      // If this is a controlled radio button group, forcing the input that
 	      // was previously checked to update will cause it to be come re-checked
 	      // as appropriate.
@@ -10238,12 +10437,13 @@
 	}
 
 	module.exports = ReactDOMInput;
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ },
-/* 90 */
+/* 91 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/**
+	/* WEBPACK VAR INJECTION */(function(process) {/**
 	 * Copyright 2013-present, Facebook, Inc.
 	 * All rights reserved.
 	 *
@@ -10256,14 +10456,14 @@
 
 	'use strict';
 
-	var _prodInvariant = __webpack_require__(4);
+	var _prodInvariant = __webpack_require__(5);
 
-	var ReactPropTypes = __webpack_require__(91);
-	var ReactPropTypeLocations = __webpack_require__(97);
-	var ReactPropTypesSecret = __webpack_require__(95);
+	var ReactPropTypes = __webpack_require__(92);
+	var ReactPropTypeLocations = __webpack_require__(98);
+	var ReactPropTypesSecret = __webpack_require__(96);
 
-	var invariant = __webpack_require__(6);
-	var warning = __webpack_require__(17);
+	var invariant = __webpack_require__(7);
+	var warning = __webpack_require__(18);
 
 	var hasReadOnlyValue = {
 	  'button': true,
@@ -10276,16 +10476,16 @@
 	};
 
 	function _assertSingleLink(inputProps) {
-	  !(inputProps.checkedLink == null || inputProps.valueLink == null) ? ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? invariant(false, 'Cannot provide a checkedLink and a valueLink. If you want to use checkedLink, you probably don\'t want to use valueLink and vice versa.') : _prodInvariant('87') : void 0;
+	  !(inputProps.checkedLink == null || inputProps.valueLink == null) ? process.env.NODE_ENV !== 'production' ? invariant(false, 'Cannot provide a checkedLink and a valueLink. If you want to use checkedLink, you probably don\'t want to use valueLink and vice versa.') : _prodInvariant('87') : void 0;
 	}
 	function _assertValueLink(inputProps) {
 	  _assertSingleLink(inputProps);
-	  !(inputProps.value == null && inputProps.onChange == null) ? ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? invariant(false, 'Cannot provide a valueLink and a value or onChange event. If you want to use value or onChange, you probably don\'t want to use valueLink.') : _prodInvariant('88') : void 0;
+	  !(inputProps.value == null && inputProps.onChange == null) ? process.env.NODE_ENV !== 'production' ? invariant(false, 'Cannot provide a valueLink and a value or onChange event. If you want to use value or onChange, you probably don\'t want to use valueLink.') : _prodInvariant('88') : void 0;
 	}
 
 	function _assertCheckedLink(inputProps) {
 	  _assertSingleLink(inputProps);
-	  !(inputProps.checked == null && inputProps.onChange == null) ? ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? invariant(false, 'Cannot provide a checkedLink and a checked property or onChange event. If you want to use checked or onChange, you probably don\'t want to use checkedLink') : _prodInvariant('89') : void 0;
+	  !(inputProps.checked == null && inputProps.onChange == null) ? process.env.NODE_ENV !== 'production' ? invariant(false, 'Cannot provide a checkedLink and a checked property or onChange event. If you want to use checked or onChange, you probably don\'t want to use checkedLink') : _prodInvariant('89') : void 0;
 	}
 
 	var propTypes = {
@@ -10331,7 +10531,7 @@
 	        loggedTypeFailures[error.message] = true;
 
 	        var addendum = getDeclarationErrorAddendum(owner);
-	        ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? warning(false, 'Failed form propType: %s%s', error.message, addendum) : void 0;
+	        process.env.NODE_ENV !== 'production' ? warning(false, 'Failed form propType: %s%s', error.message, addendum) : void 0;
 	      }
 	    }
 	  },
@@ -10379,12 +10579,13 @@
 	};
 
 	module.exports = LinkedValueUtils;
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ },
-/* 91 */
+/* 92 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/**
+	/* WEBPACK VAR INJECTION */(function(process) {/**
 	 * Copyright 2013-present, Facebook, Inc.
 	 * All rights reserved.
 	 *
@@ -10397,13 +10598,13 @@
 
 	'use strict';
 
-	var ReactElement = __webpack_require__(92);
-	var ReactPropTypeLocationNames = __webpack_require__(94);
-	var ReactPropTypesSecret = __webpack_require__(95);
+	var ReactElement = __webpack_require__(93);
+	var ReactPropTypeLocationNames = __webpack_require__(95);
+	var ReactPropTypesSecret = __webpack_require__(96);
 
-	var emptyFunction = __webpack_require__(18);
-	var getIteratorFn = __webpack_require__(96);
-	var warning = __webpack_require__(17);
+	var emptyFunction = __webpack_require__(19);
+	var getIteratorFn = __webpack_require__(97);
+	var warning = __webpack_require__(18);
 
 	/**
 	 * Collection of methods that allow declaration and validation of props that are
@@ -10507,17 +10708,17 @@
 	PropTypeError.prototype = Error.prototype;
 
 	function createChainableTypeChecker(validate) {
-	  if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	  if (process.env.NODE_ENV !== 'production') {
 	    var manualPropTypeCallCache = {};
 	  }
 	  function checkType(isRequired, props, propName, componentName, location, propFullName, secret) {
 	    componentName = componentName || ANONYMOUS;
 	    propFullName = propFullName || propName;
-	    if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	    if (process.env.NODE_ENV !== 'production') {
 	      if (secret !== ReactPropTypesSecret && typeof console !== 'undefined') {
 	        var cacheKey = componentName + ':' + propName;
 	        if (!manualPropTypeCallCache[cacheKey]) {
-	          ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? warning(false, 'You are manually calling a React.PropTypes validation ' + 'function for the `%s` prop on `%s`. This is deprecated ' + 'and will not work in the next major version. You may be ' + 'seeing this warning due to a third-party PropTypes library. ' + 'See https://fb.me/react-warning-dont-call-proptypes for details.', propFullName, componentName) : void 0;
+	          process.env.NODE_ENV !== 'production' ? warning(false, 'You are manually calling a React.PropTypes validation ' + 'function for the `%s` prop on `%s`. This is deprecated ' + 'and will not work in the next major version. You may be ' + 'seeing this warning due to a third-party PropTypes library. ' + 'See https://fb.me/react-warning-dont-call-proptypes for details.', propFullName, componentName) : void 0;
 	          manualPropTypeCallCache[cacheKey] = true;
 	        }
 	      }
@@ -10611,7 +10812,7 @@
 
 	function createEnumTypeChecker(expectedValues) {
 	  if (!Array.isArray(expectedValues)) {
-	    ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? warning(false, 'Invalid argument supplied to oneOf, expected an instance of array.') : void 0;
+	    process.env.NODE_ENV !== 'production' ? warning(false, 'Invalid argument supplied to oneOf, expected an instance of array.') : void 0;
 	    return emptyFunction.thatReturnsNull;
 	  }
 
@@ -10656,7 +10857,7 @@
 
 	function createUnionTypeChecker(arrayOfTypeCheckers) {
 	  if (!Array.isArray(arrayOfTypeCheckers)) {
-	    ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? warning(false, 'Invalid argument supplied to oneOfType, expected an instance of array.') : void 0;
+	    process.env.NODE_ENV !== 'production' ? warning(false, 'Invalid argument supplied to oneOfType, expected an instance of array.') : void 0;
 	    return emptyFunction.thatReturnsNull;
 	  }
 
@@ -10815,12 +11016,13 @@
 	}
 
 	module.exports = ReactPropTypes;
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ },
-/* 92 */
+/* 93 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/**
+	/* WEBPACK VAR INJECTION */(function(process) {/**
 	 * Copyright 2014-present, Facebook, Inc.
 	 * All rights reserved.
 	 *
@@ -10833,12 +11035,12 @@
 
 	'use strict';
 
-	var _assign = __webpack_require__(23);
+	var _assign = __webpack_require__(24);
 
-	var ReactCurrentOwner = __webpack_require__(42);
+	var ReactCurrentOwner = __webpack_require__(43);
 
-	var warning = __webpack_require__(17);
-	var canDefineProperty = __webpack_require__(93);
+	var warning = __webpack_require__(18);
+	var canDefineProperty = __webpack_require__(94);
 	var hasOwnProperty = Object.prototype.hasOwnProperty;
 
 	// The Symbol used to tag the ReactElement type. If there is no native Symbol
@@ -10855,7 +11057,7 @@
 	var specialPropKeyWarningShown, specialPropRefWarningShown;
 
 	function hasValidRef(config) {
-	  if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	  if (process.env.NODE_ENV !== 'production') {
 	    if (hasOwnProperty.call(config, 'ref')) {
 	      var getter = Object.getOwnPropertyDescriptor(config, 'ref').get;
 	      if (getter && getter.isReactWarning) {
@@ -10867,7 +11069,7 @@
 	}
 
 	function hasValidKey(config) {
-	  if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	  if (process.env.NODE_ENV !== 'production') {
 	    if (hasOwnProperty.call(config, 'key')) {
 	      var getter = Object.getOwnPropertyDescriptor(config, 'key').get;
 	      if (getter && getter.isReactWarning) {
@@ -10882,7 +11084,7 @@
 	  var warnAboutAccessingKey = function () {
 	    if (!specialPropKeyWarningShown) {
 	      specialPropKeyWarningShown = true;
-	      ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? warning(false, '%s: `key` is not a prop. Trying to access it will result ' + 'in `undefined` being returned. If you need to access the same ' + 'value within the child component, you should pass it as a different ' + 'prop. (https://fb.me/react-special-props)', displayName) : void 0;
+	      process.env.NODE_ENV !== 'production' ? warning(false, '%s: `key` is not a prop. Trying to access it will result ' + 'in `undefined` being returned. If you need to access the same ' + 'value within the child component, you should pass it as a different ' + 'prop. (https://fb.me/react-special-props)', displayName) : void 0;
 	    }
 	  };
 	  warnAboutAccessingKey.isReactWarning = true;
@@ -10896,7 +11098,7 @@
 	  var warnAboutAccessingRef = function () {
 	    if (!specialPropRefWarningShown) {
 	      specialPropRefWarningShown = true;
-	      ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? warning(false, '%s: `ref` is not a prop. Trying to access it will result ' + 'in `undefined` being returned. If you need to access the same ' + 'value within the child component, you should pass it as a different ' + 'prop. (https://fb.me/react-special-props)', displayName) : void 0;
+	      process.env.NODE_ENV !== 'production' ? warning(false, '%s: `ref` is not a prop. Trying to access it will result ' + 'in `undefined` being returned. If you need to access the same ' + 'value within the child component, you should pass it as a different ' + 'prop. (https://fb.me/react-special-props)', displayName) : void 0;
 	    }
 	  };
 	  warnAboutAccessingRef.isReactWarning = true;
@@ -10941,7 +11143,7 @@
 	    _owner: owner
 	  };
 
-	  if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	  if (process.env.NODE_ENV !== 'production') {
 	    // The validation flag is currently mutative. We put it on
 	    // an external backing store so that we can freeze the whole object.
 	    // This can be replaced with a WeakMap once they are implemented in
@@ -11012,8 +11214,8 @@
 	  var source = null;
 
 	  if (config != null) {
-	    if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
-	      ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? warning(
+	    if (process.env.NODE_ENV !== 'production') {
+	      process.env.NODE_ENV !== 'production' ? warning(
 	      /* eslint-disable no-proto */
 	      config.__proto__ == null || config.__proto__ === Object.prototype,
 	      /* eslint-enable no-proto */
@@ -11059,7 +11261,7 @@
 	      }
 	    }
 	  }
-	  if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	  if (process.env.NODE_ENV !== 'production') {
 	    if (key || ref) {
 	      if (typeof props.$$typeof === 'undefined' || props.$$typeof !== REACT_ELEMENT_TYPE) {
 	        var displayName = typeof type === 'function' ? type.displayName || type.name || 'Unknown' : type;
@@ -11120,8 +11322,8 @@
 	  var owner = element._owner;
 
 	  if (config != null) {
-	    if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
-	      ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? warning(
+	    if (process.env.NODE_ENV !== 'production') {
+	      process.env.NODE_ENV !== 'production' ? warning(
 	      /* eslint-disable no-proto */
 	      config.__proto__ == null || config.__proto__ === Object.prototype,
 	      /* eslint-enable no-proto */
@@ -11184,12 +11386,13 @@
 	ReactElement.REACT_ELEMENT_TYPE = REACT_ELEMENT_TYPE;
 
 	module.exports = ReactElement;
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ },
-/* 93 */
+/* 94 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/**
+	/* WEBPACK VAR INJECTION */(function(process) {/**
 	 * Copyright 2013-present, Facebook, Inc.
 	 * All rights reserved.
 	 *
@@ -11203,7 +11406,7 @@
 	'use strict';
 
 	var canDefineProperty = false;
-	if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	if (process.env.NODE_ENV !== 'production') {
 	  try {
 	    Object.defineProperty({}, 'x', { get: function () {} });
 	    canDefineProperty = true;
@@ -11213,12 +11416,13 @@
 	}
 
 	module.exports = canDefineProperty;
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ },
-/* 94 */
+/* 95 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/**
+	/* WEBPACK VAR INJECTION */(function(process) {/**
 	 * Copyright 2013-present, Facebook, Inc.
 	 * All rights reserved.
 	 *
@@ -11233,7 +11437,7 @@
 
 	var ReactPropTypeLocationNames = {};
 
-	if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	if (process.env.NODE_ENV !== 'production') {
 	  ReactPropTypeLocationNames = {
 	    prop: 'prop',
 	    context: 'context',
@@ -11242,9 +11446,10 @@
 	}
 
 	module.exports = ReactPropTypeLocationNames;
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ },
-/* 95 */
+/* 96 */
 /***/ function(module, exports) {
 
 	/**
@@ -11265,7 +11470,7 @@
 	module.exports = ReactPropTypesSecret;
 
 /***/ },
-/* 96 */
+/* 97 */
 /***/ function(module, exports) {
 
 	/**
@@ -11311,7 +11516,7 @@
 	module.exports = getIteratorFn;
 
 /***/ },
-/* 97 */
+/* 98 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -11327,7 +11532,7 @@
 
 	'use strict';
 
-	var keyMirror = __webpack_require__(11);
+	var keyMirror = __webpack_require__(12);
 
 	var ReactPropTypeLocations = keyMirror({
 	  prop: null,
@@ -11338,10 +11543,10 @@
 	module.exports = ReactPropTypeLocations;
 
 /***/ },
-/* 98 */
+/* 99 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/**
+	/* WEBPACK VAR INJECTION */(function(process) {/**
 	 * Copyright 2013-present, Facebook, Inc.
 	 * All rights reserved.
 	 *
@@ -11354,13 +11559,13 @@
 
 	'use strict';
 
-	var _assign = __webpack_require__(23);
+	var _assign = __webpack_require__(24);
 
-	var ReactChildren = __webpack_require__(99);
-	var ReactDOMComponentTree = __webpack_require__(3);
-	var ReactDOMSelect = __webpack_require__(102);
+	var ReactChildren = __webpack_require__(100);
+	var ReactDOMComponentTree = __webpack_require__(4);
+	var ReactDOMSelect = __webpack_require__(103);
 
-	var warning = __webpack_require__(17);
+	var warning = __webpack_require__(18);
 	var didWarnInvalidOptionChildren = false;
 
 	function flattenChildren(children) {
@@ -11376,7 +11581,7 @@
 	      content += child;
 	    } else if (!didWarnInvalidOptionChildren) {
 	      didWarnInvalidOptionChildren = true;
-	      ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? warning(false, 'Only strings and numbers are supported as <option> children.') : void 0;
+	      process.env.NODE_ENV !== 'production' ? warning(false, 'Only strings and numbers are supported as <option> children.') : void 0;
 	    }
 	  });
 
@@ -11389,8 +11594,8 @@
 	var ReactDOMOption = {
 	  mountWrapper: function (inst, props, hostParent) {
 	    // TODO (yungsters): Remove support for `selected` in <option>.
-	    if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
-	      ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? warning(props.selected == null, 'Use the `defaultValue` or `value` props on <select> instead of ' + 'setting `selected` on <option>.') : void 0;
+	    if (process.env.NODE_ENV !== 'production') {
+	      process.env.NODE_ENV !== 'production' ? warning(props.selected == null, 'Use the `defaultValue` or `value` props on <select> instead of ' + 'setting `selected` on <option>.') : void 0;
 	    }
 
 	    // Look up whether this option is 'selected'
@@ -11464,9 +11669,10 @@
 	};
 
 	module.exports = ReactDOMOption;
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ },
-/* 99 */
+/* 100 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -11482,11 +11688,11 @@
 
 	'use strict';
 
-	var PooledClass = __webpack_require__(24);
-	var ReactElement = __webpack_require__(92);
+	var PooledClass = __webpack_require__(25);
+	var ReactElement = __webpack_require__(93);
 
-	var emptyFunction = __webpack_require__(18);
-	var traverseAllChildren = __webpack_require__(100);
+	var emptyFunction = __webpack_require__(19);
+	var traverseAllChildren = __webpack_require__(101);
 
 	var twoArgumentPooler = PooledClass.twoArgumentPooler;
 	var fourArgumentPooler = PooledClass.fourArgumentPooler;
@@ -11662,10 +11868,10 @@
 	module.exports = ReactChildren;
 
 /***/ },
-/* 100 */
+/* 101 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/**
+	/* WEBPACK VAR INJECTION */(function(process) {/**
 	 * Copyright 2013-present, Facebook, Inc.
 	 * All rights reserved.
 	 *
@@ -11678,15 +11884,15 @@
 
 	'use strict';
 
-	var _prodInvariant = __webpack_require__(4);
+	var _prodInvariant = __webpack_require__(5);
 
-	var ReactCurrentOwner = __webpack_require__(42);
-	var ReactElement = __webpack_require__(92);
+	var ReactCurrentOwner = __webpack_require__(43);
+	var ReactElement = __webpack_require__(93);
 
-	var getIteratorFn = __webpack_require__(96);
-	var invariant = __webpack_require__(6);
-	var KeyEscapeUtils = __webpack_require__(101);
-	var warning = __webpack_require__(17);
+	var getIteratorFn = __webpack_require__(97);
+	var invariant = __webpack_require__(7);
+	var KeyEscapeUtils = __webpack_require__(102);
+	var warning = __webpack_require__(18);
 
 	var SEPARATOR = '.';
 	var SUBSEPARATOR = ':';
@@ -11764,7 +11970,7 @@
 	          subtreeCount += traverseAllChildrenImpl(child, nextName, callback, traverseContext);
 	        }
 	      } else {
-	        if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	        if (process.env.NODE_ENV !== 'production') {
 	          var mapsAsChildrenAddendum = '';
 	          if (ReactCurrentOwner.current) {
 	            var mapsAsChildrenOwnerName = ReactCurrentOwner.current.getName();
@@ -11772,7 +11978,7 @@
 	              mapsAsChildrenAddendum = ' Check the render method of `' + mapsAsChildrenOwnerName + '`.';
 	            }
 	          }
-	          ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? warning(didWarnAboutMaps, 'Using Maps as children is not yet fully supported. It is an ' + 'experimental feature that might be removed. Convert it to a ' + 'sequence / iterable of keyed ReactElements instead.%s', mapsAsChildrenAddendum) : void 0;
+	          process.env.NODE_ENV !== 'production' ? warning(didWarnAboutMaps, 'Using Maps as children is not yet fully supported. It is an ' + 'experimental feature that might be removed. Convert it to a ' + 'sequence / iterable of keyed ReactElements instead.%s', mapsAsChildrenAddendum) : void 0;
 	          didWarnAboutMaps = true;
 	        }
 	        // Iterator will provide entry [k,v] tuples rather than values.
@@ -11787,7 +11993,7 @@
 	      }
 	    } else if (type === 'object') {
 	      var addendum = '';
-	      if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	      if (process.env.NODE_ENV !== 'production') {
 	        addendum = ' If you meant to render a collection of children, use an array ' + 'instead or wrap the object using createFragment(object) from the ' + 'React add-ons.';
 	        if (children._isReactElement) {
 	          addendum = ' It looks like you\'re using an element created by a different ' + 'version of React. Make sure to use only one copy of React.';
@@ -11800,7 +12006,7 @@
 	        }
 	      }
 	      var childrenString = String(children);
-	       true ? ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? invariant(false, 'Objects are not valid as a React child (found: %s).%s', childrenString === '[object Object]' ? 'object with keys {' + Object.keys(children).join(', ') + '}' : childrenString, addendum) : _prodInvariant('31', childrenString === '[object Object]' ? 'object with keys {' + Object.keys(children).join(', ') + '}' : childrenString, addendum) : void 0;
+	       true ? process.env.NODE_ENV !== 'production' ? invariant(false, 'Objects are not valid as a React child (found: %s).%s', childrenString === '[object Object]' ? 'object with keys {' + Object.keys(children).join(', ') + '}' : childrenString, addendum) : _prodInvariant('31', childrenString === '[object Object]' ? 'object with keys {' + Object.keys(children).join(', ') + '}' : childrenString, addendum) : void 0;
 	    }
 	  }
 
@@ -11832,9 +12038,10 @@
 	}
 
 	module.exports = traverseAllChildren;
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ },
-/* 101 */
+/* 102 */
 /***/ function(module, exports) {
 
 	/**
@@ -11898,10 +12105,10 @@
 	module.exports = KeyEscapeUtils;
 
 /***/ },
-/* 102 */
+/* 103 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/**
+	/* WEBPACK VAR INJECTION */(function(process) {/**
 	 * Copyright 2013-present, Facebook, Inc.
 	 * All rights reserved.
 	 *
@@ -11914,14 +12121,14 @@
 
 	'use strict';
 
-	var _assign = __webpack_require__(23);
+	var _assign = __webpack_require__(24);
 
-	var DisabledInputUtils = __webpack_require__(88);
-	var LinkedValueUtils = __webpack_require__(90);
-	var ReactDOMComponentTree = __webpack_require__(3);
-	var ReactUpdates = __webpack_require__(31);
+	var DisabledInputUtils = __webpack_require__(89);
+	var LinkedValueUtils = __webpack_require__(91);
+	var ReactDOMComponentTree = __webpack_require__(4);
+	var ReactUpdates = __webpack_require__(32);
 
-	var warning = __webpack_require__(17);
+	var warning = __webpack_require__(18);
 
 	var didWarnValueLink = false;
 	var didWarnValueDefaultValue = false;
@@ -11960,7 +12167,7 @@
 	  LinkedValueUtils.checkPropTypes('select', props, owner);
 
 	  if (props.valueLink !== undefined && !didWarnValueLink) {
-	    ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? warning(false, '`valueLink` prop on `select` is deprecated; set `value` and `onChange` instead.') : void 0;
+	    process.env.NODE_ENV !== 'production' ? warning(false, '`valueLink` prop on `select` is deprecated; set `value` and `onChange` instead.') : void 0;
 	    didWarnValueLink = true;
 	  }
 
@@ -11971,9 +12178,9 @@
 	    }
 	    var isArray = Array.isArray(props[propName]);
 	    if (props.multiple && !isArray) {
-	      ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? warning(false, 'The `%s` prop supplied to <select> must be an array if ' + '`multiple` is true.%s', propName, getDeclarationErrorAddendum(owner)) : void 0;
+	      process.env.NODE_ENV !== 'production' ? warning(false, 'The `%s` prop supplied to <select> must be an array if ' + '`multiple` is true.%s', propName, getDeclarationErrorAddendum(owner)) : void 0;
 	    } else if (!props.multiple && isArray) {
-	      ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? warning(false, 'The `%s` prop supplied to <select> must be a scalar ' + 'value if `multiple` is false.%s', propName, getDeclarationErrorAddendum(owner)) : void 0;
+	      process.env.NODE_ENV !== 'production' ? warning(false, 'The `%s` prop supplied to <select> must be a scalar ' + 'value if `multiple` is false.%s', propName, getDeclarationErrorAddendum(owner)) : void 0;
 	    }
 	  }
 	}
@@ -12039,7 +12246,7 @@
 	  },
 
 	  mountWrapper: function (inst, props) {
-	    if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	    if (process.env.NODE_ENV !== 'production') {
 	      checkSelectPropTypes(inst, props);
 	    }
 
@@ -12053,7 +12260,7 @@
 	    };
 
 	    if (props.value !== undefined && props.defaultValue !== undefined && !didWarnValueDefaultValue) {
-	      ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? warning(false, 'Select elements must be either controlled or uncontrolled ' + '(specify either the value prop, or the defaultValue prop, but not ' + 'both). Decide between using a controlled or uncontrolled select ' + 'element and remove one of these props. More info: ' + 'https://fb.me/react-controlled-components') : void 0;
+	      process.env.NODE_ENV !== 'production' ? warning(false, 'Select elements must be either controlled or uncontrolled ' + '(specify either the value prop, or the defaultValue prop, but not ' + 'both). Decide between using a controlled or uncontrolled select ' + 'element and remove one of these props. More info: ' + 'https://fb.me/react-controlled-components') : void 0;
 	      didWarnValueDefaultValue = true;
 	    }
 	  },
@@ -12102,12 +12309,13 @@
 	}
 
 	module.exports = ReactDOMSelect;
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ },
-/* 103 */
+/* 104 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/**
+	/* WEBPACK VAR INJECTION */(function(process) {/**
 	 * Copyright 2013-present, Facebook, Inc.
 	 * All rights reserved.
 	 *
@@ -12120,16 +12328,16 @@
 
 	'use strict';
 
-	var _prodInvariant = __webpack_require__(4),
-	    _assign = __webpack_require__(23);
+	var _prodInvariant = __webpack_require__(5),
+	    _assign = __webpack_require__(24);
 
-	var DisabledInputUtils = __webpack_require__(88);
-	var LinkedValueUtils = __webpack_require__(90);
-	var ReactDOMComponentTree = __webpack_require__(3);
-	var ReactUpdates = __webpack_require__(31);
+	var DisabledInputUtils = __webpack_require__(89);
+	var LinkedValueUtils = __webpack_require__(91);
+	var ReactDOMComponentTree = __webpack_require__(4);
+	var ReactUpdates = __webpack_require__(32);
 
-	var invariant = __webpack_require__(6);
-	var warning = __webpack_require__(17);
+	var invariant = __webpack_require__(7);
+	var warning = __webpack_require__(18);
 
 	var didWarnValueLink = false;
 	var didWarnValDefaultVal = false;
@@ -12158,7 +12366,7 @@
 	 */
 	var ReactDOMTextarea = {
 	  getHostProps: function (inst, props) {
-	    !(props.dangerouslySetInnerHTML == null) ? ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? invariant(false, '`dangerouslySetInnerHTML` does not make sense on <textarea>.') : _prodInvariant('91') : void 0;
+	    !(props.dangerouslySetInnerHTML == null) ? process.env.NODE_ENV !== 'production' ? invariant(false, '`dangerouslySetInnerHTML` does not make sense on <textarea>.') : _prodInvariant('91') : void 0;
 
 	    // Always set children to the same thing. In IE9, the selection range will
 	    // get reset if `textContent` is mutated.  We could add a check in setTextContent
@@ -12176,14 +12384,14 @@
 	  },
 
 	  mountWrapper: function (inst, props) {
-	    if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	    if (process.env.NODE_ENV !== 'production') {
 	      LinkedValueUtils.checkPropTypes('textarea', props, inst._currentElement._owner);
 	      if (props.valueLink !== undefined && !didWarnValueLink) {
-	        ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? warning(false, '`valueLink` prop on `textarea` is deprecated; set `value` and `onChange` instead.') : void 0;
+	        process.env.NODE_ENV !== 'production' ? warning(false, '`valueLink` prop on `textarea` is deprecated; set `value` and `onChange` instead.') : void 0;
 	        didWarnValueLink = true;
 	      }
 	      if (props.value !== undefined && props.defaultValue !== undefined && !didWarnValDefaultVal) {
-	        ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? warning(false, 'Textarea elements must be either controlled or uncontrolled ' + '(specify either the value prop, or the defaultValue prop, but not ' + 'both). Decide between using a controlled or uncontrolled textarea ' + 'and remove one of these props. More info: ' + 'https://fb.me/react-controlled-components') : void 0;
+	        process.env.NODE_ENV !== 'production' ? warning(false, 'Textarea elements must be either controlled or uncontrolled ' + '(specify either the value prop, or the defaultValue prop, but not ' + 'both). Decide between using a controlled or uncontrolled textarea ' + 'and remove one of these props. More info: ' + 'https://fb.me/react-controlled-components') : void 0;
 	        didWarnValDefaultVal = true;
 	      }
 	    }
@@ -12197,12 +12405,12 @@
 	      // TODO (yungsters): Remove support for children content in <textarea>.
 	      var children = props.children;
 	      if (children != null) {
-	        if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
-	          ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? warning(false, 'Use the `defaultValue` or `value` props instead of setting ' + 'children on <textarea>.') : void 0;
+	        if (process.env.NODE_ENV !== 'production') {
+	          process.env.NODE_ENV !== 'production' ? warning(false, 'Use the `defaultValue` or `value` props instead of setting ' + 'children on <textarea>.') : void 0;
 	        }
-	        !(defaultValue == null) ? ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? invariant(false, 'If you supply `defaultValue` on a <textarea>, do not pass children.') : _prodInvariant('92') : void 0;
+	        !(defaultValue == null) ? process.env.NODE_ENV !== 'production' ? invariant(false, 'If you supply `defaultValue` on a <textarea>, do not pass children.') : _prodInvariant('92') : void 0;
 	        if (Array.isArray(children)) {
-	          !(children.length <= 1) ? ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? invariant(false, '<textarea> can only have at most one child.') : _prodInvariant('93') : void 0;
+	          !(children.length <= 1) ? process.env.NODE_ENV !== 'production' ? invariant(false, '<textarea> can only have at most one child.') : _prodInvariant('93') : void 0;
 	          children = children[0];
 	        }
 
@@ -12262,12 +12470,13 @@
 	}
 
 	module.exports = ReactDOMTextarea;
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ },
-/* 104 */
+/* 105 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/**
+	/* WEBPACK VAR INJECTION */(function(process) {/**
 	 * Copyright 2013-present, Facebook, Inc.
 	 * All rights reserved.
 	 *
@@ -12280,20 +12489,20 @@
 
 	'use strict';
 
-	var _prodInvariant = __webpack_require__(4);
+	var _prodInvariant = __webpack_require__(5);
 
-	var ReactComponentEnvironment = __webpack_require__(105);
-	var ReactInstanceMap = __webpack_require__(106);
-	var ReactInstrumentation = __webpack_require__(37);
-	var ReactMultiChildUpdateTypes = __webpack_require__(69);
+	var ReactComponentEnvironment = __webpack_require__(106);
+	var ReactInstanceMap = __webpack_require__(107);
+	var ReactInstrumentation = __webpack_require__(38);
+	var ReactMultiChildUpdateTypes = __webpack_require__(70);
 
-	var ReactCurrentOwner = __webpack_require__(42);
-	var ReactReconciler = __webpack_require__(34);
-	var ReactChildReconciler = __webpack_require__(107);
+	var ReactCurrentOwner = __webpack_require__(43);
+	var ReactReconciler = __webpack_require__(35);
+	var ReactChildReconciler = __webpack_require__(108);
 
-	var emptyFunction = __webpack_require__(18);
+	var emptyFunction = __webpack_require__(19);
 	var flattenChildren = __webpack_require__(118);
-	var invariant = __webpack_require__(6);
+	var invariant = __webpack_require__(7);
 
 	/**
 	 * Make an update for markup to be rendered and inserted at a supplied index.
@@ -12409,7 +12618,7 @@
 	}
 
 	var setChildrenForInstrumentation = emptyFunction;
-	if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	if (process.env.NODE_ENV !== 'production') {
 	  var getDebugID = function (inst) {
 	    if (!inst._debugID) {
 	      // Check for ART-like instances. TODO: This is silly/gross.
@@ -12450,7 +12659,7 @@
 	  Mixin: {
 
 	    _reconcilerInstantiateChildren: function (nestedChildren, transaction, context) {
-	      if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	      if (process.env.NODE_ENV !== 'production') {
 	        var selfDebugID = getDebugID(this);
 	        if (this._currentElement) {
 	          try {
@@ -12467,7 +12676,7 @@
 	    _reconcilerUpdateChildren: function (prevChildren, nextNestedChildrenElements, mountImages, removedNodes, transaction, context) {
 	      var nextChildren;
 	      var selfDebugID = 0;
-	      if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	      if (process.env.NODE_ENV !== 'production') {
 	        selfDebugID = getDebugID(this);
 	        if (this._currentElement) {
 	          try {
@@ -12503,7 +12712,7 @@
 	        if (children.hasOwnProperty(name)) {
 	          var child = children[name];
 	          var selfDebugID = 0;
-	          if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	          if (process.env.NODE_ENV !== 'production') {
 	            selfDebugID = getDebugID(this);
 	          }
 	          var mountImage = ReactReconciler.mountComponent(child, transaction, this, this._hostContainerInfo, context, selfDebugID);
@@ -12512,7 +12721,7 @@
 	        }
 	      }
 
-	      if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	      if (process.env.NODE_ENV !== 'production') {
 	        setChildrenForInstrumentation.call(this, children);
 	      }
 
@@ -12531,7 +12740,7 @@
 	      ReactChildReconciler.unmountChildren(prevChildren, false);
 	      for (var name in prevChildren) {
 	        if (prevChildren.hasOwnProperty(name)) {
-	           true ? ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? invariant(false, 'updateTextContent called on non-empty component.') : _prodInvariant('118') : void 0;
+	           true ? process.env.NODE_ENV !== 'production' ? invariant(false, 'updateTextContent called on non-empty component.') : _prodInvariant('118') : void 0;
 	        }
 	      }
 	      // Set new text content.
@@ -12551,7 +12760,7 @@
 	      ReactChildReconciler.unmountChildren(prevChildren, false);
 	      for (var name in prevChildren) {
 	        if (prevChildren.hasOwnProperty(name)) {
-	           true ? ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? invariant(false, 'updateTextContent called on non-empty component.') : _prodInvariant('118') : void 0;
+	           true ? process.env.NODE_ENV !== 'production' ? invariant(false, 'updateTextContent called on non-empty component.') : _prodInvariant('118') : void 0;
 	        }
 	      }
 	      var updates = [makeSetMarkup(nextMarkup)];
@@ -12627,7 +12836,7 @@
 	      }
 	      this._renderedChildren = nextChildren;
 
-	      if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	      if (process.env.NODE_ENV !== 'production') {
 	        setChildrenForInstrumentation.call(this, nextChildren);
 	      }
 	    },
@@ -12718,12 +12927,13 @@
 	};
 
 	module.exports = ReactMultiChild;
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ },
-/* 105 */
+/* 106 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/**
+	/* WEBPACK VAR INJECTION */(function(process) {/**
 	 * Copyright 2014-present, Facebook, Inc.
 	 * All rights reserved.
 	 *
@@ -12736,9 +12946,9 @@
 
 	'use strict';
 
-	var _prodInvariant = __webpack_require__(4);
+	var _prodInvariant = __webpack_require__(5);
 
-	var invariant = __webpack_require__(6);
+	var invariant = __webpack_require__(7);
 
 	var injected = false;
 
@@ -12758,7 +12968,7 @@
 
 	  injection: {
 	    injectEnvironment: function (environment) {
-	      !!injected ? ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? invariant(false, 'ReactCompositeComponent: injectEnvironment() can only be called once.') : _prodInvariant('104') : void 0;
+	      !!injected ? process.env.NODE_ENV !== 'production' ? invariant(false, 'ReactCompositeComponent: injectEnvironment() can only be called once.') : _prodInvariant('104') : void 0;
 	      ReactComponentEnvironment.replaceNodeWithMarkup = environment.replaceNodeWithMarkup;
 	      ReactComponentEnvironment.processChildrenUpdates = environment.processChildrenUpdates;
 	      injected = true;
@@ -12768,9 +12978,10 @@
 	};
 
 	module.exports = ReactComponentEnvironment;
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ },
-/* 106 */
+/* 107 */
 /***/ function(module, exports) {
 
 	/**
@@ -12823,7 +13034,7 @@
 	module.exports = ReactInstanceMap;
 
 /***/ },
-/* 107 */
+/* 108 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -12839,34 +13050,34 @@
 
 	'use strict';
 
-	var ReactReconciler = __webpack_require__(34);
+	var ReactReconciler = __webpack_require__(35);
 
 	var instantiateReactComponent = __webpack_require__(109);
-	var KeyEscapeUtils = __webpack_require__(101);
+	var KeyEscapeUtils = __webpack_require__(102);
 	var shouldUpdateReactComponent = __webpack_require__(115);
-	var traverseAllChildren = __webpack_require__(100);
-	var warning = __webpack_require__(17);
+	var traverseAllChildren = __webpack_require__(101);
+	var warning = __webpack_require__(18);
 
 	var ReactComponentTreeHook;
 
-	if (typeof process !== 'undefined' && ({"API_URL":"http://sift.teamgantt.com/API"}) && ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV === 'test') {
+	if (typeof process !== 'undefined' && process.env && process.env.NODE_ENV === 'test') {
 	  // Temporary hack.
 	  // Inline requires don't work well with Jest:
 	  // https://github.com/facebook/react/issues/7240
 	  // Remove the inline requires when we don't need them anymore:
 	  // https://github.com/facebook/react/pull/7178
-	  ReactComponentTreeHook = __webpack_require__(41);
+	  ReactComponentTreeHook = __webpack_require__(42);
 	}
 
 	function instantiateChild(childInstances, child, name, selfDebugID) {
 	  // We found a component instance.
 	  var keyUnique = childInstances[name] === undefined;
-	  if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	  if (process.env.NODE_ENV !== 'production') {
 	    if (!ReactComponentTreeHook) {
-	      ReactComponentTreeHook = __webpack_require__(41);
+	      ReactComponentTreeHook = __webpack_require__(42);
 	    }
 	    if (!keyUnique) {
-	      ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? warning(false, 'flattenChildren(...): Encountered two children with the same key, ' + '`%s`. Child keys must be unique; when two children share a key, only ' + 'the first child will be used.%s', KeyEscapeUtils.unescape(name), ReactComponentTreeHook.getStackAddendumByID(selfDebugID)) : void 0;
+	      process.env.NODE_ENV !== 'production' ? warning(false, 'flattenChildren(...): Encountered two children with the same key, ' + '`%s`. Child keys must be unique; when two children share a key, only ' + 'the first child will be used.%s', KeyEscapeUtils.unescape(name), ReactComponentTreeHook.getStackAddendumByID(selfDebugID)) : void 0;
 	    }
 	  }
 	  if (child != null && keyUnique) {
@@ -12895,7 +13106,7 @@
 	    }
 	    var childInstances = {};
 
-	    if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	    if (process.env.NODE_ENV !== 'production') {
 	      traverseAllChildren(nestedChildNodes, function (childInsts, child, name) {
 	        return instantiateChild(childInsts, child, name, selfDebugID);
 	      }, childInstances);
@@ -12980,179 +13191,13 @@
 	};
 
 	module.exports = ReactChildReconciler;
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(108)))
-
-/***/ },
-/* 108 */
-/***/ function(module, exports) {
-
-	// shim for using process in browser
-	var process = module.exports = {};
-
-	// cached from whatever global is present so that test runners that stub it
-	// don't break things.  But we need to wrap it in a try catch in case it is
-	// wrapped in strict mode code which doesn't define any globals.  It's inside a
-	// function because try/catches deoptimize in certain engines.
-
-	var cachedSetTimeout;
-	var cachedClearTimeout;
-
-	(function () {
-	    try {
-	        cachedSetTimeout = setTimeout;
-	    } catch (e) {
-	        cachedSetTimeout = function () {
-	            throw new Error('setTimeout is not defined');
-	        }
-	    }
-	    try {
-	        cachedClearTimeout = clearTimeout;
-	    } catch (e) {
-	        cachedClearTimeout = function () {
-	            throw new Error('clearTimeout is not defined');
-	        }
-	    }
-	} ())
-	function runTimeout(fun) {
-	    if (cachedSetTimeout === setTimeout) {
-	        //normal enviroments in sane situations
-	        return setTimeout(fun, 0);
-	    }
-	    try {
-	        // when when somebody has screwed with setTimeout but no I.E. maddness
-	        return cachedSetTimeout(fun, 0);
-	    } catch(e){
-	        try {
-	            // When we are in I.E. but the script has been evaled so I.E. doesn't trust the global object when called normally
-	            return cachedSetTimeout.call(null, fun, 0);
-	        } catch(e){
-	            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error
-	            return cachedSetTimeout.call(this, fun, 0);
-	        }
-	    }
-
-
-	}
-	function runClearTimeout(marker) {
-	    if (cachedClearTimeout === clearTimeout) {
-	        //normal enviroments in sane situations
-	        return clearTimeout(marker);
-	    }
-	    try {
-	        // when when somebody has screwed with setTimeout but no I.E. maddness
-	        return cachedClearTimeout(marker);
-	    } catch (e){
-	        try {
-	            // When we are in I.E. but the script has been evaled so I.E. doesn't  trust the global object when called normally
-	            return cachedClearTimeout.call(null, marker);
-	        } catch (e){
-	            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error.
-	            // Some versions of I.E. have different rules for clearTimeout vs setTimeout
-	            return cachedClearTimeout.call(this, marker);
-	        }
-	    }
-
-
-
-	}
-	var queue = [];
-	var draining = false;
-	var currentQueue;
-	var queueIndex = -1;
-
-	function cleanUpNextTick() {
-	    if (!draining || !currentQueue) {
-	        return;
-	    }
-	    draining = false;
-	    if (currentQueue.length) {
-	        queue = currentQueue.concat(queue);
-	    } else {
-	        queueIndex = -1;
-	    }
-	    if (queue.length) {
-	        drainQueue();
-	    }
-	}
-
-	function drainQueue() {
-	    if (draining) {
-	        return;
-	    }
-	    var timeout = runTimeout(cleanUpNextTick);
-	    draining = true;
-
-	    var len = queue.length;
-	    while(len) {
-	        currentQueue = queue;
-	        queue = [];
-	        while (++queueIndex < len) {
-	            if (currentQueue) {
-	                currentQueue[queueIndex].run();
-	            }
-	        }
-	        queueIndex = -1;
-	        len = queue.length;
-	    }
-	    currentQueue = null;
-	    draining = false;
-	    runClearTimeout(timeout);
-	}
-
-	process.nextTick = function (fun) {
-	    var args = new Array(arguments.length - 1);
-	    if (arguments.length > 1) {
-	        for (var i = 1; i < arguments.length; i++) {
-	            args[i - 1] = arguments[i];
-	        }
-	    }
-	    queue.push(new Item(fun, args));
-	    if (queue.length === 1 && !draining) {
-	        runTimeout(drainQueue);
-	    }
-	};
-
-	// v8 likes predictible objects
-	function Item(fun, array) {
-	    this.fun = fun;
-	    this.array = array;
-	}
-	Item.prototype.run = function () {
-	    this.fun.apply(null, this.array);
-	};
-	process.title = 'browser';
-	process.browser = true;
-	process.env = {};
-	process.argv = [];
-	process.version = ''; // empty string to avoid regexp issues
-	process.versions = {};
-
-	function noop() {}
-
-	process.on = noop;
-	process.addListener = noop;
-	process.once = noop;
-	process.off = noop;
-	process.removeListener = noop;
-	process.removeAllListeners = noop;
-	process.emit = noop;
-
-	process.binding = function (name) {
-	    throw new Error('process.binding is not supported');
-	};
-
-	process.cwd = function () { return '/' };
-	process.chdir = function (dir) {
-	    throw new Error('process.chdir is not supported');
-	};
-	process.umask = function() { return 0; };
-
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ },
 /* 109 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/**
+	/* WEBPACK VAR INJECTION */(function(process) {/**
 	 * Copyright 2013-present, Facebook, Inc.
 	 * All rights reserved.
 	 *
@@ -13165,15 +13210,15 @@
 
 	'use strict';
 
-	var _prodInvariant = __webpack_require__(4),
-	    _assign = __webpack_require__(23);
+	var _prodInvariant = __webpack_require__(5),
+	    _assign = __webpack_require__(24);
 
 	var ReactCompositeComponent = __webpack_require__(110);
 	var ReactEmptyComponent = __webpack_require__(116);
 	var ReactHostComponent = __webpack_require__(117);
 
-	var invariant = __webpack_require__(6);
-	var warning = __webpack_require__(17);
+	var invariant = __webpack_require__(7);
+	var warning = __webpack_require__(18);
 
 	// To avoid a cyclic dependency, we create the final class in this module
 	var ReactCompositeComponentWrapper = function (element) {
@@ -13221,7 +13266,7 @@
 	    instance = ReactEmptyComponent.create(instantiateReactComponent);
 	  } else if (typeof node === 'object') {
 	    var element = node;
-	    !(element && (typeof element.type === 'function' || typeof element.type === 'string')) ? ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? invariant(false, 'Element type is invalid: expected a string (for built-in components) or a class/function (for composite components) but got: %s.%s', element.type == null ? element.type : typeof element.type, getDeclarationErrorAddendum(element._owner)) : _prodInvariant('130', element.type == null ? element.type : typeof element.type, getDeclarationErrorAddendum(element._owner)) : void 0;
+	    !(element && (typeof element.type === 'function' || typeof element.type === 'string')) ? process.env.NODE_ENV !== 'production' ? invariant(false, 'Element type is invalid: expected a string (for built-in components) or a class/function (for composite components) but got: %s.%s', element.type == null ? element.type : typeof element.type, getDeclarationErrorAddendum(element._owner)) : _prodInvariant('130', element.type == null ? element.type : typeof element.type, getDeclarationErrorAddendum(element._owner)) : void 0;
 
 	    // Special case string values
 	    if (typeof element.type === 'string') {
@@ -13242,11 +13287,11 @@
 	  } else if (typeof node === 'string' || typeof node === 'number') {
 	    instance = ReactHostComponent.createInstanceForText(node);
 	  } else {
-	     true ? ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? invariant(false, 'Encountered invalid React node of type %s', typeof node) : _prodInvariant('131', typeof node) : void 0;
+	     true ? process.env.NODE_ENV !== 'production' ? invariant(false, 'Encountered invalid React node of type %s', typeof node) : _prodInvariant('131', typeof node) : void 0;
 	  }
 
-	  if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
-	    ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? warning(typeof instance.mountComponent === 'function' && typeof instance.receiveComponent === 'function' && typeof instance.getHostNode === 'function' && typeof instance.unmountComponent === 'function', 'Only React Components can be mounted.') : void 0;
+	  if (process.env.NODE_ENV !== 'production') {
+	    process.env.NODE_ENV !== 'production' ? warning(typeof instance.mountComponent === 'function' && typeof instance.receiveComponent === 'function' && typeof instance.getHostNode === 'function' && typeof instance.unmountComponent === 'function', 'Only React Components can be mounted.') : void 0;
 	  }
 
 	  // These two fields are used by the DOM and ART diffing algorithms
@@ -13255,13 +13300,13 @@
 	  instance._mountIndex = 0;
 	  instance._mountImage = null;
 
-	  if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	  if (process.env.NODE_ENV !== 'production') {
 	    instance._debugID = shouldHaveDebugID ? nextDebugID++ : 0;
 	  }
 
 	  // Internal instances should fully constructed at this point, so they should
 	  // not get any new fields added to them at this point.
-	  if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	  if (process.env.NODE_ENV !== 'production') {
 	    if (Object.preventExtensions) {
 	      Object.preventExtensions(instance);
 	    }
@@ -13271,12 +13316,13 @@
 	}
 
 	module.exports = instantiateReactComponent;
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ },
 /* 110 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/**
+	/* WEBPACK VAR INJECTION */(function(process) {/**
 	 * Copyright 2013-present, Facebook, Inc.
 	 * All rights reserved.
 	 *
@@ -13289,25 +13335,25 @@
 
 	'use strict';
 
-	var _prodInvariant = __webpack_require__(4),
-	    _assign = __webpack_require__(23);
+	var _prodInvariant = __webpack_require__(5),
+	    _assign = __webpack_require__(24);
 
-	var ReactComponentEnvironment = __webpack_require__(105);
-	var ReactCurrentOwner = __webpack_require__(42);
-	var ReactElement = __webpack_require__(92);
-	var ReactErrorUtils = __webpack_require__(16);
-	var ReactInstanceMap = __webpack_require__(106);
-	var ReactInstrumentation = __webpack_require__(37);
+	var ReactComponentEnvironment = __webpack_require__(106);
+	var ReactCurrentOwner = __webpack_require__(43);
+	var ReactElement = __webpack_require__(93);
+	var ReactErrorUtils = __webpack_require__(17);
+	var ReactInstanceMap = __webpack_require__(107);
+	var ReactInstrumentation = __webpack_require__(38);
 	var ReactNodeTypes = __webpack_require__(111);
-	var ReactPropTypeLocations = __webpack_require__(97);
-	var ReactReconciler = __webpack_require__(34);
+	var ReactPropTypeLocations = __webpack_require__(98);
+	var ReactReconciler = __webpack_require__(35);
 
 	var checkReactTypeSpec = __webpack_require__(112);
 	var emptyObject = __webpack_require__(113);
-	var invariant = __webpack_require__(6);
+	var invariant = __webpack_require__(7);
 	var shallowEqual = __webpack_require__(114);
 	var shouldUpdateReactComponent = __webpack_require__(115);
-	var warning = __webpack_require__(17);
+	var warning = __webpack_require__(18);
 
 	var CompositeTypes = {
 	  ImpureClass: 0,
@@ -13324,9 +13370,9 @@
 	};
 
 	function warnIfInvalidElement(Component, element) {
-	  if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
-	    ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? warning(element === null || element === false || ReactElement.isValidElement(element), '%s(...): A valid React element (or null) must be returned. You may have ' + 'returned undefined, an array or some other invalid object.', Component.displayName || Component.name || 'Component') : void 0;
-	    ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? warning(!Component.childContextTypes, '%s(...): childContextTypes cannot be defined on a functional component.', Component.displayName || Component.name || 'Component') : void 0;
+	  if (process.env.NODE_ENV !== 'production') {
+	    process.env.NODE_ENV !== 'production' ? warning(element === null || element === false || ReactElement.isValidElement(element), '%s(...): A valid React element (or null) must be returned. You may have ' + 'returned undefined, an array or some other invalid object.', Component.displayName || Component.name || 'Component') : void 0;
+	    process.env.NODE_ENV !== 'production' ? warning(!Component.childContextTypes, '%s(...): childContextTypes cannot be defined on a functional component.', Component.displayName || Component.name || 'Component') : void 0;
 	  }
 	}
 
@@ -13434,7 +13480,7 @@
 	    // ComponentWillUnmount shall only be called once
 	    this._calledComponentWillUnmount = false;
 
-	    if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	    if (process.env.NODE_ENV !== 'production') {
 	      this._warnedAboutRefsInRender = false;
 	    }
 	  },
@@ -13472,7 +13518,7 @@
 	    if (!doConstruct && (inst == null || inst.render == null)) {
 	      renderedElement = inst;
 	      warnIfInvalidElement(Component, renderedElement);
-	      !(inst === null || inst === false || ReactElement.isValidElement(inst)) ? ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? invariant(false, '%s(...): A valid React element (or null) must be returned. You may have returned undefined, an array or some other invalid object.', Component.displayName || Component.name || 'Component') : _prodInvariant('105', Component.displayName || Component.name || 'Component') : void 0;
+	      !(inst === null || inst === false || ReactElement.isValidElement(inst)) ? process.env.NODE_ENV !== 'production' ? invariant(false, '%s(...): A valid React element (or null) must be returned. You may have returned undefined, an array or some other invalid object.', Component.displayName || Component.name || 'Component') : _prodInvariant('105', Component.displayName || Component.name || 'Component') : void 0;
 	      inst = new StatelessComponent(Component);
 	      this._compositeType = CompositeTypes.StatelessFunctional;
 	    } else {
@@ -13483,17 +13529,17 @@
 	      }
 	    }
 
-	    if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	    if (process.env.NODE_ENV !== 'production') {
 	      // This will throw later in _renderValidatedComponent, but add an early
 	      // warning now to help debugging
 	      if (inst.render == null) {
-	        ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? warning(false, '%s(...): No `render` method found on the returned component ' + 'instance: you may have forgotten to define `render`.', Component.displayName || Component.name || 'Component') : void 0;
+	        process.env.NODE_ENV !== 'production' ? warning(false, '%s(...): No `render` method found on the returned component ' + 'instance: you may have forgotten to define `render`.', Component.displayName || Component.name || 'Component') : void 0;
 	      }
 
 	      var propsMutated = inst.props !== publicProps;
 	      var componentName = Component.displayName || Component.name || 'Component';
 
-	      ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? warning(inst.props === undefined || !propsMutated, '%s(...): When calling super() in `%s`, make sure to pass ' + 'up the same props that your component\'s constructor was passed.', componentName, componentName) : void 0;
+	      process.env.NODE_ENV !== 'production' ? warning(inst.props === undefined || !propsMutated, '%s(...): When calling super() in `%s`, make sure to pass ' + 'up the same props that your component\'s constructor was passed.', componentName, componentName) : void 0;
 	    }
 
 	    // These should be set up in the constructor, but as a convenience for
@@ -13508,24 +13554,24 @@
 	    // Store a reference from the instance back to the internal representation
 	    ReactInstanceMap.set(inst, this);
 
-	    if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	    if (process.env.NODE_ENV !== 'production') {
 	      // Since plain JS classes are defined without any special initialization
 	      // logic, we can not catch common errors early. Therefore, we have to
 	      // catch them here, at initialization time, instead.
-	      ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? warning(!inst.getInitialState || inst.getInitialState.isReactClassApproved, 'getInitialState was defined on %s, a plain JavaScript class. ' + 'This is only supported for classes created using React.createClass. ' + 'Did you mean to define a state property instead?', this.getName() || 'a component') : void 0;
-	      ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? warning(!inst.getDefaultProps || inst.getDefaultProps.isReactClassApproved, 'getDefaultProps was defined on %s, a plain JavaScript class. ' + 'This is only supported for classes created using React.createClass. ' + 'Use a static property to define defaultProps instead.', this.getName() || 'a component') : void 0;
-	      ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? warning(!inst.propTypes, 'propTypes was defined as an instance property on %s. Use a static ' + 'property to define propTypes instead.', this.getName() || 'a component') : void 0;
-	      ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? warning(!inst.contextTypes, 'contextTypes was defined as an instance property on %s. Use a ' + 'static property to define contextTypes instead.', this.getName() || 'a component') : void 0;
-	      ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? warning(typeof inst.componentShouldUpdate !== 'function', '%s has a method called ' + 'componentShouldUpdate(). Did you mean shouldComponentUpdate()? ' + 'The name is phrased as a question because the function is ' + 'expected to return a value.', this.getName() || 'A component') : void 0;
-	      ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? warning(typeof inst.componentDidUnmount !== 'function', '%s has a method called ' + 'componentDidUnmount(). But there is no such lifecycle method. ' + 'Did you mean componentWillUnmount()?', this.getName() || 'A component') : void 0;
-	      ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? warning(typeof inst.componentWillRecieveProps !== 'function', '%s has a method called ' + 'componentWillRecieveProps(). Did you mean componentWillReceiveProps()?', this.getName() || 'A component') : void 0;
+	      process.env.NODE_ENV !== 'production' ? warning(!inst.getInitialState || inst.getInitialState.isReactClassApproved, 'getInitialState was defined on %s, a plain JavaScript class. ' + 'This is only supported for classes created using React.createClass. ' + 'Did you mean to define a state property instead?', this.getName() || 'a component') : void 0;
+	      process.env.NODE_ENV !== 'production' ? warning(!inst.getDefaultProps || inst.getDefaultProps.isReactClassApproved, 'getDefaultProps was defined on %s, a plain JavaScript class. ' + 'This is only supported for classes created using React.createClass. ' + 'Use a static property to define defaultProps instead.', this.getName() || 'a component') : void 0;
+	      process.env.NODE_ENV !== 'production' ? warning(!inst.propTypes, 'propTypes was defined as an instance property on %s. Use a static ' + 'property to define propTypes instead.', this.getName() || 'a component') : void 0;
+	      process.env.NODE_ENV !== 'production' ? warning(!inst.contextTypes, 'contextTypes was defined as an instance property on %s. Use a ' + 'static property to define contextTypes instead.', this.getName() || 'a component') : void 0;
+	      process.env.NODE_ENV !== 'production' ? warning(typeof inst.componentShouldUpdate !== 'function', '%s has a method called ' + 'componentShouldUpdate(). Did you mean shouldComponentUpdate()? ' + 'The name is phrased as a question because the function is ' + 'expected to return a value.', this.getName() || 'A component') : void 0;
+	      process.env.NODE_ENV !== 'production' ? warning(typeof inst.componentDidUnmount !== 'function', '%s has a method called ' + 'componentDidUnmount(). But there is no such lifecycle method. ' + 'Did you mean componentWillUnmount()?', this.getName() || 'A component') : void 0;
+	      process.env.NODE_ENV !== 'production' ? warning(typeof inst.componentWillRecieveProps !== 'function', '%s has a method called ' + 'componentWillRecieveProps(). Did you mean componentWillReceiveProps()?', this.getName() || 'A component') : void 0;
 	    }
 
 	    var initialState = inst.state;
 	    if (initialState === undefined) {
 	      inst.state = initialState = null;
 	    }
-	    !(typeof initialState === 'object' && !Array.isArray(initialState)) ? ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? invariant(false, '%s.state: must be set to an object or null', this.getName() || 'ReactCompositeComponent') : _prodInvariant('106', this.getName() || 'ReactCompositeComponent') : void 0;
+	    !(typeof initialState === 'object' && !Array.isArray(initialState)) ? process.env.NODE_ENV !== 'production' ? invariant(false, '%s.state: must be set to an object or null', this.getName() || 'ReactCompositeComponent') : _prodInvariant('106', this.getName() || 'ReactCompositeComponent') : void 0;
 
 	    this._pendingStateQueue = null;
 	    this._pendingReplaceState = false;
@@ -13539,7 +13585,7 @@
 	    }
 
 	    if (inst.componentDidMount) {
-	      if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	      if (process.env.NODE_ENV !== 'production') {
 	        transaction.getReactMountReady().enqueue(invokeComponentDidMountWithTimer, this);
 	      } else {
 	        transaction.getReactMountReady().enqueue(inst.componentDidMount, inst);
@@ -13550,7 +13596,7 @@
 	  },
 
 	  _constructComponent: function (doConstruct, publicProps, publicContext, updateQueue) {
-	    if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	    if (process.env.NODE_ENV !== 'production') {
 	      ReactCurrentOwner.current = this;
 	      try {
 	        return this._constructComponentWithoutOwner(doConstruct, publicProps, publicContext, updateQueue);
@@ -13566,13 +13612,13 @@
 	    var Component = this._currentElement.type;
 	    var instanceOrElement;
 	    if (doConstruct) {
-	      if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	      if (process.env.NODE_ENV !== 'production') {
 	        if (this._debugID !== 0) {
 	          ReactInstrumentation.debugTool.onBeginLifeCycleTimer(this._debugID, 'ctor');
 	        }
 	      }
 	      instanceOrElement = new Component(publicProps, publicContext, updateQueue);
-	      if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	      if (process.env.NODE_ENV !== 'production') {
 	        if (this._debugID !== 0) {
 	          ReactInstrumentation.debugTool.onEndLifeCycleTimer(this._debugID, 'ctor');
 	        }
@@ -13580,13 +13626,13 @@
 	    } else {
 	      // This can still be an instance in case of factory components
 	      // but we'll count this as time spent rendering as the more common case.
-	      if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	      if (process.env.NODE_ENV !== 'production') {
 	        if (this._debugID !== 0) {
 	          ReactInstrumentation.debugTool.onBeginLifeCycleTimer(this._debugID, 'render');
 	        }
 	      }
 	      instanceOrElement = Component(publicProps, publicContext, updateQueue);
-	      if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	      if (process.env.NODE_ENV !== 'production') {
 	        if (this._debugID !== 0) {
 	          ReactInstrumentation.debugTool.onEndLifeCycleTimer(this._debugID, 'render');
 	        }
@@ -13601,7 +13647,7 @@
 	    try {
 	      markup = this.performInitialMount(renderedElement, hostParent, hostContainerInfo, transaction, context);
 	    } catch (e) {
-	      if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	      if (process.env.NODE_ENV !== 'production') {
 	        if (this._debugID !== 0) {
 	          ReactInstrumentation.debugTool.onError();
 	        }
@@ -13627,13 +13673,13 @@
 	  performInitialMount: function (renderedElement, hostParent, hostContainerInfo, transaction, context) {
 	    var inst = this._instance;
 	    if (inst.componentWillMount) {
-	      if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	      if (process.env.NODE_ENV !== 'production') {
 	        if (this._debugID !== 0) {
 	          ReactInstrumentation.debugTool.onBeginLifeCycleTimer(this._debugID, 'componentWillMount');
 	        }
 	      }
 	      inst.componentWillMount();
-	      if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	      if (process.env.NODE_ENV !== 'production') {
 	        if (this._debugID !== 0) {
 	          ReactInstrumentation.debugTool.onEndLifeCycleTimer(this._debugID, 'componentWillMount');
 	        }
@@ -13657,12 +13703,12 @@
 	    this._renderedComponent = child;
 
 	    var selfDebugID = 0;
-	    if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	    if (process.env.NODE_ENV !== 'production') {
 	      selfDebugID = this._debugID;
 	    }
 	    var markup = ReactReconciler.mountComponent(child, transaction, hostParent, hostContainerInfo, this._processChildContext(context), selfDebugID);
 
-	    if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	    if (process.env.NODE_ENV !== 'production') {
 	      if (this._debugID !== 0) {
 	        ReactInstrumentation.debugTool.onSetChildren(this._debugID, child._debugID !== 0 ? [child._debugID] : []);
 	      }
@@ -13689,7 +13735,7 @@
 
 	    if (inst.componentWillUnmount && !inst._calledComponentWillUnmount) {
 	      inst._calledComponentWillUnmount = true;
-	      if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	      if (process.env.NODE_ENV !== 'production') {
 	        if (this._debugID !== 0) {
 	          ReactInstrumentation.debugTool.onBeginLifeCycleTimer(this._debugID, 'componentWillUnmount');
 	        }
@@ -13700,7 +13746,7 @@
 	      } else {
 	        inst.componentWillUnmount();
 	      }
-	      if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	      if (process.env.NODE_ENV !== 'production') {
 	        if (this._debugID !== 0) {
 	          ReactInstrumentation.debugTool.onEndLifeCycleTimer(this._debugID, 'componentWillUnmount');
 	        }
@@ -13772,7 +13818,7 @@
 	   */
 	  _processContext: function (context) {
 	    var maskedContext = this._maskContext(context);
-	    if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	    if (process.env.NODE_ENV !== 'production') {
 	      var Component = this._currentElement.type;
 	      if (Component.contextTypes) {
 	        this._checkContextTypes(Component.contextTypes, maskedContext, ReactPropTypeLocations.context);
@@ -13789,20 +13835,20 @@
 	  _processChildContext: function (currentContext) {
 	    var Component = this._currentElement.type;
 	    var inst = this._instance;
-	    if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	    if (process.env.NODE_ENV !== 'production') {
 	      ReactInstrumentation.debugTool.onBeginProcessingChildContext();
 	    }
 	    var childContext = inst.getChildContext && inst.getChildContext();
-	    if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	    if (process.env.NODE_ENV !== 'production') {
 	      ReactInstrumentation.debugTool.onEndProcessingChildContext();
 	    }
 	    if (childContext) {
-	      !(typeof Component.childContextTypes === 'object') ? ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? invariant(false, '%s.getChildContext(): childContextTypes must be defined in order to use getChildContext().', this.getName() || 'ReactCompositeComponent') : _prodInvariant('107', this.getName() || 'ReactCompositeComponent') : void 0;
-	      if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	      !(typeof Component.childContextTypes === 'object') ? process.env.NODE_ENV !== 'production' ? invariant(false, '%s.getChildContext(): childContextTypes must be defined in order to use getChildContext().', this.getName() || 'ReactCompositeComponent') : _prodInvariant('107', this.getName() || 'ReactCompositeComponent') : void 0;
+	      if (process.env.NODE_ENV !== 'production') {
 	        this._checkContextTypes(Component.childContextTypes, childContext, ReactPropTypeLocations.childContext);
 	      }
 	      for (var name in childContext) {
-	        !(name in Component.childContextTypes) ? ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? invariant(false, '%s.getChildContext(): key "%s" is not defined in childContextTypes.', this.getName() || 'ReactCompositeComponent', name) : _prodInvariant('108', this.getName() || 'ReactCompositeComponent', name) : void 0;
+	        !(name in Component.childContextTypes) ? process.env.NODE_ENV !== 'production' ? invariant(false, '%s.getChildContext(): key "%s" is not defined in childContextTypes.', this.getName() || 'ReactCompositeComponent', name) : _prodInvariant('108', this.getName() || 'ReactCompositeComponent', name) : void 0;
 	      }
 	      return _assign({}, currentContext, childContext);
 	    }
@@ -13864,7 +13910,7 @@
 	   */
 	  updateComponent: function (transaction, prevParentElement, nextParentElement, prevUnmaskedContext, nextUnmaskedContext) {
 	    var inst = this._instance;
-	    !(inst != null) ? ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? invariant(false, 'Attempted to update component `%s` that has already been unmounted (or failed to mount).', this.getName() || 'ReactCompositeComponent') : _prodInvariant('136', this.getName() || 'ReactCompositeComponent') : void 0;
+	    !(inst != null) ? process.env.NODE_ENV !== 'production' ? invariant(false, 'Attempted to update component `%s` that has already been unmounted (or failed to mount).', this.getName() || 'ReactCompositeComponent') : _prodInvariant('136', this.getName() || 'ReactCompositeComponent') : void 0;
 
 	    var willReceive = false;
 	    var nextContext;
@@ -13889,13 +13935,13 @@
 	    // _pendingStateQueue which will ensure that any state updates gets
 	    // immediately reconciled instead of waiting for the next batch.
 	    if (willReceive && inst.componentWillReceiveProps) {
-	      if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	      if (process.env.NODE_ENV !== 'production') {
 	        if (this._debugID !== 0) {
 	          ReactInstrumentation.debugTool.onBeginLifeCycleTimer(this._debugID, 'componentWillReceiveProps');
 	        }
 	      }
 	      inst.componentWillReceiveProps(nextProps, nextContext);
-	      if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	      if (process.env.NODE_ENV !== 'production') {
 	        if (this._debugID !== 0) {
 	          ReactInstrumentation.debugTool.onEndLifeCycleTimer(this._debugID, 'componentWillReceiveProps');
 	        }
@@ -13907,13 +13953,13 @@
 
 	    if (!this._pendingForceUpdate) {
 	      if (inst.shouldComponentUpdate) {
-	        if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	        if (process.env.NODE_ENV !== 'production') {
 	          if (this._debugID !== 0) {
 	            ReactInstrumentation.debugTool.onBeginLifeCycleTimer(this._debugID, 'shouldComponentUpdate');
 	          }
 	        }
 	        shouldUpdate = inst.shouldComponentUpdate(nextProps, nextState, nextContext);
-	        if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	        if (process.env.NODE_ENV !== 'production') {
 	          if (this._debugID !== 0) {
 	            ReactInstrumentation.debugTool.onEndLifeCycleTimer(this._debugID, 'shouldComponentUpdate');
 	          }
@@ -13925,8 +13971,8 @@
 	      }
 	    }
 
-	    if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
-	      ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? warning(shouldUpdate !== undefined, '%s.shouldComponentUpdate(): Returned undefined instead of a ' + 'boolean value. Make sure to return true or false.', this.getName() || 'ReactCompositeComponent') : void 0;
+	    if (process.env.NODE_ENV !== 'production') {
+	      process.env.NODE_ENV !== 'production' ? warning(shouldUpdate !== undefined, '%s.shouldComponentUpdate(): Returned undefined instead of a ' + 'boolean value. Make sure to return true or false.', this.getName() || 'ReactCompositeComponent') : void 0;
 	    }
 
 	    this._updateBatchNumber = null;
@@ -13995,13 +14041,13 @@
 	    }
 
 	    if (inst.componentWillUpdate) {
-	      if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	      if (process.env.NODE_ENV !== 'production') {
 	        if (this._debugID !== 0) {
 	          ReactInstrumentation.debugTool.onBeginLifeCycleTimer(this._debugID, 'componentWillUpdate');
 	        }
 	      }
 	      inst.componentWillUpdate(nextProps, nextState, nextContext);
-	      if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	      if (process.env.NODE_ENV !== 'production') {
 	        if (this._debugID !== 0) {
 	          ReactInstrumentation.debugTool.onEndLifeCycleTimer(this._debugID, 'componentWillUpdate');
 	        }
@@ -14017,7 +14063,7 @@
 	    this._updateRenderedComponent(transaction, unmaskedContext);
 
 	    if (hasComponentDidUpdate) {
-	      if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	      if (process.env.NODE_ENV !== 'production') {
 	        transaction.getReactMountReady().enqueue(invokeComponentDidUpdateWithTimer.bind(this, prevProps, prevState, prevContext), this);
 	      } else {
 	        transaction.getReactMountReady().enqueue(inst.componentDidUpdate.bind(inst, prevProps, prevState, prevContext), inst);
@@ -14048,12 +14094,12 @@
 	      this._renderedComponent = child;
 
 	      var selfDebugID = 0;
-	      if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	      if (process.env.NODE_ENV !== 'production') {
 	        selfDebugID = this._debugID;
 	      }
 	      var nextMarkup = ReactReconciler.mountComponent(child, transaction, this._hostParent, this._hostContainerInfo, this._processChildContext(context), selfDebugID);
 
-	      if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	      if (process.env.NODE_ENV !== 'production') {
 	        if (this._debugID !== 0) {
 	          ReactInstrumentation.debugTool.onSetChildren(this._debugID, child._debugID !== 0 ? [child._debugID] : []);
 	        }
@@ -14078,19 +14124,19 @@
 	  _renderValidatedComponentWithoutOwnerOrContext: function () {
 	    var inst = this._instance;
 
-	    if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	    if (process.env.NODE_ENV !== 'production') {
 	      if (this._debugID !== 0) {
 	        ReactInstrumentation.debugTool.onBeginLifeCycleTimer(this._debugID, 'render');
 	      }
 	    }
 	    var renderedComponent = inst.render();
-	    if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	    if (process.env.NODE_ENV !== 'production') {
 	      if (this._debugID !== 0) {
 	        ReactInstrumentation.debugTool.onEndLifeCycleTimer(this._debugID, 'render');
 	      }
 	    }
 
-	    if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	    if (process.env.NODE_ENV !== 'production') {
 	      // We allow auto-mocks to proceed as if they're returning null.
 	      if (renderedComponent === undefined && inst.render._isMockFunction) {
 	        // This is probably bad practice. Consider warning here and
@@ -14107,7 +14153,7 @@
 	   */
 	  _renderValidatedComponent: function () {
 	    var renderedComponent;
-	    if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' || this._compositeType !== CompositeTypes.StatelessFunctional) {
+	    if (process.env.NODE_ENV !== 'production' || this._compositeType !== CompositeTypes.StatelessFunctional) {
 	      ReactCurrentOwner.current = this;
 	      try {
 	        renderedComponent = this._renderValidatedComponentWithoutOwnerOrContext();
@@ -14119,7 +14165,7 @@
 	    }
 	    !(
 	    // TODO: An `isValidNode` function would probably be more appropriate
-	    renderedComponent === null || renderedComponent === false || ReactElement.isValidElement(renderedComponent)) ? ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? invariant(false, '%s.render(): A valid React element (or null) must be returned. You may have returned undefined, an array or some other invalid object.', this.getName() || 'ReactCompositeComponent') : _prodInvariant('109', this.getName() || 'ReactCompositeComponent') : void 0;
+	    renderedComponent === null || renderedComponent === false || ReactElement.isValidElement(renderedComponent)) ? process.env.NODE_ENV !== 'production' ? invariant(false, '%s.render(): A valid React element (or null) must be returned. You may have returned undefined, an array or some other invalid object.', this.getName() || 'ReactCompositeComponent') : _prodInvariant('109', this.getName() || 'ReactCompositeComponent') : void 0;
 
 	    return renderedComponent;
 	  },
@@ -14134,11 +14180,11 @@
 	   */
 	  attachRef: function (ref, component) {
 	    var inst = this.getPublicInstance();
-	    !(inst != null) ? ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? invariant(false, 'Stateless function components cannot have refs.') : _prodInvariant('110') : void 0;
+	    !(inst != null) ? process.env.NODE_ENV !== 'production' ? invariant(false, 'Stateless function components cannot have refs.') : _prodInvariant('110') : void 0;
 	    var publicComponentInstance = component.getPublicInstance();
-	    if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	    if (process.env.NODE_ENV !== 'production') {
 	      var componentName = component && component.getName ? component.getName() : 'a component';
-	      ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? warning(publicComponentInstance != null, 'Stateless function components cannot be given refs ' + '(See ref "%s" in %s created by %s). ' + 'Attempts to access this ref will fail.', ref, componentName, this.getName()) : void 0;
+	      process.env.NODE_ENV !== 'production' ? warning(publicComponentInstance != null, 'Stateless function components cannot be given refs ' + '(See ref "%s" in %s created by %s). ' + 'Attempts to access this ref will fail.', ref, componentName, this.getName()) : void 0;
 	    }
 	    var refs = inst.refs === emptyObject ? inst.refs = {} : inst.refs;
 	    refs[ref] = publicComponentInstance;
@@ -14196,12 +14242,13 @@
 	};
 
 	module.exports = ReactCompositeComponent;
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ },
 /* 111 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/**
+	/* WEBPACK VAR INJECTION */(function(process) {/**
 	 * Copyright 2013-present, Facebook, Inc.
 	 * All rights reserved.
 	 *
@@ -14215,11 +14262,11 @@
 
 	'use strict';
 
-	var _prodInvariant = __webpack_require__(4);
+	var _prodInvariant = __webpack_require__(5);
 
-	var ReactElement = __webpack_require__(92);
+	var ReactElement = __webpack_require__(93);
 
-	var invariant = __webpack_require__(6);
+	var invariant = __webpack_require__(7);
 
 	var ReactNodeTypes = {
 	  HOST: 0,
@@ -14236,11 +14283,12 @@
 	        return ReactNodeTypes.HOST;
 	      }
 	    }
-	     true ? ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? invariant(false, 'Unexpected node: %s', node) : _prodInvariant('26', node) : void 0;
+	     true ? process.env.NODE_ENV !== 'production' ? invariant(false, 'Unexpected node: %s', node) : _prodInvariant('26', node) : void 0;
 	  }
 	};
 
 	module.exports = ReactNodeTypes;
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ },
 /* 112 */
@@ -14259,23 +14307,23 @@
 
 	'use strict';
 
-	var _prodInvariant = __webpack_require__(4);
+	var _prodInvariant = __webpack_require__(5);
 
-	var ReactPropTypeLocationNames = __webpack_require__(94);
-	var ReactPropTypesSecret = __webpack_require__(95);
+	var ReactPropTypeLocationNames = __webpack_require__(95);
+	var ReactPropTypesSecret = __webpack_require__(96);
 
-	var invariant = __webpack_require__(6);
-	var warning = __webpack_require__(17);
+	var invariant = __webpack_require__(7);
+	var warning = __webpack_require__(18);
 
 	var ReactComponentTreeHook;
 
-	if (typeof process !== 'undefined' && ({"API_URL":"http://sift.teamgantt.com/API"}) && ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV === 'test') {
+	if (typeof process !== 'undefined' && process.env && process.env.NODE_ENV === 'test') {
 	  // Temporary hack.
 	  // Inline requires don't work well with Jest:
 	  // https://github.com/facebook/react/issues/7240
 	  // Remove the inline requires when we don't need them anymore:
 	  // https://github.com/facebook/react/pull/7178
-	  ReactComponentTreeHook = __webpack_require__(41);
+	  ReactComponentTreeHook = __webpack_require__(42);
 	}
 
 	var loggedTypeFailures = {};
@@ -14302,12 +14350,12 @@
 	      try {
 	        // This is intentionally an invariant that gets caught. It's the same
 	        // behavior as without this statement except with a better message.
-	        !(typeof typeSpecs[typeSpecName] === 'function') ? ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? invariant(false, '%s: %s type `%s` is invalid; it must be a function, usually from React.PropTypes.', componentName || 'React class', ReactPropTypeLocationNames[location], typeSpecName) : _prodInvariant('84', componentName || 'React class', ReactPropTypeLocationNames[location], typeSpecName) : void 0;
+	        !(typeof typeSpecs[typeSpecName] === 'function') ? process.env.NODE_ENV !== 'production' ? invariant(false, '%s: %s type `%s` is invalid; it must be a function, usually from React.PropTypes.', componentName || 'React class', ReactPropTypeLocationNames[location], typeSpecName) : _prodInvariant('84', componentName || 'React class', ReactPropTypeLocationNames[location], typeSpecName) : void 0;
 	        error = typeSpecs[typeSpecName](values, typeSpecName, componentName, location, null, ReactPropTypesSecret);
 	      } catch (ex) {
 	        error = ex;
 	      }
-	      ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? warning(!error || error instanceof Error, '%s: type specification of %s `%s` is invalid; the type checker ' + 'function must return `null` or an `Error` but returned a %s. ' + 'You may have forgotten to pass an argument to the type checker ' + 'creator (arrayOf, instanceOf, objectOf, oneOf, oneOfType, and ' + 'shape all require an argument).', componentName || 'React class', ReactPropTypeLocationNames[location], typeSpecName, typeof error) : void 0;
+	      process.env.NODE_ENV !== 'production' ? warning(!error || error instanceof Error, '%s: type specification of %s `%s` is invalid; the type checker ' + 'function must return `null` or an `Error` but returned a %s. ' + 'You may have forgotten to pass an argument to the type checker ' + 'creator (arrayOf, instanceOf, objectOf, oneOf, oneOfType, and ' + 'shape all require an argument).', componentName || 'React class', ReactPropTypeLocationNames[location], typeSpecName, typeof error) : void 0;
 	      if (error instanceof Error && !(error.message in loggedTypeFailures)) {
 	        // Only monitor this failure once because there tends to be a lot of the
 	        // same error.
@@ -14315,9 +14363,9 @@
 
 	        var componentStackInfo = '';
 
-	        if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	        if (process.env.NODE_ENV !== 'production') {
 	          if (!ReactComponentTreeHook) {
-	            ReactComponentTreeHook = __webpack_require__(41);
+	            ReactComponentTreeHook = __webpack_require__(42);
 	          }
 	          if (debugID !== null) {
 	            componentStackInfo = ReactComponentTreeHook.getStackAddendumByID(debugID);
@@ -14326,20 +14374,20 @@
 	          }
 	        }
 
-	        ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? warning(false, 'Failed %s type: %s%s', location, error.message, componentStackInfo) : void 0;
+	        process.env.NODE_ENV !== 'production' ? warning(false, 'Failed %s type: %s%s', location, error.message, componentStackInfo) : void 0;
 	      }
 	    }
 	  }
 	}
 
 	module.exports = checkReactTypeSpec;
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(108)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ },
 /* 113 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/**
+	/* WEBPACK VAR INJECTION */(function(process) {/**
 	 * Copyright (c) 2013-present, Facebook, Inc.
 	 * All rights reserved.
 	 *
@@ -14353,11 +14401,12 @@
 
 	var emptyObject = {};
 
-	if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	if (process.env.NODE_ENV !== 'production') {
 	  Object.freeze(emptyObject);
 	}
 
 	module.exports = emptyObject;
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ },
 /* 114 */
@@ -14516,7 +14565,7 @@
 /* 117 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/**
+	/* WEBPACK VAR INJECTION */(function(process) {/**
 	 * Copyright 2014-present, Facebook, Inc.
 	 * All rights reserved.
 	 *
@@ -14529,10 +14578,10 @@
 
 	'use strict';
 
-	var _prodInvariant = __webpack_require__(4),
-	    _assign = __webpack_require__(23);
+	var _prodInvariant = __webpack_require__(5),
+	    _assign = __webpack_require__(24);
 
-	var invariant = __webpack_require__(6);
+	var invariant = __webpack_require__(7);
 
 	var genericComponentClass = null;
 	// This registry keeps track of wrapper classes around host tags.
@@ -14564,7 +14613,7 @@
 	 * @return {function} The internal class constructor function.
 	 */
 	function createInternalComponent(element) {
-	  !genericComponentClass ? ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? invariant(false, 'There is no registered component for the tag %s', element.type) : _prodInvariant('111', element.type) : void 0;
+	  !genericComponentClass ? process.env.NODE_ENV !== 'production' ? invariant(false, 'There is no registered component for the tag %s', element.type) : _prodInvariant('111', element.type) : void 0;
 	  return new genericComponentClass(element);
 	}
 
@@ -14592,6 +14641,7 @@
 	};
 
 	module.exports = ReactHostComponent;
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ },
 /* 118 */
@@ -14611,19 +14661,19 @@
 
 	'use strict';
 
-	var KeyEscapeUtils = __webpack_require__(101);
-	var traverseAllChildren = __webpack_require__(100);
-	var warning = __webpack_require__(17);
+	var KeyEscapeUtils = __webpack_require__(102);
+	var traverseAllChildren = __webpack_require__(101);
+	var warning = __webpack_require__(18);
 
 	var ReactComponentTreeHook;
 
-	if (typeof process !== 'undefined' && ({"API_URL":"http://sift.teamgantt.com/API"}) && ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV === 'test') {
+	if (typeof process !== 'undefined' && process.env && process.env.NODE_ENV === 'test') {
 	  // Temporary hack.
 	  // Inline requires don't work well with Jest:
 	  // https://github.com/facebook/react/issues/7240
 	  // Remove the inline requires when we don't need them anymore:
 	  // https://github.com/facebook/react/pull/7178
-	  ReactComponentTreeHook = __webpack_require__(41);
+	  ReactComponentTreeHook = __webpack_require__(42);
 	}
 
 	/**
@@ -14637,12 +14687,12 @@
 	  if (traverseContext && typeof traverseContext === 'object') {
 	    var result = traverseContext;
 	    var keyUnique = result[name] === undefined;
-	    if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	    if (process.env.NODE_ENV !== 'production') {
 	      if (!ReactComponentTreeHook) {
-	        ReactComponentTreeHook = __webpack_require__(41);
+	        ReactComponentTreeHook = __webpack_require__(42);
 	      }
 	      if (!keyUnique) {
-	        ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? warning(false, 'flattenChildren(...): Encountered two children with the same key, ' + '`%s`. Child keys must be unique; when two children share a key, only ' + 'the first child will be used.%s', KeyEscapeUtils.unescape(name), ReactComponentTreeHook.getStackAddendumByID(selfDebugID)) : void 0;
+	        process.env.NODE_ENV !== 'production' ? warning(false, 'flattenChildren(...): Encountered two children with the same key, ' + '`%s`. Child keys must be unique; when two children share a key, only ' + 'the first child will be used.%s', KeyEscapeUtils.unescape(name), ReactComponentTreeHook.getStackAddendumByID(selfDebugID)) : void 0;
 	      }
 	    }
 	    if (keyUnique && child != null) {
@@ -14662,7 +14712,7 @@
 	  }
 	  var result = {};
 
-	  if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	  if (process.env.NODE_ENV !== 'production') {
 	    traverseAllChildren(children, function (traverseContext, child, name) {
 	      return flattenSingleChildIntoContext(traverseContext, child, name, selfDebugID);
 	    }, result);
@@ -14673,13 +14723,13 @@
 	}
 
 	module.exports = flattenChildren;
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(108)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ },
 /* 119 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/**
+	/* WEBPACK VAR INJECTION */(function(process) {/**
 	 * Copyright 2014-present, Facebook, Inc.
 	 * All rights reserved.
 	 *
@@ -14692,11 +14742,11 @@
 
 	'use strict';
 
-	var _assign = __webpack_require__(23);
+	var _assign = __webpack_require__(24);
 
-	var PooledClass = __webpack_require__(24);
-	var Transaction = __webpack_require__(46);
-	var ReactInstrumentation = __webpack_require__(37);
+	var PooledClass = __webpack_require__(25);
+	var Transaction = __webpack_require__(47);
+	var ReactInstrumentation = __webpack_require__(38);
 	var ReactServerUpdateQueue = __webpack_require__(120);
 
 	/**
@@ -14706,7 +14756,7 @@
 	 */
 	var TRANSACTION_WRAPPERS = [];
 
-	if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	if (process.env.NODE_ENV !== 'production') {
 	  TRANSACTION_WRAPPERS.push({
 	    initialize: ReactInstrumentation.debugTool.onBeginFlush,
 	    close: ReactInstrumentation.debugTool.onEndFlush
@@ -14769,12 +14819,13 @@
 	PooledClass.addPoolingTo(ReactServerRenderingTransaction);
 
 	module.exports = ReactServerRenderingTransaction;
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ },
 /* 120 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/**
+	/* WEBPACK VAR INJECTION */(function(process) {/**
 	 * Copyright 2015-present, Facebook, Inc.
 	 * All rights reserved.
 	 *
@@ -14791,13 +14842,13 @@
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 	var ReactUpdateQueue = __webpack_require__(121);
-	var Transaction = __webpack_require__(46);
-	var warning = __webpack_require__(17);
+	var Transaction = __webpack_require__(47);
+	var warning = __webpack_require__(18);
 
 	function warnNoop(publicInstance, callerName) {
-	  if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	  if (process.env.NODE_ENV !== 'production') {
 	    var constructor = publicInstance.constructor;
-	    ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? warning(false, '%s(...): Can only update a mounting component. ' + 'This usually means you called %s() outside componentWillMount() on the server. ' + 'This is a no-op. Please check the code for the %s component.', callerName, callerName, constructor && (constructor.displayName || constructor.name) || 'ReactClass') : void 0;
+	    process.env.NODE_ENV !== 'production' ? warning(false, '%s(...): Can only update a mounting component. ' + 'This usually means you called %s() outside componentWillMount() on the server. ' + 'This is a no-op. Please check the code for the %s component.', callerName, callerName, constructor && (constructor.displayName || constructor.name) || 'ReactClass') : void 0;
 	  }
 	}
 
@@ -14915,12 +14966,13 @@
 	}();
 
 	module.exports = ReactServerUpdateQueue;
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ },
 /* 121 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/**
+	/* WEBPACK VAR INJECTION */(function(process) {/**
 	 * Copyright 2015-present, Facebook, Inc.
 	 * All rights reserved.
 	 *
@@ -14933,15 +14985,15 @@
 
 	'use strict';
 
-	var _prodInvariant = __webpack_require__(4);
+	var _prodInvariant = __webpack_require__(5);
 
-	var ReactCurrentOwner = __webpack_require__(42);
-	var ReactInstanceMap = __webpack_require__(106);
-	var ReactInstrumentation = __webpack_require__(37);
-	var ReactUpdates = __webpack_require__(31);
+	var ReactCurrentOwner = __webpack_require__(43);
+	var ReactInstanceMap = __webpack_require__(107);
+	var ReactInstrumentation = __webpack_require__(38);
+	var ReactUpdates = __webpack_require__(32);
 
-	var invariant = __webpack_require__(6);
-	var warning = __webpack_require__(17);
+	var invariant = __webpack_require__(7);
+	var warning = __webpack_require__(18);
 
 	function enqueueUpdate(internalInstance) {
 	  ReactUpdates.enqueueUpdate(internalInstance);
@@ -14963,18 +15015,18 @@
 	function getInternalInstanceReadyForUpdate(publicInstance, callerName) {
 	  var internalInstance = ReactInstanceMap.get(publicInstance);
 	  if (!internalInstance) {
-	    if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	    if (process.env.NODE_ENV !== 'production') {
 	      var ctor = publicInstance.constructor;
 	      // Only warn when we have a callerName. Otherwise we should be silent.
 	      // We're probably calling from enqueueCallback. We don't want to warn
 	      // there because we already warned for the corresponding lifecycle method.
-	      ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? warning(!callerName, '%s(...): Can only update a mounted or mounting component. ' + 'This usually means you called %s() on an unmounted component. ' + 'This is a no-op. Please check the code for the %s component.', callerName, callerName, ctor && (ctor.displayName || ctor.name) || 'ReactClass') : void 0;
+	      process.env.NODE_ENV !== 'production' ? warning(!callerName, '%s(...): Can only update a mounted or mounting component. ' + 'This usually means you called %s() on an unmounted component. ' + 'This is a no-op. Please check the code for the %s component.', callerName, callerName, ctor && (ctor.displayName || ctor.name) || 'ReactClass') : void 0;
 	    }
 	    return null;
 	  }
 
-	  if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
-	    ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? warning(ReactCurrentOwner.current == null, '%s(...): Cannot update during an existing state transition (such as ' + 'within `render` or another component\'s constructor). Render methods ' + 'should be a pure function of props and state; constructor ' + 'side-effects are an anti-pattern, but can be moved to ' + '`componentWillMount`.', callerName) : void 0;
+	  if (process.env.NODE_ENV !== 'production') {
+	    process.env.NODE_ENV !== 'production' ? warning(ReactCurrentOwner.current == null, '%s(...): Cannot update during an existing state transition (such as ' + 'within `render` or another component\'s constructor). Render methods ' + 'should be a pure function of props and state; constructor ' + 'side-effects are an anti-pattern, but can be moved to ' + '`componentWillMount`.', callerName) : void 0;
 	  }
 
 	  return internalInstance;
@@ -14994,10 +15046,10 @@
 	   * @final
 	   */
 	  isMounted: function (publicInstance) {
-	    if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	    if (process.env.NODE_ENV !== 'production') {
 	      var owner = ReactCurrentOwner.current;
 	      if (owner !== null) {
-	        ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? warning(owner._warnedAboutRefsInRender, '%s is accessing isMounted inside its render() function. ' + 'render() should be a pure function of props and state. It should ' + 'never access something that requires stale data from the previous ' + 'render, such as refs. Move this logic to componentDidMount and ' + 'componentDidUpdate instead.', owner.getName() || 'A component') : void 0;
+	        process.env.NODE_ENV !== 'production' ? warning(owner._warnedAboutRefsInRender, '%s is accessing isMounted inside its render() function. ' + 'render() should be a pure function of props and state. It should ' + 'never access something that requires stale data from the previous ' + 'render, such as refs. Move this logic to componentDidMount and ' + 'componentDidUpdate instead.', owner.getName() || 'A component') : void 0;
 	        owner._warnedAboutRefsInRender = true;
 	      }
 	    }
@@ -15115,9 +15167,9 @@
 	   * @internal
 	   */
 	  enqueueSetState: function (publicInstance, partialState) {
-	    if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	    if (process.env.NODE_ENV !== 'production') {
 	      ReactInstrumentation.debugTool.onSetState();
-	      ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? warning(partialState != null, 'setState(...): You passed an undefined or null state object; ' + 'instead, use forceUpdate().') : void 0;
+	      process.env.NODE_ENV !== 'production' ? warning(partialState != null, 'setState(...): You passed an undefined or null state object; ' + 'instead, use forceUpdate().') : void 0;
 	    }
 
 	    var internalInstance = getInternalInstanceReadyForUpdate(publicInstance, 'setState');
@@ -15140,18 +15192,19 @@
 	  },
 
 	  validateCallback: function (callback, callerName) {
-	    !(!callback || typeof callback === 'function') ? ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? invariant(false, '%s(...): Expected the last optional `callback` argument to be a function. Instead received: %s.', callerName, formatUnexpectedArgument(callback)) : _prodInvariant('122', callerName, formatUnexpectedArgument(callback)) : void 0;
+	    !(!callback || typeof callback === 'function') ? process.env.NODE_ENV !== 'production' ? invariant(false, '%s(...): Expected the last optional `callback` argument to be a function. Instead received: %s.', callerName, formatUnexpectedArgument(callback)) : _prodInvariant('122', callerName, formatUnexpectedArgument(callback)) : void 0;
 	  }
 
 	};
 
 	module.exports = ReactUpdateQueue;
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ },
 /* 122 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/**
+	/* WEBPACK VAR INJECTION */(function(process) {/**
 	 * Copyright 2015-present, Facebook, Inc.
 	 * All rights reserved.
 	 *
@@ -15164,14 +15217,14 @@
 
 	'use strict';
 
-	var _assign = __webpack_require__(23);
+	var _assign = __webpack_require__(24);
 
-	var emptyFunction = __webpack_require__(18);
-	var warning = __webpack_require__(17);
+	var emptyFunction = __webpack_require__(19);
+	var warning = __webpack_require__(18);
 
 	var validateDOMNesting = emptyFunction;
 
-	if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	if (process.env.NODE_ENV !== 'production') {
 	  // This validation code was written based on the HTML5 parsing spec:
 	  // https://html.spec.whatwg.org/multipage/syntax.html#has-an-element-in-scope
 	  //
@@ -15501,9 +15554,9 @@
 	        if (ancestorTag === 'table' && childTag === 'tr') {
 	          info += ' Add a <tbody> to your code to match the DOM tree generated by ' + 'the browser.';
 	        }
-	        ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? warning(false, 'validateDOMNesting(...): %s cannot appear as a child of <%s>. ' + 'See %s.%s', tagDisplayName, ancestorTag, ownerInfo, info) : void 0;
+	        process.env.NODE_ENV !== 'production' ? warning(false, 'validateDOMNesting(...): %s cannot appear as a child of <%s>. ' + 'See %s.%s', tagDisplayName, ancestorTag, ownerInfo, info) : void 0;
 	      } else {
-	        ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? warning(false, 'validateDOMNesting(...): %s cannot appear as a descendant of ' + '<%s>. See %s.', tagDisplayName, ancestorTag, ownerInfo) : void 0;
+	        process.env.NODE_ENV !== 'production' ? warning(false, 'validateDOMNesting(...): %s cannot appear as a descendant of ' + '<%s>. See %s.', tagDisplayName, ancestorTag, ownerInfo) : void 0;
 	      }
 	    }
 	  };
@@ -15520,6 +15573,7 @@
 	}
 
 	module.exports = validateDOMNesting;
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ },
 /* 123 */
@@ -15538,10 +15592,10 @@
 
 	'use strict';
 
-	var _assign = __webpack_require__(23);
+	var _assign = __webpack_require__(24);
 
-	var DOMLazyTree = __webpack_require__(59);
-	var ReactDOMComponentTree = __webpack_require__(3);
+	var DOMLazyTree = __webpack_require__(60);
+	var ReactDOMComponentTree = __webpack_require__(4);
 
 	var ReactDOMEmptyComponent = function (instantiate) {
 	  // ReactCompositeComponent uses this:
@@ -15590,7 +15644,7 @@
 /* 124 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/**
+	/* WEBPACK VAR INJECTION */(function(process) {/**
 	 * Copyright 2015-present, Facebook, Inc.
 	 * All rights reserved.
 	 *
@@ -15603,17 +15657,17 @@
 
 	'use strict';
 
-	var _prodInvariant = __webpack_require__(4);
+	var _prodInvariant = __webpack_require__(5);
 
-	var invariant = __webpack_require__(6);
+	var invariant = __webpack_require__(7);
 
 	/**
 	 * Return the lowest common ancestor of A and B, or null if they are in
 	 * different trees.
 	 */
 	function getLowestCommonAncestor(instA, instB) {
-	  !('_hostNode' in instA) ? ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? invariant(false, 'getNodeFromInstance: Invalid argument.') : _prodInvariant('33') : void 0;
-	  !('_hostNode' in instB) ? ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? invariant(false, 'getNodeFromInstance: Invalid argument.') : _prodInvariant('33') : void 0;
+	  !('_hostNode' in instA) ? process.env.NODE_ENV !== 'production' ? invariant(false, 'getNodeFromInstance: Invalid argument.') : _prodInvariant('33') : void 0;
+	  !('_hostNode' in instB) ? process.env.NODE_ENV !== 'production' ? invariant(false, 'getNodeFromInstance: Invalid argument.') : _prodInvariant('33') : void 0;
 
 	  var depthA = 0;
 	  for (var tempA = instA; tempA; tempA = tempA._hostParent) {
@@ -15652,8 +15706,8 @@
 	 * Return if A is an ancestor of B.
 	 */
 	function isAncestor(instA, instB) {
-	  !('_hostNode' in instA) ? ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? invariant(false, 'isAncestor: Invalid argument.') : _prodInvariant('35') : void 0;
-	  !('_hostNode' in instB) ? ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? invariant(false, 'isAncestor: Invalid argument.') : _prodInvariant('35') : void 0;
+	  !('_hostNode' in instA) ? process.env.NODE_ENV !== 'production' ? invariant(false, 'isAncestor: Invalid argument.') : _prodInvariant('35') : void 0;
+	  !('_hostNode' in instB) ? process.env.NODE_ENV !== 'production' ? invariant(false, 'isAncestor: Invalid argument.') : _prodInvariant('35') : void 0;
 
 	  while (instB) {
 	    if (instB === instA) {
@@ -15668,7 +15722,7 @@
 	 * Return the parent instance of the passed-in instance.
 	 */
 	function getParentInstance(inst) {
-	  !('_hostNode' in inst) ? ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? invariant(false, 'getParentInstance: Invalid argument.') : _prodInvariant('36') : void 0;
+	  !('_hostNode' in inst) ? process.env.NODE_ENV !== 'production' ? invariant(false, 'getParentInstance: Invalid argument.') : _prodInvariant('36') : void 0;
 
 	  return inst._hostParent;
 	}
@@ -15726,12 +15780,13 @@
 	  traverseTwoPhase: traverseTwoPhase,
 	  traverseEnterLeave: traverseEnterLeave
 	};
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ },
 /* 125 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/**
+	/* WEBPACK VAR INJECTION */(function(process) {/**
 	 * Copyright 2013-present, Facebook, Inc.
 	 * All rights reserved.
 	 *
@@ -15744,15 +15799,15 @@
 
 	'use strict';
 
-	var _prodInvariant = __webpack_require__(4),
-	    _assign = __webpack_require__(23);
+	var _prodInvariant = __webpack_require__(5),
+	    _assign = __webpack_require__(24);
 
-	var DOMChildrenOperations = __webpack_require__(58);
-	var DOMLazyTree = __webpack_require__(59);
-	var ReactDOMComponentTree = __webpack_require__(3);
+	var DOMChildrenOperations = __webpack_require__(59);
+	var DOMLazyTree = __webpack_require__(60);
+	var ReactDOMComponentTree = __webpack_require__(4);
 
-	var escapeTextContentForBrowser = __webpack_require__(64);
-	var invariant = __webpack_require__(6);
+	var escapeTextContentForBrowser = __webpack_require__(65);
+	var invariant = __webpack_require__(7);
 	var validateDOMNesting = __webpack_require__(122);
 
 	/**
@@ -15796,7 +15851,7 @@
 	   * @internal
 	   */
 	  mountComponent: function (transaction, hostParent, hostContainerInfo, context) {
-	    if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	    if (process.env.NODE_ENV !== 'production') {
 	      var parentInfo;
 	      if (hostParent != null) {
 	        parentInfo = hostParent._ancestorInfo;
@@ -15873,7 +15928,7 @@
 	      var openingComment = ReactDOMComponentTree.getNodeFromInstance(this);
 	      var node = openingComment.nextSibling;
 	      while (true) {
-	        !(node != null) ? ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? invariant(false, 'Missing closing comment for text component %s', this._domID) : _prodInvariant('67', this._domID) : void 0;
+	        !(node != null) ? process.env.NODE_ENV !== 'production' ? invariant(false, 'Missing closing comment for text component %s', this._domID) : _prodInvariant('67', this._domID) : void 0;
 	        if (node.nodeType === 8 && node.nodeValue === ' /react-text ') {
 	          this._closingComment = node;
 	          break;
@@ -15895,6 +15950,7 @@
 	});
 
 	module.exports = ReactDOMTextComponent;
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ },
 /* 126 */
@@ -15913,12 +15969,12 @@
 
 	'use strict';
 
-	var _assign = __webpack_require__(23);
+	var _assign = __webpack_require__(24);
 
-	var ReactUpdates = __webpack_require__(31);
-	var Transaction = __webpack_require__(46);
+	var ReactUpdates = __webpack_require__(32);
+	var Transaction = __webpack_require__(47);
 
-	var emptyFunction = __webpack_require__(18);
+	var emptyFunction = __webpack_require__(19);
 
 	var RESET_BATCHED_UPDATES = {
 	  initialize: emptyFunction,
@@ -15986,15 +16042,15 @@
 
 	'use strict';
 
-	var _assign = __webpack_require__(23);
+	var _assign = __webpack_require__(24);
 
 	var EventListener = __webpack_require__(128);
-	var ExecutionEnvironment = __webpack_require__(21);
-	var PooledClass = __webpack_require__(24);
-	var ReactDOMComponentTree = __webpack_require__(3);
-	var ReactUpdates = __webpack_require__(31);
+	var ExecutionEnvironment = __webpack_require__(22);
+	var PooledClass = __webpack_require__(25);
+	var ReactDOMComponentTree = __webpack_require__(4);
+	var ReactUpdates = __webpack_require__(32);
 
-	var getEventTarget = __webpack_require__(47);
+	var getEventTarget = __webpack_require__(48);
 	var getUnboundedScrollPosition = __webpack_require__(129);
 
 	/**
@@ -16135,7 +16191,7 @@
 /* 128 */
 /***/ function(module, exports, __webpack_require__) {
 
-	'use strict';
+	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
 
 	/**
 	 * Copyright (c) 2013-present, Facebook, Inc.
@@ -16155,7 +16211,7 @@
 	 * @typechecks
 	 */
 
-	var emptyFunction = __webpack_require__(18);
+	var emptyFunction = __webpack_require__(19);
 
 	/**
 	 * Upstream version of event listener. Does not take into account specific
@@ -16205,7 +16261,7 @@
 	        }
 	      };
 	    } else {
-	      if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	      if (process.env.NODE_ENV !== 'production') {
 	        console.error('Attempted to listen to events during the capture phase on a ' + 'browser that does not support the capture phase. Your application ' + 'will not receive some events.');
 	      }
 	      return {
@@ -16218,6 +16274,7 @@
 	};
 
 	module.exports = EventListener;
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ },
 /* 129 */
@@ -16279,15 +16336,15 @@
 
 	'use strict';
 
-	var DOMProperty = __webpack_require__(5);
-	var EventPluginHub = __webpack_require__(13);
-	var EventPluginUtils = __webpack_require__(15);
-	var ReactComponentEnvironment = __webpack_require__(105);
+	var DOMProperty = __webpack_require__(6);
+	var EventPluginHub = __webpack_require__(14);
+	var EventPluginUtils = __webpack_require__(16);
+	var ReactComponentEnvironment = __webpack_require__(106);
 	var ReactClass = __webpack_require__(131);
 	var ReactEmptyComponent = __webpack_require__(116);
-	var ReactBrowserEventEmitter = __webpack_require__(84);
+	var ReactBrowserEventEmitter = __webpack_require__(85);
 	var ReactHostComponent = __webpack_require__(117);
-	var ReactUpdates = __webpack_require__(31);
+	var ReactUpdates = __webpack_require__(32);
 
 	var ReactInjection = {
 	  Component: ReactComponentEnvironment.injection,
@@ -16307,7 +16364,7 @@
 /* 131 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/**
+	/* WEBPACK VAR INJECTION */(function(process) {/**
 	 * Copyright 2013-present, Facebook, Inc.
 	 * All rights reserved.
 	 *
@@ -16320,20 +16377,20 @@
 
 	'use strict';
 
-	var _prodInvariant = __webpack_require__(4),
-	    _assign = __webpack_require__(23);
+	var _prodInvariant = __webpack_require__(5),
+	    _assign = __webpack_require__(24);
 
 	var ReactComponent = __webpack_require__(132);
-	var ReactElement = __webpack_require__(92);
-	var ReactPropTypeLocations = __webpack_require__(97);
-	var ReactPropTypeLocationNames = __webpack_require__(94);
+	var ReactElement = __webpack_require__(93);
+	var ReactPropTypeLocations = __webpack_require__(98);
+	var ReactPropTypeLocationNames = __webpack_require__(95);
 	var ReactNoopUpdateQueue = __webpack_require__(133);
 
 	var emptyObject = __webpack_require__(113);
-	var invariant = __webpack_require__(6);
-	var keyMirror = __webpack_require__(11);
-	var keyOf = __webpack_require__(29);
-	var warning = __webpack_require__(17);
+	var invariant = __webpack_require__(7);
+	var keyMirror = __webpack_require__(12);
+	var keyOf = __webpack_require__(30);
+	var warning = __webpack_require__(18);
 
 	var MIXINS_KEY = keyOf({ mixins: null });
 
@@ -16630,13 +16687,13 @@
 	    }
 	  },
 	  childContextTypes: function (Constructor, childContextTypes) {
-	    if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	    if (process.env.NODE_ENV !== 'production') {
 	      validateTypeDef(Constructor, childContextTypes, ReactPropTypeLocations.childContext);
 	    }
 	    Constructor.childContextTypes = _assign({}, Constructor.childContextTypes, childContextTypes);
 	  },
 	  contextTypes: function (Constructor, contextTypes) {
-	    if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	    if (process.env.NODE_ENV !== 'production') {
 	      validateTypeDef(Constructor, contextTypes, ReactPropTypeLocations.context);
 	    }
 	    Constructor.contextTypes = _assign({}, Constructor.contextTypes, contextTypes);
@@ -16653,7 +16710,7 @@
 	    }
 	  },
 	  propTypes: function (Constructor, propTypes) {
-	    if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	    if (process.env.NODE_ENV !== 'production') {
 	      validateTypeDef(Constructor, propTypes, ReactPropTypeLocations.prop);
 	    }
 	    Constructor.propTypes = _assign({}, Constructor.propTypes, propTypes);
@@ -16669,7 +16726,7 @@
 	    if (typeDef.hasOwnProperty(propName)) {
 	      // use a warning instead of an invariant so components
 	      // don't show up in prod but only in __DEV__
-	      ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? warning(typeof typeDef[propName] === 'function', '%s: %s type `%s` is invalid; it must be a function, usually from ' + 'React.PropTypes.', Constructor.displayName || 'ReactClass', ReactPropTypeLocationNames[location], propName) : void 0;
+	      process.env.NODE_ENV !== 'production' ? warning(typeof typeDef[propName] === 'function', '%s: %s type `%s` is invalid; it must be a function, usually from ' + 'React.PropTypes.', Constructor.displayName || 'ReactClass', ReactPropTypeLocationNames[location], propName) : void 0;
 	    }
 	  }
 	}
@@ -16679,12 +16736,12 @@
 
 	  // Disallow overriding of base class methods unless explicitly allowed.
 	  if (ReactClassMixin.hasOwnProperty(name)) {
-	    !(specPolicy === SpecPolicy.OVERRIDE_BASE) ? ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? invariant(false, 'ReactClassInterface: You are attempting to override `%s` from your class specification. Ensure that your method names do not overlap with React methods.', name) : _prodInvariant('73', name) : void 0;
+	    !(specPolicy === SpecPolicy.OVERRIDE_BASE) ? process.env.NODE_ENV !== 'production' ? invariant(false, 'ReactClassInterface: You are attempting to override `%s` from your class specification. Ensure that your method names do not overlap with React methods.', name) : _prodInvariant('73', name) : void 0;
 	  }
 
 	  // Disallow defining methods more than once unless explicitly allowed.
 	  if (isAlreadyDefined) {
-	    !(specPolicy === SpecPolicy.DEFINE_MANY || specPolicy === SpecPolicy.DEFINE_MANY_MERGED) ? ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? invariant(false, 'ReactClassInterface: You are attempting to define `%s` on your component more than once. This conflict may be due to a mixin.', name) : _prodInvariant('74', name) : void 0;
+	    !(specPolicy === SpecPolicy.DEFINE_MANY || specPolicy === SpecPolicy.DEFINE_MANY_MERGED) ? process.env.NODE_ENV !== 'production' ? invariant(false, 'ReactClassInterface: You are attempting to define `%s` on your component more than once. This conflict may be due to a mixin.', name) : _prodInvariant('74', name) : void 0;
 	  }
 	}
 
@@ -16694,18 +16751,18 @@
 	 */
 	function mixSpecIntoComponent(Constructor, spec) {
 	  if (!spec) {
-	    if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	    if (process.env.NODE_ENV !== 'production') {
 	      var typeofSpec = typeof spec;
 	      var isMixinValid = typeofSpec === 'object' && spec !== null;
 
-	      ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? warning(isMixinValid, '%s: You\'re attempting to include a mixin that is either null ' + 'or not an object. Check the mixins included by the component, ' + 'as well as any mixins they include themselves. ' + 'Expected object but got %s.', Constructor.displayName || 'ReactClass', spec === null ? null : typeofSpec) : void 0;
+	      process.env.NODE_ENV !== 'production' ? warning(isMixinValid, '%s: You\'re attempting to include a mixin that is either null ' + 'or not an object. Check the mixins included by the component, ' + 'as well as any mixins they include themselves. ' + 'Expected object but got %s.', Constructor.displayName || 'ReactClass', spec === null ? null : typeofSpec) : void 0;
 	    }
 
 	    return;
 	  }
 
-	  !(typeof spec !== 'function') ? ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? invariant(false, 'ReactClass: You\'re attempting to use a component class or function as a mixin. Instead, just use a regular object.') : _prodInvariant('75') : void 0;
-	  !!ReactElement.isValidElement(spec) ? ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? invariant(false, 'ReactClass: You\'re attempting to use a component as a mixin. Instead, just use a regular object.') : _prodInvariant('76') : void 0;
+	  !(typeof spec !== 'function') ? process.env.NODE_ENV !== 'production' ? invariant(false, 'ReactClass: You\'re attempting to use a component class or function as a mixin. Instead, just use a regular object.') : _prodInvariant('75') : void 0;
+	  !!ReactElement.isValidElement(spec) ? process.env.NODE_ENV !== 'production' ? invariant(false, 'ReactClass: You\'re attempting to use a component as a mixin. Instead, just use a regular object.') : _prodInvariant('76') : void 0;
 
 	  var proto = Constructor.prototype;
 	  var autoBindPairs = proto.__reactAutoBindPairs;
@@ -16750,7 +16807,7 @@
 	          var specPolicy = ReactClassInterface[name];
 
 	          // These cases should already be caught by validateMethodOverride.
-	          !(isReactClassMethod && (specPolicy === SpecPolicy.DEFINE_MANY_MERGED || specPolicy === SpecPolicy.DEFINE_MANY)) ? ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? invariant(false, 'ReactClass: Unexpected spec policy %s for key %s when mixing in component specs.', specPolicy, name) : _prodInvariant('77', specPolicy, name) : void 0;
+	          !(isReactClassMethod && (specPolicy === SpecPolicy.DEFINE_MANY_MERGED || specPolicy === SpecPolicy.DEFINE_MANY)) ? process.env.NODE_ENV !== 'production' ? invariant(false, 'ReactClass: Unexpected spec policy %s for key %s when mixing in component specs.', specPolicy, name) : _prodInvariant('77', specPolicy, name) : void 0;
 
 	          // For methods which are defined more than once, call the existing
 	          // methods before calling the new property, merging if appropriate.
@@ -16761,7 +16818,7 @@
 	          }
 	        } else {
 	          proto[name] = property;
-	          if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	          if (process.env.NODE_ENV !== 'production') {
 	            // Add verbose displayName to the function, which helps when looking
 	            // at profiling tools.
 	            if (typeof property === 'function' && spec.displayName) {
@@ -16785,10 +16842,10 @@
 	    }
 
 	    var isReserved = name in RESERVED_SPEC_KEYS;
-	    !!isReserved ? ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? invariant(false, 'ReactClass: You are attempting to define a reserved property, `%s`, that shouldn\'t be on the "statics" key. Define it as an instance property instead; it will still be accessible on the constructor.', name) : _prodInvariant('78', name) : void 0;
+	    !!isReserved ? process.env.NODE_ENV !== 'production' ? invariant(false, 'ReactClass: You are attempting to define a reserved property, `%s`, that shouldn\'t be on the "statics" key. Define it as an instance property instead; it will still be accessible on the constructor.', name) : _prodInvariant('78', name) : void 0;
 
 	    var isInherited = name in Constructor;
-	    !!isInherited ? ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? invariant(false, 'ReactClass: You are attempting to define `%s` on your component more than once. This conflict may be due to a mixin.', name) : _prodInvariant('79', name) : void 0;
+	    !!isInherited ? process.env.NODE_ENV !== 'production' ? invariant(false, 'ReactClass: You are attempting to define `%s` on your component more than once. This conflict may be due to a mixin.', name) : _prodInvariant('79', name) : void 0;
 	    Constructor[name] = property;
 	  }
 	}
@@ -16801,11 +16858,11 @@
 	 * @return {object} one after it has been mutated to contain everything in two.
 	 */
 	function mergeIntoWithNoDuplicateKeys(one, two) {
-	  !(one && two && typeof one === 'object' && typeof two === 'object') ? ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? invariant(false, 'mergeIntoWithNoDuplicateKeys(): Cannot merge non-objects.') : _prodInvariant('80') : void 0;
+	  !(one && two && typeof one === 'object' && typeof two === 'object') ? process.env.NODE_ENV !== 'production' ? invariant(false, 'mergeIntoWithNoDuplicateKeys(): Cannot merge non-objects.') : _prodInvariant('80') : void 0;
 
 	  for (var key in two) {
 	    if (two.hasOwnProperty(key)) {
-	      !(one[key] === undefined) ? ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? invariant(false, 'mergeIntoWithNoDuplicateKeys(): Tried to merge two objects with the same key: `%s`. This conflict may be due to a mixin; in particular, this may be caused by two getInitialState() or getDefaultProps() methods returning objects with clashing keys.', key) : _prodInvariant('81', key) : void 0;
+	      !(one[key] === undefined) ? process.env.NODE_ENV !== 'production' ? invariant(false, 'mergeIntoWithNoDuplicateKeys(): Tried to merge two objects with the same key: `%s`. This conflict may be due to a mixin; in particular, this may be caused by two getInitialState() or getDefaultProps() methods returning objects with clashing keys.', key) : _prodInvariant('81', key) : void 0;
 	      one[key] = two[key];
 	    }
 	  }
@@ -16860,7 +16917,7 @@
 	 */
 	function bindAutoBindMethod(component, method) {
 	  var boundMethod = method.bind(component);
-	  if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	  if (process.env.NODE_ENV !== 'production') {
 	    boundMethod.__reactBoundContext = component;
 	    boundMethod.__reactBoundMethod = method;
 	    boundMethod.__reactBoundArguments = null;
@@ -16875,9 +16932,9 @@
 	      // ignore the value of "this" that the user is trying to use, so
 	      // let's warn.
 	      if (newThis !== component && newThis !== null) {
-	        ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? warning(false, 'bind(): React component methods may only be bound to the ' + 'component instance. See %s', componentName) : void 0;
+	        process.env.NODE_ENV !== 'production' ? warning(false, 'bind(): React component methods may only be bound to the ' + 'component instance. See %s', componentName) : void 0;
 	      } else if (!args.length) {
-	        ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? warning(false, 'bind(): You are binding a component method to the component. ' + 'React does this for you automatically in a high-performance ' + 'way, so you can safely remove this call. See %s', componentName) : void 0;
+	        process.env.NODE_ENV !== 'production' ? warning(false, 'bind(): You are binding a component method to the component. ' + 'React does this for you automatically in a high-performance ' + 'way, so you can safely remove this call. See %s', componentName) : void 0;
 	        return boundMethod;
 	      }
 	      var reboundMethod = _bind.apply(boundMethod, arguments);
@@ -16955,8 +17012,8 @@
 	      // This constructor gets overridden by mocks. The argument is used
 	      // by mocks to assert on what gets mounted.
 
-	      if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
-	        ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? warning(this instanceof Constructor, 'Something is calling a React component directly. Use a factory or ' + 'JSX instead. See: https://fb.me/react-legacyfactory') : void 0;
+	      if (process.env.NODE_ENV !== 'production') {
+	        process.env.NODE_ENV !== 'production' ? warning(this instanceof Constructor, 'Something is calling a React component directly. Use a factory or ' + 'JSX instead. See: https://fb.me/react-legacyfactory') : void 0;
 	      }
 
 	      // Wire up auto-binding
@@ -16975,7 +17032,7 @@
 	      // getInitialState and componentWillMount methods for initialization.
 
 	      var initialState = this.getInitialState ? this.getInitialState() : null;
-	      if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	      if (process.env.NODE_ENV !== 'production') {
 	        // We allow auto-mocks to proceed as if they're returning null.
 	        if (initialState === undefined && this.getInitialState._isMockFunction) {
 	          // This is probably bad practice. Consider warning here and
@@ -16983,7 +17040,7 @@
 	          initialState = null;
 	        }
 	      }
-	      !(typeof initialState === 'object' && !Array.isArray(initialState)) ? ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? invariant(false, '%s.getInitialState(): must return an object or null', Constructor.displayName || 'ReactCompositeComponent') : _prodInvariant('82', Constructor.displayName || 'ReactCompositeComponent') : void 0;
+	      !(typeof initialState === 'object' && !Array.isArray(initialState)) ? process.env.NODE_ENV !== 'production' ? invariant(false, '%s.getInitialState(): must return an object or null', Constructor.displayName || 'ReactCompositeComponent') : _prodInvariant('82', Constructor.displayName || 'ReactCompositeComponent') : void 0;
 
 	      this.state = initialState;
 	    };
@@ -17000,7 +17057,7 @@
 	      Constructor.defaultProps = Constructor.getDefaultProps();
 	    }
 
-	    if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	    if (process.env.NODE_ENV !== 'production') {
 	      // This is a tag to indicate that the use of these method names is ok,
 	      // since it's used with createClass. If it's not, then it's likely a
 	      // mistake so we'll warn you to use the static property, property
@@ -17013,11 +17070,11 @@
 	      }
 	    }
 
-	    !Constructor.prototype.render ? ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? invariant(false, 'createClass(...): Class specification must implement a `render` method.') : _prodInvariant('83') : void 0;
+	    !Constructor.prototype.render ? process.env.NODE_ENV !== 'production' ? invariant(false, 'createClass(...): Class specification must implement a `render` method.') : _prodInvariant('83') : void 0;
 
-	    if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
-	      ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? warning(!Constructor.prototype.componentShouldUpdate, '%s has a method called ' + 'componentShouldUpdate(). Did you mean shouldComponentUpdate()? ' + 'The name is phrased as a question because the function is ' + 'expected to return a value.', spec.displayName || 'A component') : void 0;
-	      ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? warning(!Constructor.prototype.componentWillRecieveProps, '%s has a method called ' + 'componentWillRecieveProps(). Did you mean componentWillReceiveProps()?', spec.displayName || 'A component') : void 0;
+	    if (process.env.NODE_ENV !== 'production') {
+	      process.env.NODE_ENV !== 'production' ? warning(!Constructor.prototype.componentShouldUpdate, '%s has a method called ' + 'componentShouldUpdate(). Did you mean shouldComponentUpdate()? ' + 'The name is phrased as a question because the function is ' + 'expected to return a value.', spec.displayName || 'A component') : void 0;
+	      process.env.NODE_ENV !== 'production' ? warning(!Constructor.prototype.componentWillRecieveProps, '%s has a method called ' + 'componentWillRecieveProps(). Did you mean componentWillReceiveProps()?', spec.displayName || 'A component') : void 0;
 	    }
 
 	    // Reduce time spent doing lookups by setting these on the prototype.
@@ -17039,12 +17096,13 @@
 	};
 
 	module.exports = ReactClass;
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ },
 /* 132 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/**
+	/* WEBPACK VAR INJECTION */(function(process) {/**
 	 * Copyright 2013-present, Facebook, Inc.
 	 * All rights reserved.
 	 *
@@ -17057,14 +17115,14 @@
 
 	'use strict';
 
-	var _prodInvariant = __webpack_require__(4);
+	var _prodInvariant = __webpack_require__(5);
 
 	var ReactNoopUpdateQueue = __webpack_require__(133);
 
-	var canDefineProperty = __webpack_require__(93);
+	var canDefineProperty = __webpack_require__(94);
 	var emptyObject = __webpack_require__(113);
-	var invariant = __webpack_require__(6);
-	var warning = __webpack_require__(17);
+	var invariant = __webpack_require__(7);
+	var warning = __webpack_require__(18);
 
 	/**
 	 * Base class helpers for the updating state of a component.
@@ -17106,7 +17164,7 @@
 	 * @protected
 	 */
 	ReactComponent.prototype.setState = function (partialState, callback) {
-	  !(typeof partialState === 'object' || typeof partialState === 'function' || partialState == null) ? ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? invariant(false, 'setState(...): takes an object of state variables to update or a function which returns an object of state variables.') : _prodInvariant('85') : void 0;
+	  !(typeof partialState === 'object' || typeof partialState === 'function' || partialState == null) ? process.env.NODE_ENV !== 'production' ? invariant(false, 'setState(...): takes an object of state variables to update or a function which returns an object of state variables.') : _prodInvariant('85') : void 0;
 	  this.updater.enqueueSetState(this, partialState);
 	  if (callback) {
 	    this.updater.enqueueCallback(this, callback, 'setState');
@@ -17139,7 +17197,7 @@
 	 * we would like to deprecate them, we're not going to move them over to this
 	 * modern base class. Instead, we define a getter that warns if it's accessed.
 	 */
-	if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	if (process.env.NODE_ENV !== 'production') {
 	  var deprecatedAPIs = {
 	    isMounted: ['isMounted', 'Instead, make sure to clean up subscriptions and pending requests in ' + 'componentWillUnmount to prevent memory leaks.'],
 	    replaceState: ['replaceState', 'Refactor your code to use setState instead (see ' + 'https://github.com/facebook/react/issues/3236).']
@@ -17148,7 +17206,7 @@
 	    if (canDefineProperty) {
 	      Object.defineProperty(ReactComponent.prototype, methodName, {
 	        get: function () {
-	          ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? warning(false, '%s(...) is deprecated in plain JavaScript React classes. %s', info[0], info[1]) : void 0;
+	          process.env.NODE_ENV !== 'production' ? warning(false, '%s(...) is deprecated in plain JavaScript React classes. %s', info[0], info[1]) : void 0;
 	          return undefined;
 	        }
 	      });
@@ -17162,12 +17220,13 @@
 	}
 
 	module.exports = ReactComponent;
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ },
 /* 133 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/**
+	/* WEBPACK VAR INJECTION */(function(process) {/**
 	 * Copyright 2015-present, Facebook, Inc.
 	 * All rights reserved.
 	 *
@@ -17180,12 +17239,12 @@
 
 	'use strict';
 
-	var warning = __webpack_require__(17);
+	var warning = __webpack_require__(18);
 
 	function warnNoop(publicInstance, callerName) {
-	  if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	  if (process.env.NODE_ENV !== 'production') {
 	    var constructor = publicInstance.constructor;
-	    ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? warning(false, '%s(...): Can only update a mounted or mounting component. ' + 'This usually means you called %s() on an unmounted component. ' + 'This is a no-op. Please check the code for the %s component.', callerName, callerName, constructor && (constructor.displayName || constructor.name) || 'ReactClass') : void 0;
+	    process.env.NODE_ENV !== 'production' ? warning(false, '%s(...): Can only update a mounted or mounting component. ' + 'This usually means you called %s() on an unmounted component. ' + 'This is a no-op. Please check the code for the %s component.', callerName, callerName, constructor && (constructor.displayName || constructor.name) || 'ReactClass') : void 0;
 	  }
 	}
 
@@ -17263,12 +17322,13 @@
 	};
 
 	module.exports = ReactNoopUpdateQueue;
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ },
 /* 134 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/**
+	/* WEBPACK VAR INJECTION */(function(process) {/**
 	 * Copyright 2013-present, Facebook, Inc.
 	 * All rights reserved.
 	 *
@@ -17281,14 +17341,14 @@
 
 	'use strict';
 
-	var _assign = __webpack_require__(23);
+	var _assign = __webpack_require__(24);
 
-	var CallbackQueue = __webpack_require__(32);
-	var PooledClass = __webpack_require__(24);
-	var ReactBrowserEventEmitter = __webpack_require__(84);
+	var CallbackQueue = __webpack_require__(33);
+	var PooledClass = __webpack_require__(25);
+	var ReactBrowserEventEmitter = __webpack_require__(85);
 	var ReactInputSelection = __webpack_require__(135);
-	var ReactInstrumentation = __webpack_require__(37);
-	var Transaction = __webpack_require__(46);
+	var ReactInstrumentation = __webpack_require__(38);
+	var Transaction = __webpack_require__(47);
 	var ReactUpdateQueue = __webpack_require__(121);
 
 	/**
@@ -17359,7 +17419,7 @@
 	 */
 	var TRANSACTION_WRAPPERS = [SELECTION_RESTORATION, EVENT_SUPPRESSION, ON_DOM_READY_QUEUEING];
 
-	if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	if (process.env.NODE_ENV !== 'production') {
 	  TRANSACTION_WRAPPERS.push({
 	    initialize: ReactInstrumentation.debugTool.onBeginFlush,
 	    close: ReactInstrumentation.debugTool.onEndFlush
@@ -17446,6 +17506,7 @@
 	PooledClass.addPoolingTo(ReactReconcileTransaction);
 
 	module.exports = ReactReconcileTransaction;
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ },
 /* 135 */
@@ -17467,7 +17528,7 @@
 	var ReactDOMSelection = __webpack_require__(136);
 
 	var containsNode = __webpack_require__(138);
-	var focusNode = __webpack_require__(73);
+	var focusNode = __webpack_require__(74);
 	var getActiveElement = __webpack_require__(141);
 
 	function isInDocument(node) {
@@ -17593,10 +17654,10 @@
 
 	'use strict';
 
-	var ExecutionEnvironment = __webpack_require__(21);
+	var ExecutionEnvironment = __webpack_require__(22);
 
 	var getNodeForCharacterOffset = __webpack_require__(137);
-	var getTextContentAccessor = __webpack_require__(25);
+	var getTextContentAccessor = __webpack_require__(26);
 
 	/**
 	 * While `isCollapsed` is available on the Selection object and `collapsed`
@@ -18335,16 +18396,16 @@
 
 	'use strict';
 
-	var EventConstants = __webpack_require__(10);
-	var EventPropagators = __webpack_require__(12);
-	var ExecutionEnvironment = __webpack_require__(21);
-	var ReactDOMComponentTree = __webpack_require__(3);
+	var EventConstants = __webpack_require__(11);
+	var EventPropagators = __webpack_require__(13);
+	var ExecutionEnvironment = __webpack_require__(22);
+	var ReactDOMComponentTree = __webpack_require__(4);
 	var ReactInputSelection = __webpack_require__(135);
-	var SyntheticEvent = __webpack_require__(27);
+	var SyntheticEvent = __webpack_require__(28);
 
 	var getActiveElement = __webpack_require__(141);
-	var isTextInputElement = __webpack_require__(49);
-	var keyOf = __webpack_require__(29);
+	var isTextInputElement = __webpack_require__(50);
+	var keyOf = __webpack_require__(30);
 	var shallowEqual = __webpack_require__(114);
 
 	var topLevelTypes = EventConstants.topLevelTypes;
@@ -18523,7 +18584,7 @@
 /* 144 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/**
+	/* WEBPACK VAR INJECTION */(function(process) {/**
 	 * Copyright 2013-present, Facebook, Inc.
 	 * All rights reserved.
 	 *
@@ -18536,28 +18597,28 @@
 
 	'use strict';
 
-	var _prodInvariant = __webpack_require__(4);
+	var _prodInvariant = __webpack_require__(5);
 
-	var EventConstants = __webpack_require__(10);
+	var EventConstants = __webpack_require__(11);
 	var EventListener = __webpack_require__(128);
-	var EventPropagators = __webpack_require__(12);
-	var ReactDOMComponentTree = __webpack_require__(3);
+	var EventPropagators = __webpack_require__(13);
+	var ReactDOMComponentTree = __webpack_require__(4);
 	var SyntheticAnimationEvent = __webpack_require__(145);
 	var SyntheticClipboardEvent = __webpack_require__(146);
-	var SyntheticEvent = __webpack_require__(27);
+	var SyntheticEvent = __webpack_require__(28);
 	var SyntheticFocusEvent = __webpack_require__(147);
 	var SyntheticKeyboardEvent = __webpack_require__(148);
-	var SyntheticMouseEvent = __webpack_require__(52);
+	var SyntheticMouseEvent = __webpack_require__(53);
 	var SyntheticDragEvent = __webpack_require__(151);
 	var SyntheticTouchEvent = __webpack_require__(152);
 	var SyntheticTransitionEvent = __webpack_require__(153);
-	var SyntheticUIEvent = __webpack_require__(53);
+	var SyntheticUIEvent = __webpack_require__(54);
 	var SyntheticWheelEvent = __webpack_require__(154);
 
-	var emptyFunction = __webpack_require__(18);
+	var emptyFunction = __webpack_require__(19);
 	var getEventCharCode = __webpack_require__(149);
-	var invariant = __webpack_require__(6);
-	var keyOf = __webpack_require__(29);
+	var invariant = __webpack_require__(7);
+	var keyOf = __webpack_require__(30);
 
 	var topLevelTypes = EventConstants.topLevelTypes;
 
@@ -19127,7 +19188,7 @@
 	        EventConstructor = SyntheticClipboardEvent;
 	        break;
 	    }
-	    !EventConstructor ? ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? invariant(false, 'SimpleEventPlugin: Unhandled event type, `%s`.', topLevelType) : _prodInvariant('86', topLevelType) : void 0;
+	    !EventConstructor ? process.env.NODE_ENV !== 'production' ? invariant(false, 'SimpleEventPlugin: Unhandled event type, `%s`.', topLevelType) : _prodInvariant('86', topLevelType) : void 0;
 	    var event = EventConstructor.getPooled(dispatchConfig, targetInst, nativeEvent, nativeEventTarget);
 	    EventPropagators.accumulateTwoPhaseDispatches(event);
 	    return event;
@@ -19158,6 +19219,7 @@
 	};
 
 	module.exports = SimpleEventPlugin;
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ },
 /* 145 */
@@ -19176,7 +19238,7 @@
 
 	'use strict';
 
-	var SyntheticEvent = __webpack_require__(27);
+	var SyntheticEvent = __webpack_require__(28);
 
 	/**
 	 * @interface Event
@@ -19220,7 +19282,7 @@
 
 	'use strict';
 
-	var SyntheticEvent = __webpack_require__(27);
+	var SyntheticEvent = __webpack_require__(28);
 
 	/**
 	 * @interface Event
@@ -19263,7 +19325,7 @@
 
 	'use strict';
 
-	var SyntheticUIEvent = __webpack_require__(53);
+	var SyntheticUIEvent = __webpack_require__(54);
 
 	/**
 	 * @interface FocusEvent
@@ -19304,11 +19366,11 @@
 
 	'use strict';
 
-	var SyntheticUIEvent = __webpack_require__(53);
+	var SyntheticUIEvent = __webpack_require__(54);
 
 	var getEventCharCode = __webpack_require__(149);
 	var getEventKey = __webpack_require__(150);
-	var getEventModifierState = __webpack_require__(55);
+	var getEventModifierState = __webpack_require__(56);
 
 	/**
 	 * @interface KeyboardEvent
@@ -19555,7 +19617,7 @@
 
 	'use strict';
 
-	var SyntheticMouseEvent = __webpack_require__(52);
+	var SyntheticMouseEvent = __webpack_require__(53);
 
 	/**
 	 * @interface DragEvent
@@ -19596,9 +19658,9 @@
 
 	'use strict';
 
-	var SyntheticUIEvent = __webpack_require__(53);
+	var SyntheticUIEvent = __webpack_require__(54);
 
-	var getEventModifierState = __webpack_require__(55);
+	var getEventModifierState = __webpack_require__(56);
 
 	/**
 	 * @interface TouchEvent
@@ -19646,7 +19708,7 @@
 
 	'use strict';
 
-	var SyntheticEvent = __webpack_require__(27);
+	var SyntheticEvent = __webpack_require__(28);
 
 	/**
 	 * @interface Event
@@ -19690,7 +19752,7 @@
 
 	'use strict';
 
-	var SyntheticMouseEvent = __webpack_require__(52);
+	var SyntheticMouseEvent = __webpack_require__(53);
 
 	/**
 	 * @interface WheelEvent
@@ -19736,7 +19798,7 @@
 /* 155 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/**
+	/* WEBPACK VAR INJECTION */(function(process) {/**
 	 * Copyright 2013-present, Facebook, Inc.
 	 * All rights reserved.
 	 *
@@ -19749,30 +19811,30 @@
 
 	'use strict';
 
-	var _prodInvariant = __webpack_require__(4);
+	var _prodInvariant = __webpack_require__(5);
 
-	var DOMLazyTree = __webpack_require__(59);
-	var DOMProperty = __webpack_require__(5);
-	var ReactBrowserEventEmitter = __webpack_require__(84);
-	var ReactCurrentOwner = __webpack_require__(42);
-	var ReactDOMComponentTree = __webpack_require__(3);
+	var DOMLazyTree = __webpack_require__(60);
+	var DOMProperty = __webpack_require__(6);
+	var ReactBrowserEventEmitter = __webpack_require__(85);
+	var ReactCurrentOwner = __webpack_require__(43);
+	var ReactDOMComponentTree = __webpack_require__(4);
 	var ReactDOMContainerInfo = __webpack_require__(156);
 	var ReactDOMFeatureFlags = __webpack_require__(157);
-	var ReactElement = __webpack_require__(92);
-	var ReactFeatureFlags = __webpack_require__(33);
-	var ReactInstanceMap = __webpack_require__(106);
-	var ReactInstrumentation = __webpack_require__(37);
+	var ReactElement = __webpack_require__(93);
+	var ReactFeatureFlags = __webpack_require__(34);
+	var ReactInstanceMap = __webpack_require__(107);
+	var ReactInstrumentation = __webpack_require__(38);
 	var ReactMarkupChecksum = __webpack_require__(158);
-	var ReactReconciler = __webpack_require__(34);
+	var ReactReconciler = __webpack_require__(35);
 	var ReactUpdateQueue = __webpack_require__(121);
-	var ReactUpdates = __webpack_require__(31);
+	var ReactUpdates = __webpack_require__(32);
 
 	var emptyObject = __webpack_require__(113);
 	var instantiateReactComponent = __webpack_require__(109);
-	var invariant = __webpack_require__(6);
-	var setInnerHTML = __webpack_require__(61);
+	var invariant = __webpack_require__(7);
+	var setInnerHTML = __webpack_require__(62);
 	var shouldUpdateReactComponent = __webpack_require__(115);
-	var warning = __webpack_require__(17);
+	var warning = __webpack_require__(18);
 
 	var ATTR_NAME = DOMProperty.ID_ATTRIBUTE_NAME;
 	var ROOT_ATTR_NAME = DOMProperty.ROOT_ATTRIBUTE_NAME;
@@ -19876,11 +19938,11 @@
 	 * @see {ReactMount.unmountComponentAtNode}
 	 */
 	function unmountComponentFromNode(instance, container, safely) {
-	  if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	  if (process.env.NODE_ENV !== 'production') {
 	    ReactInstrumentation.debugTool.onBeginFlush();
 	  }
 	  ReactReconciler.unmountComponent(instance, safely);
-	  if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	  if (process.env.NODE_ENV !== 'production') {
 	    ReactInstrumentation.debugTool.onEndFlush();
 	  }
 
@@ -19968,7 +20030,7 @@
 	  this.rootID = topLevelRootCounter++;
 	};
 	TopLevelWrapper.prototype.isReactComponent = {};
-	if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	if (process.env.NODE_ENV !== 'production') {
 	  TopLevelWrapper.displayName = 'TopLevelWrapper';
 	}
 	TopLevelWrapper.prototype.render = function () {
@@ -20045,9 +20107,9 @@
 	    // Various parts of our code (such as ReactCompositeComponent's
 	    // _renderValidatedComponent) assume that calls to render aren't nested;
 	    // verify that that's the case.
-	    ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? warning(ReactCurrentOwner.current == null, '_renderNewRootComponent(): Render methods should be a pure function ' + 'of props and state; triggering nested component updates from ' + 'render is not allowed. If necessary, trigger nested updates in ' + 'componentDidUpdate. Check the render method of %s.', ReactCurrentOwner.current && ReactCurrentOwner.current.getName() || 'ReactCompositeComponent') : void 0;
+	    process.env.NODE_ENV !== 'production' ? warning(ReactCurrentOwner.current == null, '_renderNewRootComponent(): Render methods should be a pure function ' + 'of props and state; triggering nested component updates from ' + 'render is not allowed. If necessary, trigger nested updates in ' + 'componentDidUpdate. Check the render method of %s.', ReactCurrentOwner.current && ReactCurrentOwner.current.getName() || 'ReactCompositeComponent') : void 0;
 
-	    !isValidContainer(container) ? ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? invariant(false, '_registerComponent(...): Target container is not a DOM element.') : _prodInvariant('37') : void 0;
+	    !isValidContainer(container) ? process.env.NODE_ENV !== 'production' ? invariant(false, '_registerComponent(...): Target container is not a DOM element.') : _prodInvariant('37') : void 0;
 
 	    ReactBrowserEventEmitter.ensureScrollValueMonitoring();
 	    var componentInstance = instantiateReactComponent(nextElement, false);
@@ -20078,17 +20140,17 @@
 	   * @return {ReactComponent} Component instance rendered in `container`.
 	   */
 	  renderSubtreeIntoContainer: function (parentComponent, nextElement, container, callback) {
-	    !(parentComponent != null && ReactInstanceMap.has(parentComponent)) ? ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? invariant(false, 'parentComponent must be a valid React Component') : _prodInvariant('38') : void 0;
+	    !(parentComponent != null && ReactInstanceMap.has(parentComponent)) ? process.env.NODE_ENV !== 'production' ? invariant(false, 'parentComponent must be a valid React Component') : _prodInvariant('38') : void 0;
 	    return ReactMount._renderSubtreeIntoContainer(parentComponent, nextElement, container, callback);
 	  },
 
 	  _renderSubtreeIntoContainer: function (parentComponent, nextElement, container, callback) {
 	    ReactUpdateQueue.validateCallback(callback, 'ReactDOM.render');
-	    !ReactElement.isValidElement(nextElement) ? ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? invariant(false, 'ReactDOM.render(): Invalid component element.%s', typeof nextElement === 'string' ? ' Instead of passing a string like \'div\', pass ' + 'React.createElement(\'div\') or <div />.' : typeof nextElement === 'function' ? ' Instead of passing a class like Foo, pass ' + 'React.createElement(Foo) or <Foo />.' :
+	    !ReactElement.isValidElement(nextElement) ? process.env.NODE_ENV !== 'production' ? invariant(false, 'ReactDOM.render(): Invalid component element.%s', typeof nextElement === 'string' ? ' Instead of passing a string like \'div\', pass ' + 'React.createElement(\'div\') or <div />.' : typeof nextElement === 'function' ? ' Instead of passing a class like Foo, pass ' + 'React.createElement(Foo) or <Foo />.' :
 	    // Check if it quacks like an element
 	    nextElement != null && nextElement.props !== undefined ? ' This may be caused by unintentionally loading two independent ' + 'copies of React.' : '') : _prodInvariant('39', typeof nextElement === 'string' ? ' Instead of passing a string like \'div\', pass ' + 'React.createElement(\'div\') or <div />.' : typeof nextElement === 'function' ? ' Instead of passing a class like Foo, pass ' + 'React.createElement(Foo) or <Foo />.' : nextElement != null && nextElement.props !== undefined ? ' This may be caused by unintentionally loading two independent ' + 'copies of React.' : '') : void 0;
 
-	    ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? warning(!container || !container.tagName || container.tagName.toUpperCase() !== 'BODY', 'render(): Rendering components directly into document.body is ' + 'discouraged, since its children are often manipulated by third-party ' + 'scripts and browser extensions. This may lead to subtle ' + 'reconciliation issues. Try rendering into a container element created ' + 'for your app.') : void 0;
+	    process.env.NODE_ENV !== 'production' ? warning(!container || !container.tagName || container.tagName.toUpperCase() !== 'BODY', 'render(): Rendering components directly into document.body is ' + 'discouraged, since its children are often manipulated by third-party ' + 'scripts and browser extensions. This may lead to subtle ' + 'reconciliation issues. Try rendering into a container element created ' + 'for your app.') : void 0;
 
 	    var nextWrappedElement = ReactElement(TopLevelWrapper, null, null, null, null, null, nextElement);
 
@@ -20121,14 +20183,14 @@
 	    var containerHasReactMarkup = reactRootElement && !!internalGetID(reactRootElement);
 	    var containerHasNonRootReactChild = hasNonRootReactChild(container);
 
-	    if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
-	      ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? warning(!containerHasNonRootReactChild, 'render(...): Replacing React-rendered children with a new root ' + 'component. If you intended to update the children of this node, ' + 'you should instead have the existing children update their state ' + 'and render the new components instead of calling ReactDOM.render.') : void 0;
+	    if (process.env.NODE_ENV !== 'production') {
+	      process.env.NODE_ENV !== 'production' ? warning(!containerHasNonRootReactChild, 'render(...): Replacing React-rendered children with a new root ' + 'component. If you intended to update the children of this node, ' + 'you should instead have the existing children update their state ' + 'and render the new components instead of calling ReactDOM.render.') : void 0;
 
 	      if (!containerHasReactMarkup || reactRootElement.nextSibling) {
 	        var rootElementSibling = reactRootElement;
 	        while (rootElementSibling) {
 	          if (internalGetID(rootElementSibling)) {
-	            ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? warning(false, 'render(): Target node has markup rendered by React, but there ' + 'are unrelated nodes as well. This is most commonly caused by ' + 'white-space inserted around server-rendered markup.') : void 0;
+	            process.env.NODE_ENV !== 'production' ? warning(false, 'render(): Target node has markup rendered by React, but there ' + 'are unrelated nodes as well. This is most commonly caused by ' + 'white-space inserted around server-rendered markup.') : void 0;
 	            break;
 	          }
 	          rootElementSibling = rootElementSibling.nextSibling;
@@ -20174,12 +20236,12 @@
 	    // _renderValidatedComponent) assume that calls to render aren't nested;
 	    // verify that that's the case. (Strictly speaking, unmounting won't cause a
 	    // render but we still don't expect to be in a render call here.)
-	    ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? warning(ReactCurrentOwner.current == null, 'unmountComponentAtNode(): Render methods should be a pure function ' + 'of props and state; triggering nested component updates from render ' + 'is not allowed. If necessary, trigger nested updates in ' + 'componentDidUpdate. Check the render method of %s.', ReactCurrentOwner.current && ReactCurrentOwner.current.getName() || 'ReactCompositeComponent') : void 0;
+	    process.env.NODE_ENV !== 'production' ? warning(ReactCurrentOwner.current == null, 'unmountComponentAtNode(): Render methods should be a pure function ' + 'of props and state; triggering nested component updates from render ' + 'is not allowed. If necessary, trigger nested updates in ' + 'componentDidUpdate. Check the render method of %s.', ReactCurrentOwner.current && ReactCurrentOwner.current.getName() || 'ReactCompositeComponent') : void 0;
 
-	    !isValidContainer(container) ? ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? invariant(false, 'unmountComponentAtNode(...): Target container is not a DOM element.') : _prodInvariant('40') : void 0;
+	    !isValidContainer(container) ? process.env.NODE_ENV !== 'production' ? invariant(false, 'unmountComponentAtNode(...): Target container is not a DOM element.') : _prodInvariant('40') : void 0;
 
-	    if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
-	      ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? warning(!nodeIsRenderedByOtherInstance(container), 'unmountComponentAtNode(): The node you\'re attempting to unmount ' + 'was rendered by another copy of React.') : void 0;
+	    if (process.env.NODE_ENV !== 'production') {
+	      process.env.NODE_ENV !== 'production' ? warning(!nodeIsRenderedByOtherInstance(container), 'unmountComponentAtNode(): The node you\'re attempting to unmount ' + 'was rendered by another copy of React.') : void 0;
 	    }
 
 	    var prevComponent = getTopLevelWrapperInContainer(container);
@@ -20191,8 +20253,8 @@
 	      // Check if the container itself is a React root node.
 	      var isContainerReactRoot = container.nodeType === 1 && container.hasAttribute(ROOT_ATTR_NAME);
 
-	      if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
-	        ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? warning(!containerHasNonRootReactChild, 'unmountComponentAtNode(): The node you\'re attempting to unmount ' + 'was rendered by React and is not a top-level container. %s', isContainerReactRoot ? 'You may have accidentally passed in a React root node instead ' + 'of its container.' : 'Instead, have the parent component update its state and ' + 'rerender in order to remove this component.') : void 0;
+	      if (process.env.NODE_ENV !== 'production') {
+	        process.env.NODE_ENV !== 'production' ? warning(!containerHasNonRootReactChild, 'unmountComponentAtNode(): The node you\'re attempting to unmount ' + 'was rendered by React and is not a top-level container. %s', isContainerReactRoot ? 'You may have accidentally passed in a React root node instead ' + 'of its container.' : 'Instead, have the parent component update its state and ' + 'rerender in order to remove this component.') : void 0;
 	      }
 
 	      return false;
@@ -20203,7 +20265,7 @@
 	  },
 
 	  _mountImageIntoNode: function (markup, container, instance, shouldReuseMarkup, transaction) {
-	    !isValidContainer(container) ? ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? invariant(false, 'mountComponentIntoNode(...): Target container is not valid.') : _prodInvariant('41') : void 0;
+	    !isValidContainer(container) ? process.env.NODE_ENV !== 'production' ? invariant(false, 'mountComponentIntoNode(...): Target container is not valid.') : _prodInvariant('41') : void 0;
 
 	    if (shouldReuseMarkup) {
 	      var rootElement = getReactRootElementInContainer(container);
@@ -20218,7 +20280,7 @@
 	        rootElement.setAttribute(ReactMarkupChecksum.CHECKSUM_ATTR_NAME, checksum);
 
 	        var normalizedMarkup = markup;
-	        if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	        if (process.env.NODE_ENV !== 'production') {
 	          // because rootMarkup is retrieved from the DOM, various normalizations
 	          // will have occurred which will not be present in `markup`. Here,
 	          // insert markup into a <div> or <iframe> depending on the container
@@ -20240,15 +20302,15 @@
 	        var diffIndex = firstDifferenceIndex(normalizedMarkup, rootMarkup);
 	        var difference = ' (client) ' + normalizedMarkup.substring(diffIndex - 20, diffIndex + 20) + '\n (server) ' + rootMarkup.substring(diffIndex - 20, diffIndex + 20);
 
-	        !(container.nodeType !== DOC_NODE_TYPE) ? ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? invariant(false, 'You\'re trying to render a component to the document using server rendering but the checksum was invalid. This usually means you rendered a different component type or props on the client from the one on the server, or your render() methods are impure. React cannot handle this case due to cross-browser quirks by rendering at the document root. You should look for environment dependent code in your components and ensure the props are the same client and server side:\n%s', difference) : _prodInvariant('42', difference) : void 0;
+	        !(container.nodeType !== DOC_NODE_TYPE) ? process.env.NODE_ENV !== 'production' ? invariant(false, 'You\'re trying to render a component to the document using server rendering but the checksum was invalid. This usually means you rendered a different component type or props on the client from the one on the server, or your render() methods are impure. React cannot handle this case due to cross-browser quirks by rendering at the document root. You should look for environment dependent code in your components and ensure the props are the same client and server side:\n%s', difference) : _prodInvariant('42', difference) : void 0;
 
-	        if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
-	          ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? warning(false, 'React attempted to reuse markup in a container but the ' + 'checksum was invalid. This generally means that you are ' + 'using server rendering and the markup generated on the ' + 'server was not what the client was expecting. React injected ' + 'new markup to compensate which works but you have lost many ' + 'of the benefits of server rendering. Instead, figure out ' + 'why the markup being generated is different on the client ' + 'or server:\n%s', difference) : void 0;
+	        if (process.env.NODE_ENV !== 'production') {
+	          process.env.NODE_ENV !== 'production' ? warning(false, 'React attempted to reuse markup in a container but the ' + 'checksum was invalid. This generally means that you are ' + 'using server rendering and the markup generated on the ' + 'server was not what the client was expecting. React injected ' + 'new markup to compensate which works but you have lost many ' + 'of the benefits of server rendering. Instead, figure out ' + 'why the markup being generated is different on the client ' + 'or server:\n%s', difference) : void 0;
 	        }
 	      }
 	    }
 
-	    !(container.nodeType !== DOC_NODE_TYPE) ? ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? invariant(false, 'You\'re trying to render a component to the document but you didn\'t use server rendering. We can\'t do this without using server rendering due to cross-browser quirks. See ReactDOMServer.renderToString() for server rendering.') : _prodInvariant('43') : void 0;
+	    !(container.nodeType !== DOC_NODE_TYPE) ? process.env.NODE_ENV !== 'production' ? invariant(false, 'You\'re trying to render a component to the document but you didn\'t use server rendering. We can\'t do this without using server rendering due to cross-browser quirks. See ReactDOMServer.renderToString() for server rendering.') : _prodInvariant('43') : void 0;
 
 	    if (transaction.useCreateElement) {
 	      while (container.lastChild) {
@@ -20260,7 +20322,7 @@
 	      ReactDOMComponentTree.precacheNode(instance, container.firstChild);
 	    }
 
-	    if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	    if (process.env.NODE_ENV !== 'production') {
 	      var hostNode = ReactDOMComponentTree.getInstanceFromNode(container.firstChild);
 	      if (hostNode._debugID !== 0) {
 	        ReactInstrumentation.debugTool.onHostOperation(hostNode._debugID, 'mount', markup.toString());
@@ -20270,12 +20332,13 @@
 	};
 
 	module.exports = ReactMount;
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ },
 /* 156 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/**
+	/* WEBPACK VAR INJECTION */(function(process) {/**
 	 * Copyright 2013-present, Facebook, Inc.
 	 * All rights reserved.
 	 *
@@ -20301,13 +20364,14 @@
 	    _tag: node ? node.nodeName.toLowerCase() : null,
 	    _namespaceURI: node ? node.namespaceURI : null
 	  };
-	  if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	  if (process.env.NODE_ENV !== 'production') {
 	    info._ancestorInfo = node ? validateDOMNesting.updatedAncestorInfo(null, info._tag, null) : null;
 	  }
 	  return info;
 	}
 
 	module.exports = ReactDOMContainerInfo;
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ },
 /* 157 */
@@ -20459,7 +20523,7 @@
 /* 161 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/**
+	/* WEBPACK VAR INJECTION */(function(process) {/**
 	 * Copyright 2013-present, Facebook, Inc.
 	 * All rights reserved.
 	 *
@@ -20472,15 +20536,15 @@
 
 	'use strict';
 
-	var _prodInvariant = __webpack_require__(4);
+	var _prodInvariant = __webpack_require__(5);
 
-	var ReactCurrentOwner = __webpack_require__(42);
-	var ReactDOMComponentTree = __webpack_require__(3);
-	var ReactInstanceMap = __webpack_require__(106);
+	var ReactCurrentOwner = __webpack_require__(43);
+	var ReactDOMComponentTree = __webpack_require__(4);
+	var ReactInstanceMap = __webpack_require__(107);
 
 	var getHostComponentFromComposite = __webpack_require__(162);
-	var invariant = __webpack_require__(6);
-	var warning = __webpack_require__(17);
+	var invariant = __webpack_require__(7);
+	var warning = __webpack_require__(18);
 
 	/**
 	 * Returns the DOM node rendered by this element.
@@ -20491,10 +20555,10 @@
 	 * @return {?DOMElement} The root node of this element.
 	 */
 	function findDOMNode(componentOrElement) {
-	  if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	  if (process.env.NODE_ENV !== 'production') {
 	    var owner = ReactCurrentOwner.current;
 	    if (owner !== null) {
-	      ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? warning(owner._warnedAboutRefsInRender, '%s is accessing findDOMNode inside its render(). ' + 'render() should be a pure function of props and state. It should ' + 'never access something that requires stale data from the previous ' + 'render, such as refs. Move this logic to componentDidMount and ' + 'componentDidUpdate instead.', owner.getName() || 'A component') : void 0;
+	      process.env.NODE_ENV !== 'production' ? warning(owner._warnedAboutRefsInRender, '%s is accessing findDOMNode inside its render(). ' + 'render() should be a pure function of props and state. It should ' + 'never access something that requires stale data from the previous ' + 'render, such as refs. Move this logic to componentDidMount and ' + 'componentDidUpdate instead.', owner.getName() || 'A component') : void 0;
 	      owner._warnedAboutRefsInRender = true;
 	    }
 	  }
@@ -20512,13 +20576,14 @@
 	  }
 
 	  if (typeof componentOrElement.render === 'function') {
-	     true ? ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? invariant(false, 'findDOMNode was called on an unmounted component.') : _prodInvariant('44') : void 0;
+	     true ? process.env.NODE_ENV !== 'production' ? invariant(false, 'findDOMNode was called on an unmounted component.') : _prodInvariant('44') : void 0;
 	  } else {
-	     true ? ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? invariant(false, 'Element appears to be neither ReactComponent nor DOMNode (keys: %s)', Object.keys(componentOrElement)) : _prodInvariant('45', Object.keys(componentOrElement)) : void 0;
+	     true ? process.env.NODE_ENV !== 'production' ? invariant(false, 'Element appears to be neither ReactComponent nor DOMNode (keys: %s)', Object.keys(componentOrElement)) : _prodInvariant('45', Object.keys(componentOrElement)) : void 0;
 	  }
 	}
 
 	module.exports = findDOMNode;
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ },
 /* 162 */
@@ -20580,7 +20645,7 @@
 /* 164 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/**
+	/* WEBPACK VAR INJECTION */(function(process) {/**
 	 * Copyright 2013-present, Facebook, Inc.
 	 * All rights reserved.
 	 *
@@ -20593,13 +20658,13 @@
 
 	'use strict';
 
-	var DOMProperty = __webpack_require__(5);
-	var EventPluginRegistry = __webpack_require__(14);
-	var ReactComponentTreeHook = __webpack_require__(41);
+	var DOMProperty = __webpack_require__(6);
+	var EventPluginRegistry = __webpack_require__(15);
+	var ReactComponentTreeHook = __webpack_require__(42);
 
-	var warning = __webpack_require__(17);
+	var warning = __webpack_require__(18);
 
-	if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	if (process.env.NODE_ENV !== 'production') {
 	  var reactProps = {
 	    children: true,
 	    dangerouslySetInnerHTML: true,
@@ -20637,10 +20702,10 @@
 	    var registrationName = EventPluginRegistry.possibleRegistrationNames.hasOwnProperty(lowerCasedName) ? EventPluginRegistry.possibleRegistrationNames[lowerCasedName] : null;
 
 	    if (standardName != null) {
-	      ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? warning(false, 'Unknown DOM property %s. Did you mean %s?%s', name, standardName, ReactComponentTreeHook.getStackAddendumByID(debugID)) : void 0;
+	      process.env.NODE_ENV !== 'production' ? warning(false, 'Unknown DOM property %s. Did you mean %s?%s', name, standardName, ReactComponentTreeHook.getStackAddendumByID(debugID)) : void 0;
 	      return true;
 	    } else if (registrationName != null) {
-	      ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? warning(false, 'Unknown event handler property %s. Did you mean `%s`?%s', name, registrationName, ReactComponentTreeHook.getStackAddendumByID(debugID)) : void 0;
+	      process.env.NODE_ENV !== 'production' ? warning(false, 'Unknown event handler property %s. Did you mean `%s`?%s', name, registrationName, ReactComponentTreeHook.getStackAddendumByID(debugID)) : void 0;
 	      return true;
 	    } else {
 	      // We were unable to guess which prop the user intended.
@@ -20666,9 +20731,9 @@
 	  }).join(', ');
 
 	  if (unknownProps.length === 1) {
-	    ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? warning(false, 'Unknown prop %s on <%s> tag. Remove this prop from the element. ' + 'For details, see https://fb.me/react-unknown-prop%s', unknownPropString, element.type, ReactComponentTreeHook.getStackAddendumByID(debugID)) : void 0;
+	    process.env.NODE_ENV !== 'production' ? warning(false, 'Unknown prop %s on <%s> tag. Remove this prop from the element. ' + 'For details, see https://fb.me/react-unknown-prop%s', unknownPropString, element.type, ReactComponentTreeHook.getStackAddendumByID(debugID)) : void 0;
 	  } else if (unknownProps.length > 1) {
-	    ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? warning(false, 'Unknown props %s on <%s> tag. Remove these props from the element. ' + 'For details, see https://fb.me/react-unknown-prop%s', unknownPropString, element.type, ReactComponentTreeHook.getStackAddendumByID(debugID)) : void 0;
+	    process.env.NODE_ENV !== 'production' ? warning(false, 'Unknown props %s on <%s> tag. Remove these props from the element. ' + 'For details, see https://fb.me/react-unknown-prop%s', unknownPropString, element.type, ReactComponentTreeHook.getStackAddendumByID(debugID)) : void 0;
 	  }
 	};
 
@@ -20692,12 +20757,13 @@
 	};
 
 	module.exports = ReactDOMUnknownPropertyHook;
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ },
 /* 165 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/**
+	/* WEBPACK VAR INJECTION */(function(process) {/**
 	 * Copyright 2013-present, Facebook, Inc.
 	 * All rights reserved.
 	 *
@@ -20710,9 +20776,9 @@
 
 	'use strict';
 
-	var ReactComponentTreeHook = __webpack_require__(41);
+	var ReactComponentTreeHook = __webpack_require__(42);
 
-	var warning = __webpack_require__(17);
+	var warning = __webpack_require__(18);
 
 	var didWarnValueNull = false;
 
@@ -20724,7 +20790,7 @@
 	    return;
 	  }
 	  if (element.props != null && element.props.value === null && !didWarnValueNull) {
-	    ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? warning(false, '`value` prop on `%s` should not be null. ' + 'Consider using the empty string to clear the component or `undefined` ' + 'for uncontrolled components.%s', element.type, ReactComponentTreeHook.getStackAddendumByID(debugID)) : void 0;
+	    process.env.NODE_ENV !== 'production' ? warning(false, '`value` prop on `%s` should not be null. ' + 'Consider using the empty string to clear the component or `undefined` ' + 'for uncontrolled components.%s', element.type, ReactComponentTreeHook.getStackAddendumByID(debugID)) : void 0;
 
 	    didWarnValueNull = true;
 	  }
@@ -20740,6 +20806,7 @@
 	};
 
 	module.exports = ReactDOMNullInputValuePropHook;
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ },
 /* 166 */
@@ -20754,7 +20821,7 @@
 /* 167 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/**
+	/* WEBPACK VAR INJECTION */(function(process) {/**
 	 * Copyright 2013-present, Facebook, Inc.
 	 * All rights reserved.
 	 *
@@ -20767,25 +20834,25 @@
 
 	'use strict';
 
-	var _assign = __webpack_require__(23);
+	var _assign = __webpack_require__(24);
 
-	var ReactChildren = __webpack_require__(99);
+	var ReactChildren = __webpack_require__(100);
 	var ReactComponent = __webpack_require__(132);
 	var ReactPureComponent = __webpack_require__(168);
 	var ReactClass = __webpack_require__(131);
 	var ReactDOMFactories = __webpack_require__(169);
-	var ReactElement = __webpack_require__(92);
-	var ReactPropTypes = __webpack_require__(91);
+	var ReactElement = __webpack_require__(93);
+	var ReactPropTypes = __webpack_require__(92);
 	var ReactVersion = __webpack_require__(160);
 
 	var onlyChild = __webpack_require__(171);
-	var warning = __webpack_require__(17);
+	var warning = __webpack_require__(18);
 
 	var createElement = ReactElement.createElement;
 	var createFactory = ReactElement.createFactory;
 	var cloneElement = ReactElement.cloneElement;
 
-	if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	if (process.env.NODE_ENV !== 'production') {
 	  var ReactElementValidator = __webpack_require__(170);
 	  createElement = ReactElementValidator.createElement;
 	  createFactory = ReactElementValidator.createFactory;
@@ -20794,10 +20861,10 @@
 
 	var __spread = _assign;
 
-	if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	if (process.env.NODE_ENV !== 'production') {
 	  var warned = false;
 	  __spread = function () {
-	    ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? warning(warned, 'React.__spread is deprecated and should not be used. Use ' + 'Object.assign directly or another helper function with similar ' + 'semantics. You may be seeing this warning due to your compiler. ' + 'See https://fb.me/react-spread-deprecation for more details.') : void 0;
+	    process.env.NODE_ENV !== 'production' ? warning(warned, 'React.__spread is deprecated and should not be used. Use ' + 'Object.assign directly or another helper function with similar ' + 'semantics. You may be seeing this warning due to your compiler. ' + 'See https://fb.me/react-spread-deprecation for more details.') : void 0;
 	    warned = true;
 	    return _assign.apply(null, arguments);
 	  };
@@ -20843,6 +20910,7 @@
 	};
 
 	module.exports = React;
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ },
 /* 168 */
@@ -20861,7 +20929,7 @@
 
 	'use strict';
 
-	var _assign = __webpack_require__(23);
+	var _assign = __webpack_require__(24);
 
 	var ReactComponent = __webpack_require__(132);
 	var ReactNoopUpdateQueue = __webpack_require__(133);
@@ -20895,7 +20963,7 @@
 /* 169 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/**
+	/* WEBPACK VAR INJECTION */(function(process) {/**
 	 * Copyright 2013-present, Facebook, Inc.
 	 * All rights reserved.
 	 *
@@ -20908,7 +20976,7 @@
 
 	'use strict';
 
-	var ReactElement = __webpack_require__(92);
+	var ReactElement = __webpack_require__(93);
 
 	/**
 	 * Create a factory that creates HTML tag elements.
@@ -20916,7 +20984,7 @@
 	 * @private
 	 */
 	var createDOMFactory = ReactElement.createFactory;
-	if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	if (process.env.NODE_ENV !== 'production') {
 	  var ReactElementValidator = __webpack_require__(170);
 	  createDOMFactory = ReactElementValidator.createFactory;
 	}
@@ -21065,12 +21133,13 @@
 	};
 
 	module.exports = ReactDOMFactories;
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ },
 /* 170 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/**
+	/* WEBPACK VAR INJECTION */(function(process) {/**
 	 * Copyright 2014-present, Facebook, Inc.
 	 * All rights reserved.
 	 *
@@ -21090,16 +21159,16 @@
 
 	'use strict';
 
-	var ReactCurrentOwner = __webpack_require__(42);
-	var ReactComponentTreeHook = __webpack_require__(41);
-	var ReactElement = __webpack_require__(92);
-	var ReactPropTypeLocations = __webpack_require__(97);
+	var ReactCurrentOwner = __webpack_require__(43);
+	var ReactComponentTreeHook = __webpack_require__(42);
+	var ReactElement = __webpack_require__(93);
+	var ReactPropTypeLocations = __webpack_require__(98);
 
 	var checkReactTypeSpec = __webpack_require__(112);
 
-	var canDefineProperty = __webpack_require__(93);
-	var getIteratorFn = __webpack_require__(96);
-	var warning = __webpack_require__(17);
+	var canDefineProperty = __webpack_require__(94);
+	var getIteratorFn = __webpack_require__(97);
+	var warning = __webpack_require__(18);
 
 	function getDeclarationErrorAddendum() {
 	  if (ReactCurrentOwner.current) {
@@ -21164,7 +21233,7 @@
 	    childOwner = ' It was passed a child from ' + element._owner.getName() + '.';
 	  }
 
-	  ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? warning(false, 'Each child in an array or iterator should have a unique "key" prop.' + '%s%s See https://fb.me/react-warning-keys for more information.%s', currentComponentErrorInfo, childOwner, ReactComponentTreeHook.getCurrentStackAddendum(element)) : void 0;
+	  process.env.NODE_ENV !== 'production' ? warning(false, 'Each child in an array or iterator should have a unique "key" prop.' + '%s%s See https://fb.me/react-warning-keys for more information.%s', currentComponentErrorInfo, childOwner, ReactComponentTreeHook.getCurrentStackAddendum(element)) : void 0;
 	}
 
 	/**
@@ -21225,7 +21294,7 @@
 	    checkReactTypeSpec(componentClass.propTypes, element.props, ReactPropTypeLocations.prop, name, element, null);
 	  }
 	  if (typeof componentClass.getDefaultProps === 'function') {
-	    ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? warning(componentClass.getDefaultProps.isReactClassApproved, 'getDefaultProps is only used on classic React.createClass ' + 'definitions. Use a static property named `defaultProps` instead.') : void 0;
+	    process.env.NODE_ENV !== 'production' ? warning(componentClass.getDefaultProps.isReactClassApproved, 'getDefaultProps is only used on classic React.createClass ' + 'definitions. Use a static property named `defaultProps` instead.') : void 0;
 	  }
 	}
 
@@ -21236,7 +21305,7 @@
 	    // We warn in this case but don't throw. We expect the element creation to
 	    // succeed and there will likely be errors in render.
 	    if (!validType) {
-	      ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? warning(false, 'React.createElement: type should not be null, undefined, boolean, or ' + 'number. It should be a string (for DOM elements) or a ReactClass ' + '(for composite components).%s', getDeclarationErrorAddendum()) : void 0;
+	      process.env.NODE_ENV !== 'production' ? warning(false, 'React.createElement: type should not be null, undefined, boolean, or ' + 'number. It should be a string (for DOM elements) or a ReactClass ' + '(for composite components).%s', getDeclarationErrorAddendum()) : void 0;
 	    }
 
 	    var element = ReactElement.createElement.apply(this, arguments);
@@ -21268,12 +21337,12 @@
 	    // Legacy hook TODO: Warn if this is accessed
 	    validatedFactory.type = type;
 
-	    if (({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production') {
+	    if (process.env.NODE_ENV !== 'production') {
 	      if (canDefineProperty) {
 	        Object.defineProperty(validatedFactory, 'type', {
 	          enumerable: false,
 	          get: function () {
-	            ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? warning(false, 'Factory.type is deprecated. Access the class directly ' + 'before passing it to createFactory.') : void 0;
+	            process.env.NODE_ENV !== 'production' ? warning(false, 'Factory.type is deprecated. Access the class directly ' + 'before passing it to createFactory.') : void 0;
 	            Object.defineProperty(this, 'type', {
 	              value: type
 	            });
@@ -21298,12 +21367,13 @@
 	};
 
 	module.exports = ReactElementValidator;
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ },
 /* 171 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/**
+	/* WEBPACK VAR INJECTION */(function(process) {/**
 	 * Copyright 2013-present, Facebook, Inc.
 	 * All rights reserved.
 	 *
@@ -21315,11 +21385,11 @@
 	 */
 	'use strict';
 
-	var _prodInvariant = __webpack_require__(4);
+	var _prodInvariant = __webpack_require__(5);
 
-	var ReactElement = __webpack_require__(92);
+	var ReactElement = __webpack_require__(93);
 
-	var invariant = __webpack_require__(6);
+	var invariant = __webpack_require__(7);
 
 	/**
 	 * Returns the first child in a collection of children and verifies that there
@@ -21336,11 +21406,12 @@
 	 * structure.
 	 */
 	function onlyChild(children) {
-	  !ReactElement.isValidElement(children) ? ({"API_URL":"http://sift.teamgantt.com/API"}).NODE_ENV !== 'production' ? invariant(false, 'React.Children.only expected to receive a single React element child.') : _prodInvariant('143') : void 0;
+	  !ReactElement.isValidElement(children) ? process.env.NODE_ENV !== 'production' ? invariant(false, 'React.Children.only expected to receive a single React element child.') : _prodInvariant('143') : void 0;
 	  return children;
 	}
 
 	module.exports = onlyChild;
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ },
 /* 172 */
@@ -21362,11 +21433,11 @@
 
 	var _bigRocksApp2 = _interopRequireDefault(_bigRocksApp);
 
-	var _signin = __webpack_require__(200);
+	var _signin = __webpack_require__(202);
 
 	var _signin2 = _interopRequireDefault(_signin);
 
-	var _api = __webpack_require__(191);
+	var _api = __webpack_require__(192);
 
 	var _api2 = _interopRequireDefault(_api);
 
@@ -21448,11 +21519,11 @@
 
 	var _todoList2 = _interopRequireDefault(_todoList);
 
-	var _currentTodoList = __webpack_require__(186);
+	var _currentTodoList = __webpack_require__(187);
 
 	var _currentTodoList2 = _interopRequireDefault(_currentTodoList);
 
-	var _api = __webpack_require__(191);
+	var _api = __webpack_require__(192);
 
 	var _api2 = _interopRequireDefault(_api);
 
@@ -21468,9 +21539,9 @@
 
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-	__webpack_require__(194);
 	__webpack_require__(196);
 	__webpack_require__(198);
+	__webpack_require__(200);
 
 	var BigRocksApp = function (_React$Component) {
 	  _inherits(BigRocksApp, _React$Component);
@@ -21515,25 +21586,94 @@
 	      });
 	    }
 	  }, {
-	    key: 'addTodo',
-	    value: function addTodo(todoName) {
+	    key: 'addTodoList',
+	    value: function addTodoList(name) {
 	      var _this4 = this;
 
+	      this.setState({
+	        todoListsAreLoading: true
+	      });
+
+	      this.api.addTodoList({ name: name }).then(function (todoList) {
+	        _this4.setState({
+	          todoLists: [].concat(_toConsumableArray(_this4.state.todoLists), [todoList]),
+	          todoListsAreLoading: false,
+	          todoList: todoList,
+	          todos: []
+	        });
+	      });
+	    }
+	  }, {
+	    key: 'destroyTodoList',
+	    value: function destroyTodoList(destroyedTodoList) {
+	      var _this5 = this;
+
+	      this.setState({
+	        todoListsAreLoading: true
+	      });
+
+	      this.api.destroyTodoList(destroyedTodoList.id).then(function () {
+	        var newTodoLists = _lodash2.default.reject(_this5.state.todoLists, function (todoList) {
+	          return todoList.id == destroyedTodoList.id;
+	        });
+
+	        if (_this5.state.todoList.id == destroyedTodoList.id) {
+	          _this5.showTodos(newTodoLists[0]);
+	        }
+
+	        _this5.setState({
+	          todoListsAreLoading: false,
+	          todoLists: newTodoLists,
+	          currentTodos: _lodash2.default.reject(_this5.state.currentTodos, function (todo) {
+	            return todo.todolistId == destroyedTodoList.id;
+	          })
+	        });
+	      });
+	    }
+	  }, {
+	    key: 'addTodo',
+	    value: function addTodo(todoName) {
+	      var _this6 = this;
+
 	      var todo = {
-	        for_today: null,
-	        is_big_rock: false,
+	        isCurrent: null,
+	        isBigRock: false,
 	        name: todoName,
-	        percent_complete: 0,
-	        todolist_id: this.state.todoList.id,
+	        percentComplete: 0,
+	        todolistId: this.state.todoList.id,
 	        key: Math.round(Math.random() * 1000),
-	        created_at: new Date().toISOString().substring(0, 19).replace('T', ' ')
+	        createdAt: new Date().toISOString().substring(0, 19).replace('T', ' ')
 	      };
 	      var oldTodos = this.state.todos;
 
 	      this.setState({ todos: [].concat(_toConsumableArray(oldTodos || []), [todo]) });
 
 	      this.api.addTodo(this.state.todoList.id, todo).then(function (persistedTodo) {
-	        _this4.setState({ todos: [].concat(_toConsumableArray(oldTodos || []), [persistedTodo]) });
+	        _this6.setState({ todos: [].concat(_toConsumableArray(oldTodos || []), [persistedTodo]) });
+	      });
+	    }
+	  }, {
+	    key: 'destroyTodo',
+	    value: function destroyTodo(destroyedTodo) {
+	      var _this7 = this;
+
+	      var oldTodoLists = {
+	        todos: this.state.todos,
+	        currentTodos: this.state.currentTodos
+	      };
+
+	      _lodash2.default.each(oldTodoLists, function (todoList, todoListKey) {
+	        _this7.setState(_defineProperty({}, todoListKey, _lodash2.default.reject(oldTodoLists[todoListKey], function (todo) {
+	          return todo.id == destroyedTodo.id;
+	        })));
+	      });
+
+	      this.api.destroyTodo(destroyedTodo.listId, destroyedTodo.id).catch(function (error) {
+	        alert('error: ' + error);
+
+	        _lodash2.default.each(oldTodoLists, function (todoList, todoListKey) {
+	          _this7.setState(_defineProperty({}, todoListKey, todoList));
+	        });
 	      });
 	    }
 
@@ -21542,7 +21682,7 @@
 	  }, {
 	    key: 'updateTodo',
 	    value: function updateTodo(updatedTodo) {
-	      var _this5 = this;
+	      var _this8 = this;
 
 	      var oldTodoLists = {
 	        todos: this.state.todos,
@@ -21565,10 +21705,10 @@
 	        }
 
 	        if (todoListKey == 'currentTodos') {
-	          if (updatedTodo.is_current && !todoWasInCurrent) {
+	          if (updatedTodo.isCurrent && !todoWasInCurrent) {
 	            // Add to current if not there and it should be
 	            newTodoList = [].concat(_toConsumableArray(newTodoList), [updatedTodo]);
-	          } else if (!updatedTodo.is_current && todoWasInCurrent) {
+	          } else if (!updatedTodo.isCurrent && todoWasInCurrent) {
 	            // Remove from current if there and it shouldn't be
 	            newTodoList = _lodash2.default.reject(newTodoList, function (todo) {
 	              return todo.id == updatedTodo.id;
@@ -21576,14 +21716,14 @@
 	          }
 	        }
 
-	        _this5.setState(_defineProperty({}, todoListKey, newTodoList));
+	        _this8.setState(_defineProperty({}, todoListKey, newTodoList));
 	      });
 
-	      this.api.updateTodo(updatedTodo.todolist_id, updatedTodo.id, updatedTodo).catch(function (error) {
+	      this.api.updateTodo(updatedTodo.todolistId, updatedTodo.id, updatedTodo).catch(function (error) {
 	        alert('error: ' + error);
 
 	        _lodash2.default.each(oldTodoLists, function (todoList, todoListKey) {
-	          _this5.setState(_defineProperty({}, todoListKey, todoList));
+	          _this8.setState(_defineProperty({}, todoListKey, todoList));
 	        });
 	      });
 	    }
@@ -21612,9 +21752,9 @@
 	        _react2.default.createElement(
 	          'div',
 	          { className: 'content' },
-	          !this.state.isFullscreen && _react2.default.createElement(_todoListSidebar2.default, { todoLists: this.state.todoLists, currentList: this.state.todoList, onClickList: this.showTodos.bind(this) }),
-	          !this.state.isFullscreen && _react2.default.createElement(_todoList2.default, { onAddTodo: this.addTodo.bind(this), onUpdateTodo: this.updateTodo.bind(this), todoList: this.state.todoList, todos: this.state.todos }),
-	          _react2.default.createElement(_currentTodoList2.default, { isFullscreen: this.state.isFullscreen, onToggleFullscreen: this.toggleFullscreen.bind(this), currentTodos: this.state.currentTodos, onUpdateTodo: this.updateTodo.bind(this) })
+	          !this.state.isFullscreen && _react2.default.createElement(_todoListSidebar2.default, { todoListsAreLoading: this.state.todoListsAreLoading, todoLists: this.state.todoLists, currentList: this.state.todoList, onClickList: this.showTodos.bind(this), onAddTodoList: this.addTodoList.bind(this), onDestroyTodoList: this.destroyTodoList.bind(this) }),
+	          !this.state.isFullscreen && _react2.default.createElement(_todoList2.default, { onAddTodo: this.addTodo.bind(this), onDestroyTodo: this.destroyTodo.bind(this), onUpdateTodo: this.updateTodo.bind(this), todoList: this.state.todoList, todos: this.state.todos }),
+	          _react2.default.createElement(_currentTodoList2.default, { isFullscreen: this.state.isFullscreen, onToggleFullscreen: this.toggleFullscreen.bind(this), onDestroyTodo: this.destroyTodo.bind(this), currentTodos: this.state.currentTodos, onUpdateTodo: this.updateTodo.bind(this) })
 	        )
 	      );
 	    }
@@ -21628,9 +21768,9 @@
 
 	BigRocksApp.propTypes = {
 	  currentUser: _react2.default.PropTypes.shape({
-	    user_id: _react2.default.PropTypes.number,
-	    user_key: _react2.default.PropTypes.string,
-	    user_token: _react2.default.PropTypes.string
+	    userId: _react2.default.PropTypes.number,
+	    userKey: _react2.default.PropTypes.string,
+	    userToken: _react2.default.PropTypes.string
 	  })
 	};
 
@@ -38416,16 +38556,48 @@
 
 	__webpack_require__(177);
 
+	var enterKeyCode = 13;
+
 	var TodoListSidebar = function (_React$Component) {
 	  _inherits(TodoListSidebar, _React$Component);
 
-	  function TodoListSidebar() {
+	  function TodoListSidebar(props) {
 	    _classCallCheck(this, TodoListSidebar);
 
-	    return _possibleConstructorReturn(this, Object.getPrototypeOf(TodoListSidebar).apply(this, arguments));
+	    var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(TodoListSidebar).call(this, props));
+
+	    _this.state = {
+	      newTodoListName: ''
+	    };
+	    return _this;
 	  }
 
 	  _createClass(TodoListSidebar, [{
+	    key: 'onChange',
+	    value: function onChange(e) {
+	      this.setState({ newTodoListName: e.target.value });
+	    }
+	  }, {
+	    key: 'onKeyDown',
+	    value: function onKeyDown(e) {
+	      if (e.keyCode == enterKeyCode) {
+	        this.props.onAddTodoList(this.state.newTodoListName);
+	        this.setState({
+	          newTodoListName: ''
+	        });
+	      }
+	    }
+	  }, {
+	    key: 'onDestroyTodoList',
+	    value: function onDestroyTodoList(todoList, e) {
+	      var confirmDestroy = confirm('Are you sure you want to delete "' + todoList.name + '" AND all of its tasks?  This can\'t be undone.');
+	      e.stopPropagation();
+
+	      if (confirmDestroy) {
+	        this.props.onDestroyTodoList(todoList);
+	      }
+	    }
+	  }, {
 	    key: 'render',
 	    value: function render() {
 	      var _this2 = this;
@@ -38434,9 +38606,14 @@
 	        return _react2.default.createElement('div', null);
 	      }
 
+	      var inbox = _.find(this.props.todoLists, function (todo) {
+	        return todo.name == 'Inbox';
+	      });
+	      var otherTodoLists = _.without(this.props.todoLists, inbox);
+
 	      return _react2.default.createElement(
 	        'div',
-	        { className: 'todo-list-sidebar' },
+	        { className: 'todo-list-sidebar ' + (this.props.todoListsAreLoading ? 'loading' : '') },
 	        _react2.default.createElement(
 	          'h1',
 	          null,
@@ -38445,14 +38622,33 @@
 	        _react2.default.createElement(
 	          'ul',
 	          { className: 'todo-list-links' },
-	          _.map(this.props.todoLists, function (todoList) {
+	          _react2.default.createElement(
+	            'li',
+	            { className: 'todo-list-link inbox ' + (inbox == this.props.currentList && 'current'), onClick: _.partial(this.props.onClickList, inbox), key: inbox.id },
+	            _react2.default.createElement(
+	              'div',
+	              { className: 'name' },
+	              'Inbox'
+	            )
+	          ),
+	          _(otherTodoLists).sortBy('createdAt').map(function (todoList) {
 	            return _react2.default.createElement(
 	              'li',
 	              { className: 'todo-list-link ' + (todoList == _this2.props.currentList && 'current'), onClick: _.partial(_this2.props.onClickList, todoList), key: todoList.id },
-	              todoList.name
+	              _react2.default.createElement(
+	                'div',
+	                { className: 'name' },
+	                todoList.name
+	              ),
+	              _react2.default.createElement(
+	                'button',
+	                { onClick: _.partial(_this2.onDestroyTodoList.bind(_this2), todoList), className: 'link destroy' },
+	                '×'
+	              )
 	            );
-	          })
-	        )
+	          }).value()
+	        ),
+	        _react2.default.createElement('input', { type: 'text', disabled: this.props.todoListsAreLoading, className: 'add-todo-list', value: this.state.newTodoListName, onChange: this.onChange.bind(this), onKeyDown: this.onKeyDown.bind(this), placeholder: 'Add List' })
 	      );
 	    }
 	  }]);
@@ -38468,7 +38664,10 @@
 	    id: _react2.default.PropTypes.number,
 	    name: _react2.default.PropTypes.string
 	  })),
+	  todoListsAreLoading: _react2.default.PropTypes.bool,
 	  onClickList: _react2.default.PropTypes.func,
+	  onAddTodoList: _react2.default.PropTypes.func,
+	  onDestroyTodoList: _react2.default.PropTypes.func,
 	  currentList: _react2.default.PropTypes.shape({
 	    id: _react2.default.PropTypes.number,
 	    name: _react2.default.PropTypes.string
@@ -38510,7 +38709,7 @@
 
 
 	// module
-	exports.push([module.id, ".todo-list-sidebar {\n  position: absolute;\n  top: 70px;\n  bottom: 0;\n  left: 0;\n  background-color: white;\n  width: 300px;\n  overflow: auto;\n}\n.todo-list-sidebar h1 {\n  padding: 55px 0 0 30px;\n  color: #777;\n  font-size: 14px;\n  font-weight: 600;\n  letter-spacing: 1.71px;\n  line-height: 15px;\n  text-transform: uppercase;\n}\n.todo-list-sidebar .todo-list-links {\n  margin-top: 10px;\n}\n.todo-list-sidebar li {\n  cursor: pointer;\n  padding: 15px 0 15px 55px;\n  color: #979797;\n  font-size: 16px;\n  font-weight: 500;\n  line-height: 19px\n}\n.todo-list-sidebar li.current {\n  background-color: #F5F7F9;\n  font-weight: 600;\n  font-size: 16px;\n  color: #373636;\n}\n.todo-list-sidebar li:hover {\n  text-decoration: underline;\n}\n.todo-list-sidebar .add-item {\n  height: 21px;\n  width: 21px;\n  margin: -19px 18px 0 0;\n  float: right;\n  background-image: url(/src/img/btn-add-item.png);\n}\n", ""]);
+	exports.push([module.id, ".todo-list-sidebar {\n  position: absolute;\n  top: 70px;\n  bottom: 0;\n  left: 0;\n  background-color: white;\n  width: 300px;\n  overflow: auto;\n}\n.todo-list-sidebar h1 {\n  padding: 55px 0 0 30px;\n  color: #777;\n  font-size: 14px;\n  font-weight: 600;\n  letter-spacing: 1.71px;\n  line-height: 15px;\n  text-transform: uppercase;\n}\n.todo-list-sidebar .todo-list-links {\n  margin-top: 10px;\n}\n.todo-list-sidebar .inbox {\n  background: url(/src/img/inbox-icon.svg) 34px center no-repeat;\n}\n.todo-list-sidebar li {\n  cursor: pointer;\n  padding: 15px 0 15px 55px;\n  color: #979797;\n  font-size: 16px;\n  font-weight: 500;\n  line-height: 19px;\n}\n.todo-list-sidebar li .name {\n  display: inline;\n}\n.todo-list-sidebar li .destroy {\n  visibility: hidden;\n  font-size: 20px;\n  height: 16px;\n  line-height: 16px;\n  float: right;\n  margin-right: 15px\n}\n.todo-list-sidebar li .destroy:hover {\n  opacity: 0.4;\n}\n.todo-list-sidebar li.current {\n  background-color: #F5F7F9;\n  font-weight: 600;\n  font-size: 16px;\n  color: #373636;\n}\n.todo-list-sidebar li:hover .name {\n  text-decoration: underline;\n}\n.todo-list-sidebar li:hover .destroy {\n  visibility: visible;\n}\n.todo-list-sidebar .add-todo-list {\n  border: 0;\n  outline: none;\n  padding: 15px 0 15px 85px;\n  background: white url(/src/img/btn-add-item.svg) 55px center no-repeat\n}\n.todo-list-sidebar .add-todo-list::-webkit-input-placeholder {\n  color: #5CBCD6;\n  text-transform: uppercase;\n  letter-spacing: 1.71px;\n  font-size: 0.7em;\n}\n.todo-list-sidebar .add-todo-list::-moz-placeholder {\n  color: #5CBCD6;\n  text-transform: uppercase;\n  letter-spacing: 1.71px;\n  font-size: 0.7em;\n}\n.todo-list-sidebar .add-todo-list:-ms-input-placeholder {\n  color: #5CBCD6;\n  text-transform: uppercase;\n  letter-spacing: 1.71px;\n  font-size: 0.7em;\n}\n.todo-list-sidebar .add-todo-list::placeholder {\n  color: #5CBCD6;\n  text-transform: uppercase;\n  letter-spacing: 1.71px;\n  font-size: 0.7em;\n}\n", ""]);
 
 	// exports
 
@@ -38833,13 +39032,15 @@
 	  value: true
 	});
 
-	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 	var _react = __webpack_require__(166);
 
 	var _react2 = _interopRequireDefault(_react);
+
+	var _todo = __webpack_require__(182);
+
+	var _todo2 = _interopRequireDefault(_todo);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -38849,8 +39050,8 @@
 
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-	__webpack_require__(182);
-	__webpack_require__(184);
+	__webpack_require__(183);
+	__webpack_require__(185);
 
 	var enterKeyCode = 13;
 
@@ -38884,36 +39085,6 @@
 	      }
 	    }
 	  }, {
-	    key: 'onCheck',
-	    value: function onCheck(todo) {
-	      var updatedTodo = _extends({}, todo, {
-	        percent_complete: todo.percent_complete == 100 ? 0 : 100
-	      });
-
-	      this.props.onUpdateTodo(updatedTodo);
-	    }
-	  }, {
-	    key: 'onToggleCurrent',
-	    value: function onToggleCurrent(todo) {
-	      var updatedTodo = _extends({}, todo, {
-	        is_current: !todo.is_current
-	      });
-
-	      this.props.onUpdateTodo(updatedTodo);
-	    }
-	  }, {
-	    key: 'onToggleBigRock',
-	    value: function onToggleBigRock(todo) {
-	      var isNowBigRock = !todo.is_big_rock;
-
-	      var updatedTodo = _extends({}, todo, {
-	        is_current: isNowBigRock ? true : todo.is_current,
-	        is_big_rock: isNowBigRock
-	      });
-
-	      this.props.onUpdateTodo(updatedTodo);
-	    }
-	  }, {
 	    key: 'render',
 	    value: function render() {
 	      var _this2 = this;
@@ -38939,26 +39110,8 @@
 	            _react2.default.createElement(
 	              'ul',
 	              null,
-	              _(this.props.todos).sortBy(['percent_complete', 'created_at']).map(function (todo) {
-	                return _react2.default.createElement(
-	                  'li',
-	                  { className: 'todo ' + (todo.percent_complete == 100 && 'checked'), key: todo.id || todo.key, onDoubleClick: _.partial(_this2.onToggleBigRock.bind(_this2), todo) },
-	                  _react2.default.createElement(
-	                    'div',
-	                    { className: 'checkbox-col' },
-	                    _react2.default.createElement('div', { className: 'checkbox ' + (todo.percent_complete == 100 && 'checked'), onClick: _.partial(_this2.onCheck.bind(_this2), todo) })
-	                  ),
-	                  _react2.default.createElement(
-	                    'div',
-	                    { className: 'todo-name-col' },
-	                    todo.name
-	                  ),
-	                  _react2.default.createElement(
-	                    'div',
-	                    { className: 'current-button-col' },
-	                    _react2.default.createElement('button', { onClick: _.partial(_this2.onToggleCurrent.bind(_this2), todo), className: 'current-button ' + (todo.is_current && 'active') })
-	                  )
-	                );
+	              _(this.props.todos).sortBy(['percentComplete', 'createdAt']).map(function (todo) {
+	                return _react2.default.createElement(_todo2.default, { todo: todo, key: todo.id || todo.key, onDestroyTodo: _this2.props.onDestroyTodo, onUpdateTodo: _this2.props.onUpdateTodo });
 	              }).value()
 	            )
 	          )
@@ -38978,91 +39131,12 @@
 	  todos: _react2.default.PropTypes.arrayOf(_react2.default.PropTypes.shape({ id: _react2.default.PropTypes.number, name: _react2.default.PropTypes.string })),
 	  todoList: _react2.default.PropTypes.shape({ id: _react2.default.PropTypes.number, name: _react2.default.PropTypes.string }),
 	  onAddTodo: _react2.default.PropTypes.func,
+	  onDestroyTodo: _react2.default.PropTypes.func,
 	  onUpdateTodo: _react2.default.PropTypes.func
 	};
 
 /***/ },
 /* 182 */
-/***/ function(module, exports, __webpack_require__) {
-
-	// style-loader: Adds some css to the DOM by adding a <style> tag
-
-	// load the styles
-	var content = __webpack_require__(183);
-	if(typeof content === 'string') content = [[module.id, content, '']];
-	// add the styles to the DOM
-	var update = __webpack_require__(180)(content, {});
-	if(content.locals) module.exports = content.locals;
-	// Hot Module Replacement
-	if(false) {
-		// When the styles change, update the <style> tags
-		if(!content.locals) {
-			module.hot.accept("!!./../../../node_modules/css-loader/index.js!./../../../node_modules/postcss-loader/index.js!./todo-lists.css", function() {
-				var newContent = require("!!./../../../node_modules/css-loader/index.js!./../../../node_modules/postcss-loader/index.js!./todo-lists.css");
-				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
-				update(newContent);
-			});
-		}
-		// When the module is disposed, remove the <style> tags
-		module.hot.dispose(function() { update(); });
-	}
-
-/***/ },
-/* 183 */
-/***/ function(module, exports, __webpack_require__) {
-
-	exports = module.exports = __webpack_require__(179)();
-	// imports
-
-
-	// module
-	exports.push([module.id, ".todo-list-scroll {\n  overflow-y: scroll;\n  padding: 55px 50px 175px;\n  height: 100%;\n}\n.todo-list {\n  position: absolute;\n  left: 300px;\n  right: 374px;\n  bottom: 0;\n  top: 70px;\n}\n.todo-list h1 {\n  margin-bottom: 20px;\n  color: #373636;\n  font-size: 21px;\n  font-weight: 500;\n  line-height: 32px;\n}\n.todo-list .add-task {\n  padding: 30px 55px;\n  border: 0;\n  outline: none;\n  position: absolute;\n  box-shadow: 0 0 60px rgba(255, 255, 255, 1), 0 0 30px rgba(0, 0, 0, 0.1);\n  bottom: 55px;\n  right: 424px;\n  left: 50px;\n  display: block;\n  width: calc(100% - 100px);\n  font-size: 12px;\n  background: white url(/src/img/btn-add-item.svg) 20px center no-repeat\n}\n.todo-list .add-task::-webkit-input-placeholder {\n  color: #5CBCD6;\n  text-transform: uppercase;\n  letter-spacing: 1.71px;\n}\n.todo-list .add-task::-moz-placeholder {\n  color: #5CBCD6;\n  text-transform: uppercase;\n  letter-spacing: 1.71px;\n}\n.todo-list .add-task:-ms-input-placeholder {\n  color: #5CBCD6;\n  text-transform: uppercase;\n  letter-spacing: 1.71px;\n}\n.todo-list .add-task::placeholder {\n  color: #5CBCD6;\n  text-transform: uppercase;\n  letter-spacing: 1.71px;\n}\n.todo-list .todo.checked {\n  opacity: 0.5;\n  text-decoration: line-through;\n}\n.todo-list-inner {\n  background-color: white;\n}\n", ""]);
-
-	// exports
-
-
-/***/ },
-/* 184 */
-/***/ function(module, exports, __webpack_require__) {
-
-	// style-loader: Adds some css to the DOM by adding a <style> tag
-
-	// load the styles
-	var content = __webpack_require__(185);
-	if(typeof content === 'string') content = [[module.id, content, '']];
-	// add the styles to the DOM
-	var update = __webpack_require__(180)(content, {});
-	if(content.locals) module.exports = content.locals;
-	// Hot Module Replacement
-	if(false) {
-		// When the styles change, update the <style> tags
-		if(!content.locals) {
-			module.hot.accept("!!./../../../node_modules/css-loader/index.js!./../../../node_modules/postcss-loader/index.js!./todos.css", function() {
-				var newContent = require("!!./../../../node_modules/css-loader/index.js!./../../../node_modules/postcss-loader/index.js!./todos.css");
-				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
-				update(newContent);
-			});
-		}
-		// When the module is disposed, remove the <style> tags
-		module.hot.dispose(function() { update(); });
-	}
-
-/***/ },
-/* 185 */
-/***/ function(module, exports, __webpack_require__) {
-
-	exports = module.exports = __webpack_require__(179)();
-	// imports
-
-
-	// module
-	exports.push([module.id, ".todo {\n  border-bottom: 1px solid #EEEEEE;\n}\n.todo:before {\n  content: '';\n  display: table;\n}\n.todo:after {\n  content: '';\n  display: table;\n  clear: both;\n}\n.todo .checkbox-col {\n  width: 58px;\n  float: left;\n  padding: 29px 19px;\n}\n.todo .current-button-col {\n  width: 74px;\n  float: left;\n  padding: 32px 29px 28px;\n}\n.todo .todo-name-col {\n  width: calc(100% - 132px);\n  float: left;\n  padding: 30px 0;\n}\n.todo .checkbox {\n  cursor: pointer;\n  margin: 0 16px 0 0;\n  height: 17px;\n  width: 17px;\n  background-position: center;\n  background-repeat: no-repeat;\n  box-sizing: border-box;\n  border-style: solid;\n  border-width: 1.5px;\n  border-color: #A1A1A1;\n  border-radius: 3px\n}\n.todo .checkbox.checked {\n  border-width: 0.5px;\n  background-image: url(/src/img/check.svg);\n}\n.todo .current-button {\n  cursor: pointer;\n  height: 16px;\n  width: 16px;\n  border: none;\n  border: 2px solid #A2DEDB;\n  border-radius: 50%;\n  background: white\n}\n.todo .current-button.active {\n  background: #A2DEDB;\n}\n.todo.checked .todo-name-col {\n  opacity: 0.5;\n  text-decoration: line-through;\n}", ""]);
-
-	// exports
-
-
-/***/ },
-/* 186 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -39087,8 +39161,224 @@
 
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-	__webpack_require__(187);
-	__webpack_require__(189);
+	var Todo = function (_React$Component) {
+	  _inherits(Todo, _React$Component);
+
+	  function Todo() {
+	    _classCallCheck(this, Todo);
+
+	    return _possibleConstructorReturn(this, Object.getPrototypeOf(Todo).apply(this, arguments));
+	  }
+
+	  _createClass(Todo, [{
+	    key: 'onCheck',
+	    value: function onCheck() {
+	      var todo = this.props.todo;
+
+	      var updatedTodo = _extends({}, todo, {
+	        percentComplete: todo.percentComplete == 100 ? 0 : 100
+	      });
+
+	      this.props.onUpdateTodo(updatedTodo);
+	    }
+	  }, {
+	    key: 'onToggleCurrent',
+	    value: function onToggleCurrent() {
+	      var todo = this.props.todo;
+
+	      var updatedTodo = _extends({}, todo, {
+	        isCurrent: !todo.isCurrent
+	      });
+
+	      this.props.onUpdateTodo(updatedTodo);
+	    }
+	  }, {
+	    key: 'onToggleBigRock',
+	    value: function onToggleBigRock() {
+	      var todo = this.props.todo;
+
+	      var isNowBigRock = !todo.isBigRock;
+
+	      var updatedTodo = _extends({}, todo, {
+	        isCurrent: isNowBigRock ? true : todo.isCurrent,
+	        isBigRock: isNowBigRock
+	      });
+
+	      this.props.onUpdateTodo(updatedTodo);
+	    }
+	  }, {
+	    key: 'onDestroyTodo',
+	    value: function onDestroyTodo() {
+	      var todo = this.props.todo;
+
+	      var confirmDestroy = confirm('Are you sure you want to delete "' + todo.name + '"?  This can\'t be undone.');
+
+	      if (confirmDestroy) {
+	        this.props.onDestroyTodo(todo);
+	      }
+	    }
+	  }, {
+	    key: 'render',
+	    value: function render() {
+	      var todo = this.props.todo;
+
+
+	      return _react2.default.createElement(
+	        'li',
+	        { className: 'todo ' + (todo.percentComplete == 100 && 'checked'), onDoubleClick: this.onToggleBigRock.bind(this) },
+	        _react2.default.createElement(
+	          'div',
+	          { className: 'checkbox-col' },
+	          _react2.default.createElement('div', { className: 'checkbox ' + (todo.percentComplete == 100 && 'checked'), onClick: this.onCheck.bind(this) })
+	        ),
+	        _react2.default.createElement(
+	          'div',
+	          { className: 'todo-name-col' },
+	          todo.name
+	        ),
+	        _react2.default.createElement(
+	          'div',
+	          { className: 'current-button-col' },
+	          _react2.default.createElement(
+	            'button',
+	            { onClick: this.onDestroyTodo.bind(this), className: 'link destroy' },
+	            '×'
+	          ),
+	          _react2.default.createElement('button', { onClick: this.onToggleCurrent.bind(this), className: 'current-button ' + (todo.isCurrent && 'active') })
+	        )
+	      );
+	    }
+	  }]);
+
+	  return Todo;
+	}(_react2.default.Component);
+
+	exports.default = Todo;
+
+
+	Todo.propTypes = {
+	  todo: _react2.default.PropTypes.shape({
+	    id: _react2.default.PropTypes.number,
+	    isBigRock: _react2.default.PropTypes.bool,
+	    isCurrent: _react2.default.PropTypes.bool,
+	    key: _react2.default.PropTypes.number,
+	    name: _react2.default.PropTypes.string,
+	    percentComplete: _react2.default.PropTypes.number
+	  }),
+	  onDestroyTodo: _react2.default.PropTypes.func,
+	  onUpdateTodo: _react2.default.PropTypes.func
+	};
+
+/***/ },
+/* 183 */
+/***/ function(module, exports, __webpack_require__) {
+
+	// style-loader: Adds some css to the DOM by adding a <style> tag
+
+	// load the styles
+	var content = __webpack_require__(184);
+	if(typeof content === 'string') content = [[module.id, content, '']];
+	// add the styles to the DOM
+	var update = __webpack_require__(180)(content, {});
+	if(content.locals) module.exports = content.locals;
+	// Hot Module Replacement
+	if(false) {
+		// When the styles change, update the <style> tags
+		if(!content.locals) {
+			module.hot.accept("!!./../../../node_modules/css-loader/index.js!./../../../node_modules/postcss-loader/index.js!./todo-lists.css", function() {
+				var newContent = require("!!./../../../node_modules/css-loader/index.js!./../../../node_modules/postcss-loader/index.js!./todo-lists.css");
+				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+				update(newContent);
+			});
+		}
+		// When the module is disposed, remove the <style> tags
+		module.hot.dispose(function() { update(); });
+	}
+
+/***/ },
+/* 184 */
+/***/ function(module, exports, __webpack_require__) {
+
+	exports = module.exports = __webpack_require__(179)();
+	// imports
+
+
+	// module
+	exports.push([module.id, ".todo-list-scroll {\n  overflow-y: scroll;\n  padding: 55px 50px 175px;\n  height: 100%;\n}\n.todo-list {\n  position: absolute;\n  left: 300px;\n  right: 374px;\n  bottom: 0;\n  top: 70px;\n}\n.todo-list h1 {\n  margin-bottom: 20px;\n  color: #373636;\n  font-size: 21px;\n  font-weight: 500;\n  line-height: 32px;\n}\n.todo-list .add-task {\n  padding: 30px 55px;\n  border: 0;\n  outline: none;\n  position: absolute;\n  box-shadow: 0 0 60px rgba(255, 255, 255, 1), 0 0 30px rgba(0, 0, 0, 0.1);\n  bottom: 55px;\n  right: 424px;\n  left: 50px;\n  display: block;\n  width: calc(100% - 100px);\n  font-size: 12px;\n  background: white url(/src/img/btn-add-item.svg) 20px center no-repeat\n}\n.todo-list .add-task::-webkit-input-placeholder {\n  color: #5CBCD6;\n  text-transform: uppercase;\n  letter-spacing: 1.71px;\n}\n.todo-list .add-task::-moz-placeholder {\n  color: #5CBCD6;\n  text-transform: uppercase;\n  letter-spacing: 1.71px;\n}\n.todo-list .add-task:-ms-input-placeholder {\n  color: #5CBCD6;\n  text-transform: uppercase;\n  letter-spacing: 1.71px;\n}\n.todo-list .add-task::placeholder {\n  color: #5CBCD6;\n  text-transform: uppercase;\n  letter-spacing: 1.71px;\n}\n.todo-list .todo.checked {\n  opacity: 0.5;\n  text-decoration: line-through;\n}\n.todo-list-inner {\n  background-color: white;\n}\n", ""]);
+
+	// exports
+
+
+/***/ },
+/* 185 */
+/***/ function(module, exports, __webpack_require__) {
+
+	// style-loader: Adds some css to the DOM by adding a <style> tag
+
+	// load the styles
+	var content = __webpack_require__(186);
+	if(typeof content === 'string') content = [[module.id, content, '']];
+	// add the styles to the DOM
+	var update = __webpack_require__(180)(content, {});
+	if(content.locals) module.exports = content.locals;
+	// Hot Module Replacement
+	if(false) {
+		// When the styles change, update the <style> tags
+		if(!content.locals) {
+			module.hot.accept("!!./../../../node_modules/css-loader/index.js!./../../../node_modules/postcss-loader/index.js!./todos.css", function() {
+				var newContent = require("!!./../../../node_modules/css-loader/index.js!./../../../node_modules/postcss-loader/index.js!./todos.css");
+				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+				update(newContent);
+			});
+		}
+		// When the module is disposed, remove the <style> tags
+		module.hot.dispose(function() { update(); });
+	}
+
+/***/ },
+/* 186 */
+/***/ function(module, exports, __webpack_require__) {
+
+	exports = module.exports = __webpack_require__(179)();
+	// imports
+
+
+	// module
+	exports.push([module.id, ".todo {\n  border-bottom: 1px solid #EEEEEE;\n}\n.todo:before {\n  content: '';\n  display: table;\n}\n.todo:after {\n  content: '';\n  display: table;\n  clear: both;\n}\n.todo .checkbox-col {\n  width: 58px;\n  float: left;\n  padding: 29px 19px;\n}\n.todo .current-button-col {\n  width: 98px;\n  float: left;\n  padding: 32px 29px 28px;\n}\n.todo .todo-name-col {\n  width: calc(100% - 156px);\n  float: left;\n  padding: 30px 0;\n}\n.todo .checkbox {\n  cursor: pointer;\n  margin: 0 16px 0 0;\n  height: 17px;\n  width: 17px;\n  background-position: center;\n  background-repeat: no-repeat;\n  box-sizing: border-box;\n  border-style: solid;\n  border-width: 1.5px;\n  border-color: #A1A1A1;\n  border-radius: 3px\n}\n.todo .checkbox.checked {\n  border-width: 0.5px;\n  background-image: url(/src/img/check.svg);\n}\n.todo .destroy {\n  visibility: hidden;\n  height: 16px;\n  line-height: 16px;\n  font-size: 20px;\n  vertical-align: middle;\n  padding: 0;\n  margin-right: 6px;\n  cursor: pointer\n}\n.todo .destroy:hover {\n  opacity: 0.4;\n}\n.todo .current-button {\n  cursor: pointer;\n  height: 16px;\n  width: 16px;\n  border: none;\n  border: 2px solid #A2DEDB;\n  border-radius: 50%;\n  background: white\n}\n.todo .current-button.active {\n  background: #A2DEDB;\n}\n.todo.checked .todo-name-col {\n  opacity: 0.5;\n  text-decoration: line-through;\n}\n.todo:hover .destroy {\n  visibility: visible;\n}", ""]);
+
+	// exports
+
+
+/***/ },
+/* 187 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(166);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _todo = __webpack_require__(182);
+
+	var _todo2 = _interopRequireDefault(_todo);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	__webpack_require__(188);
+	__webpack_require__(190);
 
 	var CurrentTodoList = function (_React$Component) {
 	  _inherits(CurrentTodoList, _React$Component);
@@ -39100,48 +39390,18 @@
 	  }
 
 	  _createClass(CurrentTodoList, [{
-	    key: 'onCheck',
-	    value: function onCheck(todo) {
-	      var updatedTodo = _extends({}, todo, {
-	        percent_complete: todo.percent_complete == 100 ? 0 : 100
-	      });
-
-	      this.props.onUpdateTodo(updatedTodo);
-	    }
-	  }, {
 	    key: 'bigRocks',
 	    value: function bigRocks() {
 	      return _(this.props.currentTodos).filter(function (todo) {
-	        return todo.is_big_rock;
-	      }).sortBy(['percent_complete', 'created_at']).value();
+	        return todo.isBigRock;
+	      }).sortBy(['percentComplete', 'createdAt']).value();
 	    }
 	  }, {
 	    key: 'otherCurrentTodos',
 	    value: function otherCurrentTodos() {
 	      return _(this.props.currentTodos).reject(function (todo) {
-	        return todo.is_big_rock;
-	      }).sortBy(['percent_complete', 'created_at']).value();
-	    }
-	  }, {
-	    key: 'onToggleCurrent',
-	    value: function onToggleCurrent(todo) {
-	      var updatedTodo = _extends({}, todo, {
-	        is_current: !todo.is_current
-	      });
-
-	      this.props.onUpdateTodo(updatedTodo);
-	    }
-	  }, {
-	    key: 'onToggleBigRock',
-	    value: function onToggleBigRock(todo) {
-	      var isNowBigRock = !todo.is_big_rock;
-
-	      var updatedTodo = _extends({}, todo, {
-	        is_current: isNowBigRock ? true : todo.is_current,
-	        is_big_rock: isNowBigRock
-	      });
-
-	      this.props.onUpdateTodo(updatedTodo);
+	        return todo.isBigRock;
+	      }).sortBy(['percentComplete', 'createdAt']).value();
 	    }
 	  }, {
 	    key: 'render',
@@ -39179,25 +39439,7 @@
 	            'ul',
 	            { className: 'big-rocks' },
 	            _.map(this.bigRocks(), function (todo) {
-	              return _react2.default.createElement(
-	                'li',
-	                { className: 'todo ' + (todo.percent_complete == 100 && 'checked'), key: todo.id || todo.key, onDoubleClick: _.partial(_this2.onToggleBigRock.bind(_this2), todo) },
-	                _react2.default.createElement(
-	                  'div',
-	                  { className: 'checkbox-col' },
-	                  _react2.default.createElement('div', { className: 'checkbox ' + (todo.percent_complete == 100 && 'checked'), onClick: _.partial(_this2.onCheck.bind(_this2), todo) })
-	                ),
-	                _react2.default.createElement(
-	                  'div',
-	                  { className: 'todo-name-col' },
-	                  todo.name
-	                ),
-	                _react2.default.createElement(
-	                  'div',
-	                  { className: 'current-button-col' },
-	                  _react2.default.createElement('button', { onClick: _.partial(_this2.onToggleCurrent.bind(_this2), todo), className: 'current-button ' + (todo.is_current && 'active') })
-	                )
-	              );
+	              return _react2.default.createElement(_todo2.default, { todo: todo, key: todo.id || todo.key, onDestroyTodo: _this2.props.onDestroyTodo, onUpdateTodo: _this2.props.onUpdateTodo });
 	            })
 	          ),
 	          _react2.default.createElement(
@@ -39209,25 +39451,7 @@
 	            'ul',
 	            { className: 'other-rocks' },
 	            _.map(this.otherCurrentTodos(), function (todo) {
-	              return _react2.default.createElement(
-	                'li',
-	                { className: 'todo ' + (todo.percent_complete == 100 && 'checked'), key: todo.id || todo.key, onDoubleClick: _.partial(_this2.onToggleBigRock.bind(_this2), todo) },
-	                _react2.default.createElement(
-	                  'div',
-	                  { className: 'checkbox-col' },
-	                  _react2.default.createElement('div', { className: 'checkbox ' + (todo.percent_complete == 100 && 'checked'), onClick: _.partial(_this2.onCheck.bind(_this2), todo) })
-	                ),
-	                _react2.default.createElement(
-	                  'div',
-	                  { className: 'todo-name-col' },
-	                  todo.name
-	                ),
-	                _react2.default.createElement(
-	                  'div',
-	                  { className: 'current-button-col' },
-	                  _react2.default.createElement('button', { onClick: _.partial(_this2.onToggleCurrent.bind(_this2), todo), className: 'current-button ' + (todo.is_current && 'active') })
-	                )
-	              );
+	              return _react2.default.createElement(_todo2.default, { todo: todo, key: todo.id || todo.key, onDestroyTodo: _this2.props.onDestroyTodo, onUpdateTodo: _this2.props.onUpdateTodo });
 	            })
 	          )
 	        )
@@ -39246,19 +39470,20 @@
 	    id: _react2.default.PropTypes.number,
 	    name: _react2.default.PropTypes.string
 	  })),
+	  onDestroyTodo: _react2.default.PropTypes.func,
 	  onUpdateTodo: _react2.default.PropTypes.func,
 	  onToggleFullscreen: _react2.default.PropTypes.func,
 	  isFullscreen: _react2.default.PropTypes.bool
 	};
 
 /***/ },
-/* 187 */
+/* 188 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 
 	// load the styles
-	var content = __webpack_require__(188);
+	var content = __webpack_require__(189);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
 	var update = __webpack_require__(180)(content, {});
@@ -39278,7 +39503,7 @@
 	}
 
 /***/ },
-/* 188 */
+/* 189 */
 /***/ function(module, exports, __webpack_require__) {
 
 	exports = module.exports = __webpack_require__(179)();
@@ -39286,19 +39511,19 @@
 
 
 	// module
-	exports.push([module.id, ".current-todos {\n  position: absolute;\n  top: 70px;\n  right: 0;\n  bottom: 0;\n  overflow: auto;\n  width: 374px;\n  padding-bottom: 75px;\n}\n.current-todos .current-todos-inner {\n  background-color: white;\n  position: relative;\n}\n.current-todos .expand-icon {\n  cursor: pointer;\n  position: absolute;\n  right: 17px;\n  top: 21px;\n}\n.current-todos .big-rocks-header {\n  padding: 50px 0 30px 30px;\n  color: #373636;\n  font-size: 36px;\n  font-weight: 600;\n  line-height: 53px;\n}\n.current-todos .other-current-header {\n  padding: 40px 0 30px 30px;\n  color: #373636;\n  font-size: 21px;\n  font-weight: 500;\n  line-height: 32px;\n}\n.current-todos .todo:first-child {\n  border-top: 1px solid #eee;\n}\n.current-todos .big-rocks .checkbox-col {\n  width: 64px;\n  padding: 25px 20px;\n}\n.current-todos .big-rocks .current-button-col {\n  padding: 28px 29px 25px;\n}\n.current-todos .big-rocks .todo-name-col {\n  padding: 29px 0;\n  width: calc(100% - 138px);\n}\n.current-todos .big-rocks .checkbox {\n  height: 24px;\n  width: 24px;\n  border-radius: 4px\n}\n.current-todos .big-rocks .checkbox.checked {\n  border-width: 1px;\n  background-image: url(/src/img/check-big.svg);\n}\n.current-todos.fullscreen {\n  width: auto;\n  padding: 0 200px;\n}\n.no-rocks {\n  background: rgba(215,215,215,0.06);\n  border: 2px dashed #F2795D;\n  border-radius: 3px; \n  margin: 20px 30px;\n  padding: 60px 35px 35px;\n  text-align: center;\n  font-weight: 600;\n  font-size: 17px;\n  color: #323844;\n  line-height: 22px;\n}\n.no-rocks .sifted-icon {\n  margin-bottom: 25px;\n}\n.no-rocks .sub {\n  margin-top: 25px;\n  font-size: 13px;\n  color: #777777;\n}\n.sifted-icon {\n  background: url(/src/img/rocks-logo.svg) center no-repeat;\n  height: 21px;\n  display: block;\n}", ""]);
+	exports.push([module.id, ".current-todos {\n  position: absolute;\n  top: 70px;\n  right: 0;\n  bottom: 0;\n  overflow: auto;\n  width: 374px;\n}\n.current-todos .current-todos-inner {\n  background-color: white;\n  position: relative;\n  height: 100%;\n  padding-bottom: 75px;\n}\n.current-todos .expand-icon {\n  cursor: pointer;\n  position: absolute;\n  right: 17px;\n  top: 21px;\n}\n.current-todos .big-rocks-header {\n  padding: 50px 0 30px 30px;\n  color: #373636;\n  font-size: 36px;\n  font-weight: 600;\n  line-height: 53px;\n}\n.current-todos .other-current-header {\n  padding: 40px 0 30px 30px;\n  color: #373636;\n  font-size: 21px;\n  font-weight: 500;\n  line-height: 32px;\n}\n.current-todos .todo:first-child {\n  border-top: 1px solid #eee;\n}\n.current-todos .big-rocks .checkbox-col {\n  width: 64px;\n  padding: 25px 20px;\n}\n.current-todos .big-rocks .current-button-col {\n  padding: 28px 29px 25px;\n}\n.current-todos .big-rocks .todo-name-col {\n  padding: 29px 0;\n  width: calc(100% - 162px);\n}\n.current-todos .big-rocks .checkbox {\n  height: 24px;\n  width: 24px;\n  border-radius: 4px\n}\n.current-todos .big-rocks .checkbox.checked {\n  border-width: 1px;\n  background-image: url(/src/img/check-big.svg);\n}\n.current-todos.fullscreen {\n  width: auto;\n  left: 0;\n  padding: 0 200px;\n}\n.no-rocks {\n  background: rgba(215,215,215,0.06);\n  border: 2px dashed #F2795D;\n  border-radius: 3px; \n  margin: 20px 30px;\n  padding: 60px 35px 35px;\n  text-align: center;\n  font-weight: 600;\n  font-size: 17px;\n  color: #323844;\n  line-height: 22px;\n}\n.no-rocks .sifted-icon {\n  margin-bottom: 25px;\n}\n.no-rocks .sub {\n  margin-top: 25px;\n  font-size: 13px;\n  color: #777777;\n}\n.sifted-icon {\n  background: url(/src/img/rocks-logo.svg) center no-repeat;\n  height: 21px;\n  display: block;\n}", ""]);
 
 	// exports
 
 
 /***/ },
-/* 189 */
+/* 190 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 
 	// load the styles
-	var content = __webpack_require__(190);
+	var content = __webpack_require__(191);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
 	var update = __webpack_require__(180)(content, {});
@@ -39318,7 +39543,7 @@
 	}
 
 /***/ },
-/* 190 */
+/* 191 */
 /***/ function(module, exports, __webpack_require__) {
 
 	exports = module.exports = __webpack_require__(179)();
@@ -39332,7 +39557,7 @@
 
 
 /***/ },
-/* 191 */
+/* 192 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -39345,9 +39570,11 @@
 
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-	var _reqwest = __webpack_require__(192);
+	var _reqwest = __webpack_require__(193);
 
 	var _reqwest2 = _interopRequireDefault(_reqwest);
+
+	var _caseConverter = __webpack_require__(195);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -39364,14 +39591,18 @@
 	    key: 'apiReq',
 	    value: function apiReq(path, options) {
 	      var reqOptions = _extends({
-	        url: ("http://sift.teamgantt.com/API") + '/' + path,
+	        url: ("https://sift.teamgantt.com/API") + '/' + path,
 	        headers: {
-	          'S-Api-Key': this.user.user_key,
-	          'S-User-Token': this.user.user_token
+	          'S-Api-Key': this.user.userKey,
+	          'S-User-Token': this.user.userToken
 	        }
 	      }, options);
 
-	      return (0, _reqwest2.default)(reqOptions);
+	      if (options && options.data) {
+	        reqOptions.data = JSON.stringify((0, _caseConverter.toSnakeCase)(options.data));
+	      }
+
+	      return (0, _reqwest2.default)(reqOptions).then(_caseConverter.toCamelCase);
 	    }
 	  }, {
 	    key: 'signIn',
@@ -39379,7 +39610,7 @@
 	      return this.apiReq('login', {
 	        method: 'post',
 	        headers: {},
-	        data: JSON.stringify(attrs)
+	        data: attrs
 	      });
 	    }
 	  }, {
@@ -39402,7 +39633,14 @@
 	    value: function addTodo(todoListId, todo) {
 	      return this.apiReq('todolists/' + todoListId + '/todos', {
 	        method: 'post',
-	        data: JSON.stringify(todo)
+	        data: todo
+	      });
+	    }
+	  }, {
+	    key: 'destroyTodo',
+	    value: function destroyTodo(todoListId, todoId) {
+	      return this.apiReq('todolists/' + todoListId + '/todos/' + todoId, {
+	        method: 'delete'
 	      });
 	    }
 	  }, {
@@ -39410,7 +39648,22 @@
 	    value: function updateTodo(todoListId, todoId, updatedTodo) {
 	      return this.apiReq('todolists/' + todoListId + '/todos/' + todoId, {
 	        method: 'put',
-	        data: JSON.stringify(updatedTodo)
+	        data: updatedTodo
+	      });
+	    }
+	  }, {
+	    key: 'addTodoList',
+	    value: function addTodoList(todoList) {
+	      return this.apiReq('todolists', {
+	        method: 'post',
+	        data: todoList
+	      });
+	    }
+	  }, {
+	    key: 'destroyTodoList',
+	    value: function destroyTodoList(todoListId) {
+	      return this.apiReq('todolists/' + todoListId, {
+	        method: 'delete'
 	      });
 	    }
 	  }]);
@@ -39422,7 +39675,7 @@
 	;
 
 /***/ },
-/* 192 */
+/* 193 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
@@ -39446,7 +39699,7 @@
 	  } else {
 	    var XHR2
 	    try {
-	      XHR2 = __webpack_require__(193)
+	      XHR2 = __webpack_require__(194)
 	    } catch (ex) {
 	      throw new Error('Peer dependency `xhr2` required! Please npm install xhr2')
 	    }
@@ -40058,19 +40311,1627 @@
 
 
 /***/ },
-/* 193 */
+/* 194 */
 /***/ function(module, exports) {
 
 	/* (ignored) */
 
 /***/ },
-/* 194 */
+/* 195 */
+/***/ function(module, exports) {
+
+	module.exports =
+	/******/ (function(modules) { // webpackBootstrap
+	/******/ 	// The module cache
+	/******/ 	var installedModules = {};
+	/******/
+	/******/ 	// The require function
+	/******/ 	function __webpack_require__(moduleId) {
+	/******/
+	/******/ 		// Check if module is in cache
+	/******/ 		if(installedModules[moduleId])
+	/******/ 			return installedModules[moduleId].exports;
+	/******/
+	/******/ 		// Create a new module (and put it into the cache)
+	/******/ 		var module = installedModules[moduleId] = {
+	/******/ 			exports: {},
+	/******/ 			id: moduleId,
+	/******/ 			loaded: false
+	/******/ 		};
+	/******/
+	/******/ 		// Execute the module function
+	/******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
+	/******/
+	/******/ 		// Flag the module as loaded
+	/******/ 		module.loaded = true;
+	/******/
+	/******/ 		// Return the exports of the module
+	/******/ 		return module.exports;
+	/******/ 	}
+	/******/
+	/******/
+	/******/ 	// expose the modules object (__webpack_modules__)
+	/******/ 	__webpack_require__.m = modules;
+	/******/
+	/******/ 	// expose the module cache
+	/******/ 	__webpack_require__.c = installedModules;
+	/******/
+	/******/ 	// __webpack_public_path__
+	/******/ 	__webpack_require__.p = "";
+	/******/
+	/******/ 	// Load entry module and return exports
+	/******/ 	return __webpack_require__(0);
+	/******/ })
+	/************************************************************************/
+	/******/ ([
+	/* 0 */
+	/***/ function(module, exports, __webpack_require__) {
+
+		'use strict';
+		
+		Object.defineProperty(exports, "__esModule", {
+		  value: true
+		});
+		exports.toKebabCase = exports.toSnakeCase = exports.toCamelCase = undefined;
+		
+		var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+		
+		var _lodash = __webpack_require__(1);
+		
+		var _lodash2 = _interopRequireDefault(_lodash);
+		
+		var _lodash3 = __webpack_require__(2);
+		
+		var _lodash4 = _interopRequireDefault(_lodash3);
+		
+		var _lodash5 = __webpack_require__(3);
+		
+		var _lodash6 = _interopRequireDefault(_lodash5);
+		
+		function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+		
+		/**
+		 * deeply converts keys of an object from one case to another
+		 * @param {object} object to convert
+		 * @param {function} function to convert key.
+		 * @return converted object
+		 */
+		var convertCase = function convertCase(oldObject, converterFunction) {
+		  var newObject = void 0;
+		
+		  if (!oldObject || (typeof oldObject === 'undefined' ? 'undefined' : _typeof(oldObject)) !== 'object' || !Object.keys(oldObject).length) {
+		    return oldObject;
+		  }
+		
+		  if (Array.isArray(oldObject)) {
+		    newObject = oldObject.map(function (element) {
+		      return convertCase(element, converterFunction);
+		    });
+		  } else {
+		    newObject = {};
+		    Object.keys(oldObject).forEach(function (oldKey) {
+		      var newKey = converterFunction(oldKey);
+		      newObject[newKey] = convertCase(oldObject[oldKey], converterFunction);
+		    });
+		  }
+		
+		  return newObject;
+		};
+		
+		var toCamelCase = exports.toCamelCase = function toCamelCase(obj) {
+		  return convertCase(obj, _lodash4.default);
+		};
+		var toSnakeCase = exports.toSnakeCase = function toSnakeCase(obj) {
+		  return convertCase(obj, _lodash2.default);
+		};
+		var toKebabCase = exports.toKebabCase = function toKebabCase(obj) {
+		  return convertCase(obj, _lodash6.default);
+		};
+		
+		exports.default = { toCamelCase: toCamelCase, toSnakeCase: toSnakeCase, toKebabCase: toKebabCase };
+
+	/***/ },
+	/* 1 */
+	/***/ function(module, exports) {
+
+		/* WEBPACK VAR INJECTION */(function(global) {/**
+		 * lodash (Custom Build) <https://lodash.com/>
+		 * Build: `lodash modularize exports="npm" -o ./`
+		 * Copyright jQuery Foundation and other contributors <https://jquery.org/>
+		 * Released under MIT license <https://lodash.com/license>
+		 * Based on Underscore.js 1.8.3 <http://underscorejs.org/LICENSE>
+		 * Copyright Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
+		 */
+		
+		/** Used as references for various `Number` constants. */
+		var INFINITY = 1 / 0;
+		
+		/** `Object#toString` result references. */
+		var symbolTag = '[object Symbol]';
+		
+		/** Used to match words composed of alphanumeric characters. */
+		var reAsciiWord = /[^\x00-\x2f\x3a-\x40\x5b-\x60\x7b-\x7f]+/g;
+		
+		/** Used to match Latin Unicode letters (excluding mathematical operators). */
+		var reLatin = /[\xc0-\xd6\xd8-\xf6\xf8-\xff\u0100-\u017f]/g;
+		
+		/** Used to compose unicode character classes. */
+		var rsAstralRange = '\\ud800-\\udfff',
+		    rsComboMarksRange = '\\u0300-\\u036f\\ufe20-\\ufe23',
+		    rsComboSymbolsRange = '\\u20d0-\\u20f0',
+		    rsDingbatRange = '\\u2700-\\u27bf',
+		    rsLowerRange = 'a-z\\xdf-\\xf6\\xf8-\\xff',
+		    rsMathOpRange = '\\xac\\xb1\\xd7\\xf7',
+		    rsNonCharRange = '\\x00-\\x2f\\x3a-\\x40\\x5b-\\x60\\x7b-\\xbf',
+		    rsPunctuationRange = '\\u2000-\\u206f',
+		    rsSpaceRange = ' \\t\\x0b\\f\\xa0\\ufeff\\n\\r\\u2028\\u2029\\u1680\\u180e\\u2000\\u2001\\u2002\\u2003\\u2004\\u2005\\u2006\\u2007\\u2008\\u2009\\u200a\\u202f\\u205f\\u3000',
+		    rsUpperRange = 'A-Z\\xc0-\\xd6\\xd8-\\xde',
+		    rsVarRange = '\\ufe0e\\ufe0f',
+		    rsBreakRange = rsMathOpRange + rsNonCharRange + rsPunctuationRange + rsSpaceRange;
+		
+		/** Used to compose unicode capture groups. */
+		var rsApos = "['\u2019]",
+		    rsBreak = '[' + rsBreakRange + ']',
+		    rsCombo = '[' + rsComboMarksRange + rsComboSymbolsRange + ']',
+		    rsDigits = '\\d+',
+		    rsDingbat = '[' + rsDingbatRange + ']',
+		    rsLower = '[' + rsLowerRange + ']',
+		    rsMisc = '[^' + rsAstralRange + rsBreakRange + rsDigits + rsDingbatRange + rsLowerRange + rsUpperRange + ']',
+		    rsFitz = '\\ud83c[\\udffb-\\udfff]',
+		    rsModifier = '(?:' + rsCombo + '|' + rsFitz + ')',
+		    rsNonAstral = '[^' + rsAstralRange + ']',
+		    rsRegional = '(?:\\ud83c[\\udde6-\\uddff]){2}',
+		    rsSurrPair = '[\\ud800-\\udbff][\\udc00-\\udfff]',
+		    rsUpper = '[' + rsUpperRange + ']',
+		    rsZWJ = '\\u200d';
+		
+		/** Used to compose unicode regexes. */
+		var rsLowerMisc = '(?:' + rsLower + '|' + rsMisc + ')',
+		    rsUpperMisc = '(?:' + rsUpper + '|' + rsMisc + ')',
+		    rsOptLowerContr = '(?:' + rsApos + '(?:d|ll|m|re|s|t|ve))?',
+		    rsOptUpperContr = '(?:' + rsApos + '(?:D|LL|M|RE|S|T|VE))?',
+		    reOptMod = rsModifier + '?',
+		    rsOptVar = '[' + rsVarRange + ']?',
+		    rsOptJoin = '(?:' + rsZWJ + '(?:' + [rsNonAstral, rsRegional, rsSurrPair].join('|') + ')' + rsOptVar + reOptMod + ')*',
+		    rsSeq = rsOptVar + reOptMod + rsOptJoin,
+		    rsEmoji = '(?:' + [rsDingbat, rsRegional, rsSurrPair].join('|') + ')' + rsSeq;
+		
+		/** Used to match apostrophes. */
+		var reApos = RegExp(rsApos, 'g');
+		
+		/**
+		 * Used to match [combining diacritical marks](https://en.wikipedia.org/wiki/Combining_Diacritical_Marks) and
+		 * [combining diacritical marks for symbols](https://en.wikipedia.org/wiki/Combining_Diacritical_Marks_for_Symbols).
+		 */
+		var reComboMark = RegExp(rsCombo, 'g');
+		
+		/** Used to match complex or compound words. */
+		var reUnicodeWord = RegExp([
+		  rsUpper + '?' + rsLower + '+' + rsOptLowerContr + '(?=' + [rsBreak, rsUpper, '$'].join('|') + ')',
+		  rsUpperMisc + '+' + rsOptUpperContr + '(?=' + [rsBreak, rsUpper + rsLowerMisc, '$'].join('|') + ')',
+		  rsUpper + '?' + rsLowerMisc + '+' + rsOptLowerContr,
+		  rsUpper + '+' + rsOptUpperContr,
+		  rsDigits,
+		  rsEmoji
+		].join('|'), 'g');
+		
+		/** Used to detect strings that need a more robust regexp to match words. */
+		var reHasUnicodeWord = /[a-z][A-Z]|[A-Z]{2,}[a-z]|[0-9][a-zA-Z]|[a-zA-Z][0-9]|[^a-zA-Z0-9 ]/;
+		
+		/** Used to map Latin Unicode letters to basic Latin letters. */
+		var deburredLetters = {
+		  // Latin-1 Supplement block.
+		  '\xc0': 'A',  '\xc1': 'A', '\xc2': 'A', '\xc3': 'A', '\xc4': 'A', '\xc5': 'A',
+		  '\xe0': 'a',  '\xe1': 'a', '\xe2': 'a', '\xe3': 'a', '\xe4': 'a', '\xe5': 'a',
+		  '\xc7': 'C',  '\xe7': 'c',
+		  '\xd0': 'D',  '\xf0': 'd',
+		  '\xc8': 'E',  '\xc9': 'E', '\xca': 'E', '\xcb': 'E',
+		  '\xe8': 'e',  '\xe9': 'e', '\xea': 'e', '\xeb': 'e',
+		  '\xcc': 'I',  '\xcd': 'I', '\xce': 'I', '\xcf': 'I',
+		  '\xec': 'i',  '\xed': 'i', '\xee': 'i', '\xef': 'i',
+		  '\xd1': 'N',  '\xf1': 'n',
+		  '\xd2': 'O',  '\xd3': 'O', '\xd4': 'O', '\xd5': 'O', '\xd6': 'O', '\xd8': 'O',
+		  '\xf2': 'o',  '\xf3': 'o', '\xf4': 'o', '\xf5': 'o', '\xf6': 'o', '\xf8': 'o',
+		  '\xd9': 'U',  '\xda': 'U', '\xdb': 'U', '\xdc': 'U',
+		  '\xf9': 'u',  '\xfa': 'u', '\xfb': 'u', '\xfc': 'u',
+		  '\xdd': 'Y',  '\xfd': 'y', '\xff': 'y',
+		  '\xc6': 'Ae', '\xe6': 'ae',
+		  '\xde': 'Th', '\xfe': 'th',
+		  '\xdf': 'ss',
+		  // Latin Extended-A block.
+		  '\u0100': 'A',  '\u0102': 'A', '\u0104': 'A',
+		  '\u0101': 'a',  '\u0103': 'a', '\u0105': 'a',
+		  '\u0106': 'C',  '\u0108': 'C', '\u010a': 'C', '\u010c': 'C',
+		  '\u0107': 'c',  '\u0109': 'c', '\u010b': 'c', '\u010d': 'c',
+		  '\u010e': 'D',  '\u0110': 'D', '\u010f': 'd', '\u0111': 'd',
+		  '\u0112': 'E',  '\u0114': 'E', '\u0116': 'E', '\u0118': 'E', '\u011a': 'E',
+		  '\u0113': 'e',  '\u0115': 'e', '\u0117': 'e', '\u0119': 'e', '\u011b': 'e',
+		  '\u011c': 'G',  '\u011e': 'G', '\u0120': 'G', '\u0122': 'G',
+		  '\u011d': 'g',  '\u011f': 'g', '\u0121': 'g', '\u0123': 'g',
+		  '\u0124': 'H',  '\u0126': 'H', '\u0125': 'h', '\u0127': 'h',
+		  '\u0128': 'I',  '\u012a': 'I', '\u012c': 'I', '\u012e': 'I', '\u0130': 'I',
+		  '\u0129': 'i',  '\u012b': 'i', '\u012d': 'i', '\u012f': 'i', '\u0131': 'i',
+		  '\u0134': 'J',  '\u0135': 'j',
+		  '\u0136': 'K',  '\u0137': 'k', '\u0138': 'k',
+		  '\u0139': 'L',  '\u013b': 'L', '\u013d': 'L', '\u013f': 'L', '\u0141': 'L',
+		  '\u013a': 'l',  '\u013c': 'l', '\u013e': 'l', '\u0140': 'l', '\u0142': 'l',
+		  '\u0143': 'N',  '\u0145': 'N', '\u0147': 'N', '\u014a': 'N',
+		  '\u0144': 'n',  '\u0146': 'n', '\u0148': 'n', '\u014b': 'n',
+		  '\u014c': 'O',  '\u014e': 'O', '\u0150': 'O',
+		  '\u014d': 'o',  '\u014f': 'o', '\u0151': 'o',
+		  '\u0154': 'R',  '\u0156': 'R', '\u0158': 'R',
+		  '\u0155': 'r',  '\u0157': 'r', '\u0159': 'r',
+		  '\u015a': 'S',  '\u015c': 'S', '\u015e': 'S', '\u0160': 'S',
+		  '\u015b': 's',  '\u015d': 's', '\u015f': 's', '\u0161': 's',
+		  '\u0162': 'T',  '\u0164': 'T', '\u0166': 'T',
+		  '\u0163': 't',  '\u0165': 't', '\u0167': 't',
+		  '\u0168': 'U',  '\u016a': 'U', '\u016c': 'U', '\u016e': 'U', '\u0170': 'U', '\u0172': 'U',
+		  '\u0169': 'u',  '\u016b': 'u', '\u016d': 'u', '\u016f': 'u', '\u0171': 'u', '\u0173': 'u',
+		  '\u0174': 'W',  '\u0175': 'w',
+		  '\u0176': 'Y',  '\u0177': 'y', '\u0178': 'Y',
+		  '\u0179': 'Z',  '\u017b': 'Z', '\u017d': 'Z',
+		  '\u017a': 'z',  '\u017c': 'z', '\u017e': 'z',
+		  '\u0132': 'IJ', '\u0133': 'ij',
+		  '\u0152': 'Oe', '\u0153': 'oe',
+		  '\u0149': "'n", '\u017f': 'ss'
+		};
+		
+		/** Detect free variable `global` from Node.js. */
+		var freeGlobal = typeof global == 'object' && global && global.Object === Object && global;
+		
+		/** Detect free variable `self`. */
+		var freeSelf = typeof self == 'object' && self && self.Object === Object && self;
+		
+		/** Used as a reference to the global object. */
+		var root = freeGlobal || freeSelf || Function('return this')();
+		
+		/**
+		 * A specialized version of `_.reduce` for arrays without support for
+		 * iteratee shorthands.
+		 *
+		 * @private
+		 * @param {Array} [array] The array to iterate over.
+		 * @param {Function} iteratee The function invoked per iteration.
+		 * @param {*} [accumulator] The initial value.
+		 * @param {boolean} [initAccum] Specify using the first element of `array` as
+		 *  the initial value.
+		 * @returns {*} Returns the accumulated value.
+		 */
+		function arrayReduce(array, iteratee, accumulator, initAccum) {
+		  var index = -1,
+		      length = array ? array.length : 0;
+		
+		  if (initAccum && length) {
+		    accumulator = array[++index];
+		  }
+		  while (++index < length) {
+		    accumulator = iteratee(accumulator, array[index], index, array);
+		  }
+		  return accumulator;
+		}
+		
+		/**
+		 * Splits an ASCII `string` into an array of its words.
+		 *
+		 * @private
+		 * @param {string} The string to inspect.
+		 * @returns {Array} Returns the words of `string`.
+		 */
+		function asciiWords(string) {
+		  return string.match(reAsciiWord) || [];
+		}
+		
+		/**
+		 * The base implementation of `_.propertyOf` without support for deep paths.
+		 *
+		 * @private
+		 * @param {Object} object The object to query.
+		 * @returns {Function} Returns the new accessor function.
+		 */
+		function basePropertyOf(object) {
+		  return function(key) {
+		    return object == null ? undefined : object[key];
+		  };
+		}
+		
+		/**
+		 * Used by `_.deburr` to convert Latin-1 Supplement and Latin Extended-A
+		 * letters to basic Latin letters.
+		 *
+		 * @private
+		 * @param {string} letter The matched letter to deburr.
+		 * @returns {string} Returns the deburred letter.
+		 */
+		var deburrLetter = basePropertyOf(deburredLetters);
+		
+		/**
+		 * Checks if `string` contains a word composed of Unicode symbols.
+		 *
+		 * @private
+		 * @param {string} string The string to inspect.
+		 * @returns {boolean} Returns `true` if a word is found, else `false`.
+		 */
+		function hasUnicodeWord(string) {
+		  return reHasUnicodeWord.test(string);
+		}
+		
+		/**
+		 * Splits a Unicode `string` into an array of its words.
+		 *
+		 * @private
+		 * @param {string} The string to inspect.
+		 * @returns {Array} Returns the words of `string`.
+		 */
+		function unicodeWords(string) {
+		  return string.match(reUnicodeWord) || [];
+		}
+		
+		/** Used for built-in method references. */
+		var objectProto = Object.prototype;
+		
+		/**
+		 * Used to resolve the
+		 * [`toStringTag`](http://ecma-international.org/ecma-262/7.0/#sec-object.prototype.tostring)
+		 * of values.
+		 */
+		var objectToString = objectProto.toString;
+		
+		/** Built-in value references. */
+		var Symbol = root.Symbol;
+		
+		/** Used to convert symbols to primitives and strings. */
+		var symbolProto = Symbol ? Symbol.prototype : undefined,
+		    symbolToString = symbolProto ? symbolProto.toString : undefined;
+		
+		/**
+		 * The base implementation of `_.toString` which doesn't convert nullish
+		 * values to empty strings.
+		 *
+		 * @private
+		 * @param {*} value The value to process.
+		 * @returns {string} Returns the string.
+		 */
+		function baseToString(value) {
+		  // Exit early for strings to avoid a performance hit in some environments.
+		  if (typeof value == 'string') {
+		    return value;
+		  }
+		  if (isSymbol(value)) {
+		    return symbolToString ? symbolToString.call(value) : '';
+		  }
+		  var result = (value + '');
+		  return (result == '0' && (1 / value) == -INFINITY) ? '-0' : result;
+		}
+		
+		/**
+		 * Creates a function like `_.camelCase`.
+		 *
+		 * @private
+		 * @param {Function} callback The function to combine each word.
+		 * @returns {Function} Returns the new compounder function.
+		 */
+		function createCompounder(callback) {
+		  return function(string) {
+		    return arrayReduce(words(deburr(string).replace(reApos, '')), callback, '');
+		  };
+		}
+		
+		/**
+		 * Checks if `value` is object-like. A value is object-like if it's not `null`
+		 * and has a `typeof` result of "object".
+		 *
+		 * @static
+		 * @memberOf _
+		 * @since 4.0.0
+		 * @category Lang
+		 * @param {*} value The value to check.
+		 * @returns {boolean} Returns `true` if `value` is object-like, else `false`.
+		 * @example
+		 *
+		 * _.isObjectLike({});
+		 * // => true
+		 *
+		 * _.isObjectLike([1, 2, 3]);
+		 * // => true
+		 *
+		 * _.isObjectLike(_.noop);
+		 * // => false
+		 *
+		 * _.isObjectLike(null);
+		 * // => false
+		 */
+		function isObjectLike(value) {
+		  return !!value && typeof value == 'object';
+		}
+		
+		/**
+		 * Checks if `value` is classified as a `Symbol` primitive or object.
+		 *
+		 * @static
+		 * @memberOf _
+		 * @since 4.0.0
+		 * @category Lang
+		 * @param {*} value The value to check.
+		 * @returns {boolean} Returns `true` if `value` is a symbol, else `false`.
+		 * @example
+		 *
+		 * _.isSymbol(Symbol.iterator);
+		 * // => true
+		 *
+		 * _.isSymbol('abc');
+		 * // => false
+		 */
+		function isSymbol(value) {
+		  return typeof value == 'symbol' ||
+		    (isObjectLike(value) && objectToString.call(value) == symbolTag);
+		}
+		
+		/**
+		 * Converts `value` to a string. An empty string is returned for `null`
+		 * and `undefined` values. The sign of `-0` is preserved.
+		 *
+		 * @static
+		 * @memberOf _
+		 * @since 4.0.0
+		 * @category Lang
+		 * @param {*} value The value to process.
+		 * @returns {string} Returns the string.
+		 * @example
+		 *
+		 * _.toString(null);
+		 * // => ''
+		 *
+		 * _.toString(-0);
+		 * // => '-0'
+		 *
+		 * _.toString([1, 2, 3]);
+		 * // => '1,2,3'
+		 */
+		function toString(value) {
+		  return value == null ? '' : baseToString(value);
+		}
+		
+		/**
+		 * Deburrs `string` by converting
+		 * [Latin-1 Supplement](https://en.wikipedia.org/wiki/Latin-1_Supplement_(Unicode_block)#Character_table)
+		 * and [Latin Extended-A](https://en.wikipedia.org/wiki/Latin_Extended-A)
+		 * letters to basic Latin letters and removing
+		 * [combining diacritical marks](https://en.wikipedia.org/wiki/Combining_Diacritical_Marks).
+		 *
+		 * @static
+		 * @memberOf _
+		 * @since 3.0.0
+		 * @category String
+		 * @param {string} [string=''] The string to deburr.
+		 * @returns {string} Returns the deburred string.
+		 * @example
+		 *
+		 * _.deburr('déjà vu');
+		 * // => 'deja vu'
+		 */
+		function deburr(string) {
+		  string = toString(string);
+		  return string && string.replace(reLatin, deburrLetter).replace(reComboMark, '');
+		}
+		
+		/**
+		 * Converts `string` to
+		 * [snake case](https://en.wikipedia.org/wiki/Snake_case).
+		 *
+		 * @static
+		 * @memberOf _
+		 * @since 3.0.0
+		 * @category String
+		 * @param {string} [string=''] The string to convert.
+		 * @returns {string} Returns the snake cased string.
+		 * @example
+		 *
+		 * _.snakeCase('Foo Bar');
+		 * // => 'foo_bar'
+		 *
+		 * _.snakeCase('fooBar');
+		 * // => 'foo_bar'
+		 *
+		 * _.snakeCase('--FOO-BAR--');
+		 * // => 'foo_bar'
+		 */
+		var snakeCase = createCompounder(function(result, word, index) {
+		  return result + (index ? '_' : '') + word.toLowerCase();
+		});
+		
+		/**
+		 * Splits `string` into an array of its words.
+		 *
+		 * @static
+		 * @memberOf _
+		 * @since 3.0.0
+		 * @category String
+		 * @param {string} [string=''] The string to inspect.
+		 * @param {RegExp|string} [pattern] The pattern to match words.
+		 * @param- {Object} [guard] Enables use as an iteratee for methods like `_.map`.
+		 * @returns {Array} Returns the words of `string`.
+		 * @example
+		 *
+		 * _.words('fred, barney, & pebbles');
+		 * // => ['fred', 'barney', 'pebbles']
+		 *
+		 * _.words('fred, barney, & pebbles', /[^, ]+/g);
+		 * // => ['fred', 'barney', '&', 'pebbles']
+		 */
+		function words(string, pattern, guard) {
+		  string = toString(string);
+		  pattern = guard ? undefined : pattern;
+		
+		  if (pattern === undefined) {
+		    return hasUnicodeWord(string) ? unicodeWords(string) : asciiWords(string);
+		  }
+		  return string.match(pattern) || [];
+		}
+		
+		module.exports = snakeCase;
+		
+		/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
+
+	/***/ },
+	/* 2 */
+	/***/ function(module, exports) {
+
+		/* WEBPACK VAR INJECTION */(function(global) {/**
+		 * lodash (Custom Build) <https://lodash.com/>
+		 * Build: `lodash modularize exports="npm" -o ./`
+		 * Copyright jQuery Foundation and other contributors <https://jquery.org/>
+		 * Released under MIT license <https://lodash.com/license>
+		 * Based on Underscore.js 1.8.3 <http://underscorejs.org/LICENSE>
+		 * Copyright Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
+		 */
+		
+		/** Used as references for various `Number` constants. */
+		var INFINITY = 1 / 0;
+		
+		/** `Object#toString` result references. */
+		var symbolTag = '[object Symbol]';
+		
+		/** Used to match words composed of alphanumeric characters. */
+		var reAsciiWord = /[^\x00-\x2f\x3a-\x40\x5b-\x60\x7b-\x7f]+/g;
+		
+		/** Used to match Latin Unicode letters (excluding mathematical operators). */
+		var reLatin = /[\xc0-\xd6\xd8-\xf6\xf8-\xff\u0100-\u017f]/g;
+		
+		/** Used to compose unicode character classes. */
+		var rsAstralRange = '\\ud800-\\udfff',
+		    rsComboMarksRange = '\\u0300-\\u036f\\ufe20-\\ufe23',
+		    rsComboSymbolsRange = '\\u20d0-\\u20f0',
+		    rsDingbatRange = '\\u2700-\\u27bf',
+		    rsLowerRange = 'a-z\\xdf-\\xf6\\xf8-\\xff',
+		    rsMathOpRange = '\\xac\\xb1\\xd7\\xf7',
+		    rsNonCharRange = '\\x00-\\x2f\\x3a-\\x40\\x5b-\\x60\\x7b-\\xbf',
+		    rsPunctuationRange = '\\u2000-\\u206f',
+		    rsSpaceRange = ' \\t\\x0b\\f\\xa0\\ufeff\\n\\r\\u2028\\u2029\\u1680\\u180e\\u2000\\u2001\\u2002\\u2003\\u2004\\u2005\\u2006\\u2007\\u2008\\u2009\\u200a\\u202f\\u205f\\u3000',
+		    rsUpperRange = 'A-Z\\xc0-\\xd6\\xd8-\\xde',
+		    rsVarRange = '\\ufe0e\\ufe0f',
+		    rsBreakRange = rsMathOpRange + rsNonCharRange + rsPunctuationRange + rsSpaceRange;
+		
+		/** Used to compose unicode capture groups. */
+		var rsApos = "['\u2019]",
+		    rsAstral = '[' + rsAstralRange + ']',
+		    rsBreak = '[' + rsBreakRange + ']',
+		    rsCombo = '[' + rsComboMarksRange + rsComboSymbolsRange + ']',
+		    rsDigits = '\\d+',
+		    rsDingbat = '[' + rsDingbatRange + ']',
+		    rsLower = '[' + rsLowerRange + ']',
+		    rsMisc = '[^' + rsAstralRange + rsBreakRange + rsDigits + rsDingbatRange + rsLowerRange + rsUpperRange + ']',
+		    rsFitz = '\\ud83c[\\udffb-\\udfff]',
+		    rsModifier = '(?:' + rsCombo + '|' + rsFitz + ')',
+		    rsNonAstral = '[^' + rsAstralRange + ']',
+		    rsRegional = '(?:\\ud83c[\\udde6-\\uddff]){2}',
+		    rsSurrPair = '[\\ud800-\\udbff][\\udc00-\\udfff]',
+		    rsUpper = '[' + rsUpperRange + ']',
+		    rsZWJ = '\\u200d';
+		
+		/** Used to compose unicode regexes. */
+		var rsLowerMisc = '(?:' + rsLower + '|' + rsMisc + ')',
+		    rsUpperMisc = '(?:' + rsUpper + '|' + rsMisc + ')',
+		    rsOptLowerContr = '(?:' + rsApos + '(?:d|ll|m|re|s|t|ve))?',
+		    rsOptUpperContr = '(?:' + rsApos + '(?:D|LL|M|RE|S|T|VE))?',
+		    reOptMod = rsModifier + '?',
+		    rsOptVar = '[' + rsVarRange + ']?',
+		    rsOptJoin = '(?:' + rsZWJ + '(?:' + [rsNonAstral, rsRegional, rsSurrPair].join('|') + ')' + rsOptVar + reOptMod + ')*',
+		    rsSeq = rsOptVar + reOptMod + rsOptJoin,
+		    rsEmoji = '(?:' + [rsDingbat, rsRegional, rsSurrPair].join('|') + ')' + rsSeq,
+		    rsSymbol = '(?:' + [rsNonAstral + rsCombo + '?', rsCombo, rsRegional, rsSurrPair, rsAstral].join('|') + ')';
+		
+		/** Used to match apostrophes. */
+		var reApos = RegExp(rsApos, 'g');
+		
+		/**
+		 * Used to match [combining diacritical marks](https://en.wikipedia.org/wiki/Combining_Diacritical_Marks) and
+		 * [combining diacritical marks for symbols](https://en.wikipedia.org/wiki/Combining_Diacritical_Marks_for_Symbols).
+		 */
+		var reComboMark = RegExp(rsCombo, 'g');
+		
+		/** Used to match [string symbols](https://mathiasbynens.be/notes/javascript-unicode). */
+		var reUnicode = RegExp(rsFitz + '(?=' + rsFitz + ')|' + rsSymbol + rsSeq, 'g');
+		
+		/** Used to match complex or compound words. */
+		var reUnicodeWord = RegExp([
+		  rsUpper + '?' + rsLower + '+' + rsOptLowerContr + '(?=' + [rsBreak, rsUpper, '$'].join('|') + ')',
+		  rsUpperMisc + '+' + rsOptUpperContr + '(?=' + [rsBreak, rsUpper + rsLowerMisc, '$'].join('|') + ')',
+		  rsUpper + '?' + rsLowerMisc + '+' + rsOptLowerContr,
+		  rsUpper + '+' + rsOptUpperContr,
+		  rsDigits,
+		  rsEmoji
+		].join('|'), 'g');
+		
+		/** Used to detect strings with [zero-width joiners or code points from the astral planes](http://eev.ee/blog/2015/09/12/dark-corners-of-unicode/). */
+		var reHasUnicode = RegExp('[' + rsZWJ + rsAstralRange  + rsComboMarksRange + rsComboSymbolsRange + rsVarRange + ']');
+		
+		/** Used to detect strings that need a more robust regexp to match words. */
+		var reHasUnicodeWord = /[a-z][A-Z]|[A-Z]{2,}[a-z]|[0-9][a-zA-Z]|[a-zA-Z][0-9]|[^a-zA-Z0-9 ]/;
+		
+		/** Used to map Latin Unicode letters to basic Latin letters. */
+		var deburredLetters = {
+		  // Latin-1 Supplement block.
+		  '\xc0': 'A',  '\xc1': 'A', '\xc2': 'A', '\xc3': 'A', '\xc4': 'A', '\xc5': 'A',
+		  '\xe0': 'a',  '\xe1': 'a', '\xe2': 'a', '\xe3': 'a', '\xe4': 'a', '\xe5': 'a',
+		  '\xc7': 'C',  '\xe7': 'c',
+		  '\xd0': 'D',  '\xf0': 'd',
+		  '\xc8': 'E',  '\xc9': 'E', '\xca': 'E', '\xcb': 'E',
+		  '\xe8': 'e',  '\xe9': 'e', '\xea': 'e', '\xeb': 'e',
+		  '\xcc': 'I',  '\xcd': 'I', '\xce': 'I', '\xcf': 'I',
+		  '\xec': 'i',  '\xed': 'i', '\xee': 'i', '\xef': 'i',
+		  '\xd1': 'N',  '\xf1': 'n',
+		  '\xd2': 'O',  '\xd3': 'O', '\xd4': 'O', '\xd5': 'O', '\xd6': 'O', '\xd8': 'O',
+		  '\xf2': 'o',  '\xf3': 'o', '\xf4': 'o', '\xf5': 'o', '\xf6': 'o', '\xf8': 'o',
+		  '\xd9': 'U',  '\xda': 'U', '\xdb': 'U', '\xdc': 'U',
+		  '\xf9': 'u',  '\xfa': 'u', '\xfb': 'u', '\xfc': 'u',
+		  '\xdd': 'Y',  '\xfd': 'y', '\xff': 'y',
+		  '\xc6': 'Ae', '\xe6': 'ae',
+		  '\xde': 'Th', '\xfe': 'th',
+		  '\xdf': 'ss',
+		  // Latin Extended-A block.
+		  '\u0100': 'A',  '\u0102': 'A', '\u0104': 'A',
+		  '\u0101': 'a',  '\u0103': 'a', '\u0105': 'a',
+		  '\u0106': 'C',  '\u0108': 'C', '\u010a': 'C', '\u010c': 'C',
+		  '\u0107': 'c',  '\u0109': 'c', '\u010b': 'c', '\u010d': 'c',
+		  '\u010e': 'D',  '\u0110': 'D', '\u010f': 'd', '\u0111': 'd',
+		  '\u0112': 'E',  '\u0114': 'E', '\u0116': 'E', '\u0118': 'E', '\u011a': 'E',
+		  '\u0113': 'e',  '\u0115': 'e', '\u0117': 'e', '\u0119': 'e', '\u011b': 'e',
+		  '\u011c': 'G',  '\u011e': 'G', '\u0120': 'G', '\u0122': 'G',
+		  '\u011d': 'g',  '\u011f': 'g', '\u0121': 'g', '\u0123': 'g',
+		  '\u0124': 'H',  '\u0126': 'H', '\u0125': 'h', '\u0127': 'h',
+		  '\u0128': 'I',  '\u012a': 'I', '\u012c': 'I', '\u012e': 'I', '\u0130': 'I',
+		  '\u0129': 'i',  '\u012b': 'i', '\u012d': 'i', '\u012f': 'i', '\u0131': 'i',
+		  '\u0134': 'J',  '\u0135': 'j',
+		  '\u0136': 'K',  '\u0137': 'k', '\u0138': 'k',
+		  '\u0139': 'L',  '\u013b': 'L', '\u013d': 'L', '\u013f': 'L', '\u0141': 'L',
+		  '\u013a': 'l',  '\u013c': 'l', '\u013e': 'l', '\u0140': 'l', '\u0142': 'l',
+		  '\u0143': 'N',  '\u0145': 'N', '\u0147': 'N', '\u014a': 'N',
+		  '\u0144': 'n',  '\u0146': 'n', '\u0148': 'n', '\u014b': 'n',
+		  '\u014c': 'O',  '\u014e': 'O', '\u0150': 'O',
+		  '\u014d': 'o',  '\u014f': 'o', '\u0151': 'o',
+		  '\u0154': 'R',  '\u0156': 'R', '\u0158': 'R',
+		  '\u0155': 'r',  '\u0157': 'r', '\u0159': 'r',
+		  '\u015a': 'S',  '\u015c': 'S', '\u015e': 'S', '\u0160': 'S',
+		  '\u015b': 's',  '\u015d': 's', '\u015f': 's', '\u0161': 's',
+		  '\u0162': 'T',  '\u0164': 'T', '\u0166': 'T',
+		  '\u0163': 't',  '\u0165': 't', '\u0167': 't',
+		  '\u0168': 'U',  '\u016a': 'U', '\u016c': 'U', '\u016e': 'U', '\u0170': 'U', '\u0172': 'U',
+		  '\u0169': 'u',  '\u016b': 'u', '\u016d': 'u', '\u016f': 'u', '\u0171': 'u', '\u0173': 'u',
+		  '\u0174': 'W',  '\u0175': 'w',
+		  '\u0176': 'Y',  '\u0177': 'y', '\u0178': 'Y',
+		  '\u0179': 'Z',  '\u017b': 'Z', '\u017d': 'Z',
+		  '\u017a': 'z',  '\u017c': 'z', '\u017e': 'z',
+		  '\u0132': 'IJ', '\u0133': 'ij',
+		  '\u0152': 'Oe', '\u0153': 'oe',
+		  '\u0149': "'n", '\u017f': 'ss'
+		};
+		
+		/** Detect free variable `global` from Node.js. */
+		var freeGlobal = typeof global == 'object' && global && global.Object === Object && global;
+		
+		/** Detect free variable `self`. */
+		var freeSelf = typeof self == 'object' && self && self.Object === Object && self;
+		
+		/** Used as a reference to the global object. */
+		var root = freeGlobal || freeSelf || Function('return this')();
+		
+		/**
+		 * A specialized version of `_.reduce` for arrays without support for
+		 * iteratee shorthands.
+		 *
+		 * @private
+		 * @param {Array} [array] The array to iterate over.
+		 * @param {Function} iteratee The function invoked per iteration.
+		 * @param {*} [accumulator] The initial value.
+		 * @param {boolean} [initAccum] Specify using the first element of `array` as
+		 *  the initial value.
+		 * @returns {*} Returns the accumulated value.
+		 */
+		function arrayReduce(array, iteratee, accumulator, initAccum) {
+		  var index = -1,
+		      length = array ? array.length : 0;
+		
+		  if (initAccum && length) {
+		    accumulator = array[++index];
+		  }
+		  while (++index < length) {
+		    accumulator = iteratee(accumulator, array[index], index, array);
+		  }
+		  return accumulator;
+		}
+		
+		/**
+		 * Converts an ASCII `string` to an array.
+		 *
+		 * @private
+		 * @param {string} string The string to convert.
+		 * @returns {Array} Returns the converted array.
+		 */
+		function asciiToArray(string) {
+		  return string.split('');
+		}
+		
+		/**
+		 * Splits an ASCII `string` into an array of its words.
+		 *
+		 * @private
+		 * @param {string} The string to inspect.
+		 * @returns {Array} Returns the words of `string`.
+		 */
+		function asciiWords(string) {
+		  return string.match(reAsciiWord) || [];
+		}
+		
+		/**
+		 * The base implementation of `_.propertyOf` without support for deep paths.
+		 *
+		 * @private
+		 * @param {Object} object The object to query.
+		 * @returns {Function} Returns the new accessor function.
+		 */
+		function basePropertyOf(object) {
+		  return function(key) {
+		    return object == null ? undefined : object[key];
+		  };
+		}
+		
+		/**
+		 * Used by `_.deburr` to convert Latin-1 Supplement and Latin Extended-A
+		 * letters to basic Latin letters.
+		 *
+		 * @private
+		 * @param {string} letter The matched letter to deburr.
+		 * @returns {string} Returns the deburred letter.
+		 */
+		var deburrLetter = basePropertyOf(deburredLetters);
+		
+		/**
+		 * Checks if `string` contains Unicode symbols.
+		 *
+		 * @private
+		 * @param {string} string The string to inspect.
+		 * @returns {boolean} Returns `true` if a symbol is found, else `false`.
+		 */
+		function hasUnicode(string) {
+		  return reHasUnicode.test(string);
+		}
+		
+		/**
+		 * Checks if `string` contains a word composed of Unicode symbols.
+		 *
+		 * @private
+		 * @param {string} string The string to inspect.
+		 * @returns {boolean} Returns `true` if a word is found, else `false`.
+		 */
+		function hasUnicodeWord(string) {
+		  return reHasUnicodeWord.test(string);
+		}
+		
+		/**
+		 * Converts `string` to an array.
+		 *
+		 * @private
+		 * @param {string} string The string to convert.
+		 * @returns {Array} Returns the converted array.
+		 */
+		function stringToArray(string) {
+		  return hasUnicode(string)
+		    ? unicodeToArray(string)
+		    : asciiToArray(string);
+		}
+		
+		/**
+		 * Converts a Unicode `string` to an array.
+		 *
+		 * @private
+		 * @param {string} string The string to convert.
+		 * @returns {Array} Returns the converted array.
+		 */
+		function unicodeToArray(string) {
+		  return string.match(reUnicode) || [];
+		}
+		
+		/**
+		 * Splits a Unicode `string` into an array of its words.
+		 *
+		 * @private
+		 * @param {string} The string to inspect.
+		 * @returns {Array} Returns the words of `string`.
+		 */
+		function unicodeWords(string) {
+		  return string.match(reUnicodeWord) || [];
+		}
+		
+		/** Used for built-in method references. */
+		var objectProto = Object.prototype;
+		
+		/**
+		 * Used to resolve the
+		 * [`toStringTag`](http://ecma-international.org/ecma-262/7.0/#sec-object.prototype.tostring)
+		 * of values.
+		 */
+		var objectToString = objectProto.toString;
+		
+		/** Built-in value references. */
+		var Symbol = root.Symbol;
+		
+		/** Used to convert symbols to primitives and strings. */
+		var symbolProto = Symbol ? Symbol.prototype : undefined,
+		    symbolToString = symbolProto ? symbolProto.toString : undefined;
+		
+		/**
+		 * The base implementation of `_.slice` without an iteratee call guard.
+		 *
+		 * @private
+		 * @param {Array} array The array to slice.
+		 * @param {number} [start=0] The start position.
+		 * @param {number} [end=array.length] The end position.
+		 * @returns {Array} Returns the slice of `array`.
+		 */
+		function baseSlice(array, start, end) {
+		  var index = -1,
+		      length = array.length;
+		
+		  if (start < 0) {
+		    start = -start > length ? 0 : (length + start);
+		  }
+		  end = end > length ? length : end;
+		  if (end < 0) {
+		    end += length;
+		  }
+		  length = start > end ? 0 : ((end - start) >>> 0);
+		  start >>>= 0;
+		
+		  var result = Array(length);
+		  while (++index < length) {
+		    result[index] = array[index + start];
+		  }
+		  return result;
+		}
+		
+		/**
+		 * The base implementation of `_.toString` which doesn't convert nullish
+		 * values to empty strings.
+		 *
+		 * @private
+		 * @param {*} value The value to process.
+		 * @returns {string} Returns the string.
+		 */
+		function baseToString(value) {
+		  // Exit early for strings to avoid a performance hit in some environments.
+		  if (typeof value == 'string') {
+		    return value;
+		  }
+		  if (isSymbol(value)) {
+		    return symbolToString ? symbolToString.call(value) : '';
+		  }
+		  var result = (value + '');
+		  return (result == '0' && (1 / value) == -INFINITY) ? '-0' : result;
+		}
+		
+		/**
+		 * Casts `array` to a slice if it's needed.
+		 *
+		 * @private
+		 * @param {Array} array The array to inspect.
+		 * @param {number} start The start position.
+		 * @param {number} [end=array.length] The end position.
+		 * @returns {Array} Returns the cast slice.
+		 */
+		function castSlice(array, start, end) {
+		  var length = array.length;
+		  end = end === undefined ? length : end;
+		  return (!start && end >= length) ? array : baseSlice(array, start, end);
+		}
+		
+		/**
+		 * Creates a function like `_.lowerFirst`.
+		 *
+		 * @private
+		 * @param {string} methodName The name of the `String` case method to use.
+		 * @returns {Function} Returns the new case function.
+		 */
+		function createCaseFirst(methodName) {
+		  return function(string) {
+		    string = toString(string);
+		
+		    var strSymbols = hasUnicode(string)
+		      ? stringToArray(string)
+		      : undefined;
+		
+		    var chr = strSymbols
+		      ? strSymbols[0]
+		      : string.charAt(0);
+		
+		    var trailing = strSymbols
+		      ? castSlice(strSymbols, 1).join('')
+		      : string.slice(1);
+		
+		    return chr[methodName]() + trailing;
+		  };
+		}
+		
+		/**
+		 * Creates a function like `_.camelCase`.
+		 *
+		 * @private
+		 * @param {Function} callback The function to combine each word.
+		 * @returns {Function} Returns the new compounder function.
+		 */
+		function createCompounder(callback) {
+		  return function(string) {
+		    return arrayReduce(words(deburr(string).replace(reApos, '')), callback, '');
+		  };
+		}
+		
+		/**
+		 * Checks if `value` is object-like. A value is object-like if it's not `null`
+		 * and has a `typeof` result of "object".
+		 *
+		 * @static
+		 * @memberOf _
+		 * @since 4.0.0
+		 * @category Lang
+		 * @param {*} value The value to check.
+		 * @returns {boolean} Returns `true` if `value` is object-like, else `false`.
+		 * @example
+		 *
+		 * _.isObjectLike({});
+		 * // => true
+		 *
+		 * _.isObjectLike([1, 2, 3]);
+		 * // => true
+		 *
+		 * _.isObjectLike(_.noop);
+		 * // => false
+		 *
+		 * _.isObjectLike(null);
+		 * // => false
+		 */
+		function isObjectLike(value) {
+		  return !!value && typeof value == 'object';
+		}
+		
+		/**
+		 * Checks if `value` is classified as a `Symbol` primitive or object.
+		 *
+		 * @static
+		 * @memberOf _
+		 * @since 4.0.0
+		 * @category Lang
+		 * @param {*} value The value to check.
+		 * @returns {boolean} Returns `true` if `value` is a symbol, else `false`.
+		 * @example
+		 *
+		 * _.isSymbol(Symbol.iterator);
+		 * // => true
+		 *
+		 * _.isSymbol('abc');
+		 * // => false
+		 */
+		function isSymbol(value) {
+		  return typeof value == 'symbol' ||
+		    (isObjectLike(value) && objectToString.call(value) == symbolTag);
+		}
+		
+		/**
+		 * Converts `value` to a string. An empty string is returned for `null`
+		 * and `undefined` values. The sign of `-0` is preserved.
+		 *
+		 * @static
+		 * @memberOf _
+		 * @since 4.0.0
+		 * @category Lang
+		 * @param {*} value The value to process.
+		 * @returns {string} Returns the string.
+		 * @example
+		 *
+		 * _.toString(null);
+		 * // => ''
+		 *
+		 * _.toString(-0);
+		 * // => '-0'
+		 *
+		 * _.toString([1, 2, 3]);
+		 * // => '1,2,3'
+		 */
+		function toString(value) {
+		  return value == null ? '' : baseToString(value);
+		}
+		
+		/**
+		 * Converts `string` to [camel case](https://en.wikipedia.org/wiki/CamelCase).
+		 *
+		 * @static
+		 * @memberOf _
+		 * @since 3.0.0
+		 * @category String
+		 * @param {string} [string=''] The string to convert.
+		 * @returns {string} Returns the camel cased string.
+		 * @example
+		 *
+		 * _.camelCase('Foo Bar');
+		 * // => 'fooBar'
+		 *
+		 * _.camelCase('--foo-bar--');
+		 * // => 'fooBar'
+		 *
+		 * _.camelCase('__FOO_BAR__');
+		 * // => 'fooBar'
+		 */
+		var camelCase = createCompounder(function(result, word, index) {
+		  word = word.toLowerCase();
+		  return result + (index ? capitalize(word) : word);
+		});
+		
+		/**
+		 * Converts the first character of `string` to upper case and the remaining
+		 * to lower case.
+		 *
+		 * @static
+		 * @memberOf _
+		 * @since 3.0.0
+		 * @category String
+		 * @param {string} [string=''] The string to capitalize.
+		 * @returns {string} Returns the capitalized string.
+		 * @example
+		 *
+		 * _.capitalize('FRED');
+		 * // => 'Fred'
+		 */
+		function capitalize(string) {
+		  return upperFirst(toString(string).toLowerCase());
+		}
+		
+		/**
+		 * Deburrs `string` by converting
+		 * [Latin-1 Supplement](https://en.wikipedia.org/wiki/Latin-1_Supplement_(Unicode_block)#Character_table)
+		 * and [Latin Extended-A](https://en.wikipedia.org/wiki/Latin_Extended-A)
+		 * letters to basic Latin letters and removing
+		 * [combining diacritical marks](https://en.wikipedia.org/wiki/Combining_Diacritical_Marks).
+		 *
+		 * @static
+		 * @memberOf _
+		 * @since 3.0.0
+		 * @category String
+		 * @param {string} [string=''] The string to deburr.
+		 * @returns {string} Returns the deburred string.
+		 * @example
+		 *
+		 * _.deburr('déjà vu');
+		 * // => 'deja vu'
+		 */
+		function deburr(string) {
+		  string = toString(string);
+		  return string && string.replace(reLatin, deburrLetter).replace(reComboMark, '');
+		}
+		
+		/**
+		 * Converts the first character of `string` to upper case.
+		 *
+		 * @static
+		 * @memberOf _
+		 * @since 4.0.0
+		 * @category String
+		 * @param {string} [string=''] The string to convert.
+		 * @returns {string} Returns the converted string.
+		 * @example
+		 *
+		 * _.upperFirst('fred');
+		 * // => 'Fred'
+		 *
+		 * _.upperFirst('FRED');
+		 * // => 'FRED'
+		 */
+		var upperFirst = createCaseFirst('toUpperCase');
+		
+		/**
+		 * Splits `string` into an array of its words.
+		 *
+		 * @static
+		 * @memberOf _
+		 * @since 3.0.0
+		 * @category String
+		 * @param {string} [string=''] The string to inspect.
+		 * @param {RegExp|string} [pattern] The pattern to match words.
+		 * @param- {Object} [guard] Enables use as an iteratee for methods like `_.map`.
+		 * @returns {Array} Returns the words of `string`.
+		 * @example
+		 *
+		 * _.words('fred, barney, & pebbles');
+		 * // => ['fred', 'barney', 'pebbles']
+		 *
+		 * _.words('fred, barney, & pebbles', /[^, ]+/g);
+		 * // => ['fred', 'barney', '&', 'pebbles']
+		 */
+		function words(string, pattern, guard) {
+		  string = toString(string);
+		  pattern = guard ? undefined : pattern;
+		
+		  if (pattern === undefined) {
+		    return hasUnicodeWord(string) ? unicodeWords(string) : asciiWords(string);
+		  }
+		  return string.match(pattern) || [];
+		}
+		
+		module.exports = camelCase;
+		
+		/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
+
+	/***/ },
+	/* 3 */
+	/***/ function(module, exports) {
+
+		/* WEBPACK VAR INJECTION */(function(global) {/**
+		 * lodash (Custom Build) <https://lodash.com/>
+		 * Build: `lodash modularize exports="npm" -o ./`
+		 * Copyright jQuery Foundation and other contributors <https://jquery.org/>
+		 * Released under MIT license <https://lodash.com/license>
+		 * Based on Underscore.js 1.8.3 <http://underscorejs.org/LICENSE>
+		 * Copyright Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
+		 */
+		
+		/** Used as references for various `Number` constants. */
+		var INFINITY = 1 / 0;
+		
+		/** `Object#toString` result references. */
+		var symbolTag = '[object Symbol]';
+		
+		/** Used to match words composed of alphanumeric characters. */
+		var reAsciiWord = /[^\x00-\x2f\x3a-\x40\x5b-\x60\x7b-\x7f]+/g;
+		
+		/** Used to match Latin Unicode letters (excluding mathematical operators). */
+		var reLatin = /[\xc0-\xd6\xd8-\xf6\xf8-\xff\u0100-\u017f]/g;
+		
+		/** Used to compose unicode character classes. */
+		var rsAstralRange = '\\ud800-\\udfff',
+		    rsComboMarksRange = '\\u0300-\\u036f\\ufe20-\\ufe23',
+		    rsComboSymbolsRange = '\\u20d0-\\u20f0',
+		    rsDingbatRange = '\\u2700-\\u27bf',
+		    rsLowerRange = 'a-z\\xdf-\\xf6\\xf8-\\xff',
+		    rsMathOpRange = '\\xac\\xb1\\xd7\\xf7',
+		    rsNonCharRange = '\\x00-\\x2f\\x3a-\\x40\\x5b-\\x60\\x7b-\\xbf',
+		    rsPunctuationRange = '\\u2000-\\u206f',
+		    rsSpaceRange = ' \\t\\x0b\\f\\xa0\\ufeff\\n\\r\\u2028\\u2029\\u1680\\u180e\\u2000\\u2001\\u2002\\u2003\\u2004\\u2005\\u2006\\u2007\\u2008\\u2009\\u200a\\u202f\\u205f\\u3000',
+		    rsUpperRange = 'A-Z\\xc0-\\xd6\\xd8-\\xde',
+		    rsVarRange = '\\ufe0e\\ufe0f',
+		    rsBreakRange = rsMathOpRange + rsNonCharRange + rsPunctuationRange + rsSpaceRange;
+		
+		/** Used to compose unicode capture groups. */
+		var rsApos = "['\u2019]",
+		    rsBreak = '[' + rsBreakRange + ']',
+		    rsCombo = '[' + rsComboMarksRange + rsComboSymbolsRange + ']',
+		    rsDigits = '\\d+',
+		    rsDingbat = '[' + rsDingbatRange + ']',
+		    rsLower = '[' + rsLowerRange + ']',
+		    rsMisc = '[^' + rsAstralRange + rsBreakRange + rsDigits + rsDingbatRange + rsLowerRange + rsUpperRange + ']',
+		    rsFitz = '\\ud83c[\\udffb-\\udfff]',
+		    rsModifier = '(?:' + rsCombo + '|' + rsFitz + ')',
+		    rsNonAstral = '[^' + rsAstralRange + ']',
+		    rsRegional = '(?:\\ud83c[\\udde6-\\uddff]){2}',
+		    rsSurrPair = '[\\ud800-\\udbff][\\udc00-\\udfff]',
+		    rsUpper = '[' + rsUpperRange + ']',
+		    rsZWJ = '\\u200d';
+		
+		/** Used to compose unicode regexes. */
+		var rsLowerMisc = '(?:' + rsLower + '|' + rsMisc + ')',
+		    rsUpperMisc = '(?:' + rsUpper + '|' + rsMisc + ')',
+		    rsOptLowerContr = '(?:' + rsApos + '(?:d|ll|m|re|s|t|ve))?',
+		    rsOptUpperContr = '(?:' + rsApos + '(?:D|LL|M|RE|S|T|VE))?',
+		    reOptMod = rsModifier + '?',
+		    rsOptVar = '[' + rsVarRange + ']?',
+		    rsOptJoin = '(?:' + rsZWJ + '(?:' + [rsNonAstral, rsRegional, rsSurrPair].join('|') + ')' + rsOptVar + reOptMod + ')*',
+		    rsSeq = rsOptVar + reOptMod + rsOptJoin,
+		    rsEmoji = '(?:' + [rsDingbat, rsRegional, rsSurrPair].join('|') + ')' + rsSeq;
+		
+		/** Used to match apostrophes. */
+		var reApos = RegExp(rsApos, 'g');
+		
+		/**
+		 * Used to match [combining diacritical marks](https://en.wikipedia.org/wiki/Combining_Diacritical_Marks) and
+		 * [combining diacritical marks for symbols](https://en.wikipedia.org/wiki/Combining_Diacritical_Marks_for_Symbols).
+		 */
+		var reComboMark = RegExp(rsCombo, 'g');
+		
+		/** Used to match complex or compound words. */
+		var reUnicodeWord = RegExp([
+		  rsUpper + '?' + rsLower + '+' + rsOptLowerContr + '(?=' + [rsBreak, rsUpper, '$'].join('|') + ')',
+		  rsUpperMisc + '+' + rsOptUpperContr + '(?=' + [rsBreak, rsUpper + rsLowerMisc, '$'].join('|') + ')',
+		  rsUpper + '?' + rsLowerMisc + '+' + rsOptLowerContr,
+		  rsUpper + '+' + rsOptUpperContr,
+		  rsDigits,
+		  rsEmoji
+		].join('|'), 'g');
+		
+		/** Used to detect strings that need a more robust regexp to match words. */
+		var reHasUnicodeWord = /[a-z][A-Z]|[A-Z]{2,}[a-z]|[0-9][a-zA-Z]|[a-zA-Z][0-9]|[^a-zA-Z0-9 ]/;
+		
+		/** Used to map Latin Unicode letters to basic Latin letters. */
+		var deburredLetters = {
+		  // Latin-1 Supplement block.
+		  '\xc0': 'A',  '\xc1': 'A', '\xc2': 'A', '\xc3': 'A', '\xc4': 'A', '\xc5': 'A',
+		  '\xe0': 'a',  '\xe1': 'a', '\xe2': 'a', '\xe3': 'a', '\xe4': 'a', '\xe5': 'a',
+		  '\xc7': 'C',  '\xe7': 'c',
+		  '\xd0': 'D',  '\xf0': 'd',
+		  '\xc8': 'E',  '\xc9': 'E', '\xca': 'E', '\xcb': 'E',
+		  '\xe8': 'e',  '\xe9': 'e', '\xea': 'e', '\xeb': 'e',
+		  '\xcc': 'I',  '\xcd': 'I', '\xce': 'I', '\xcf': 'I',
+		  '\xec': 'i',  '\xed': 'i', '\xee': 'i', '\xef': 'i',
+		  '\xd1': 'N',  '\xf1': 'n',
+		  '\xd2': 'O',  '\xd3': 'O', '\xd4': 'O', '\xd5': 'O', '\xd6': 'O', '\xd8': 'O',
+		  '\xf2': 'o',  '\xf3': 'o', '\xf4': 'o', '\xf5': 'o', '\xf6': 'o', '\xf8': 'o',
+		  '\xd9': 'U',  '\xda': 'U', '\xdb': 'U', '\xdc': 'U',
+		  '\xf9': 'u',  '\xfa': 'u', '\xfb': 'u', '\xfc': 'u',
+		  '\xdd': 'Y',  '\xfd': 'y', '\xff': 'y',
+		  '\xc6': 'Ae', '\xe6': 'ae',
+		  '\xde': 'Th', '\xfe': 'th',
+		  '\xdf': 'ss',
+		  // Latin Extended-A block.
+		  '\u0100': 'A',  '\u0102': 'A', '\u0104': 'A',
+		  '\u0101': 'a',  '\u0103': 'a', '\u0105': 'a',
+		  '\u0106': 'C',  '\u0108': 'C', '\u010a': 'C', '\u010c': 'C',
+		  '\u0107': 'c',  '\u0109': 'c', '\u010b': 'c', '\u010d': 'c',
+		  '\u010e': 'D',  '\u0110': 'D', '\u010f': 'd', '\u0111': 'd',
+		  '\u0112': 'E',  '\u0114': 'E', '\u0116': 'E', '\u0118': 'E', '\u011a': 'E',
+		  '\u0113': 'e',  '\u0115': 'e', '\u0117': 'e', '\u0119': 'e', '\u011b': 'e',
+		  '\u011c': 'G',  '\u011e': 'G', '\u0120': 'G', '\u0122': 'G',
+		  '\u011d': 'g',  '\u011f': 'g', '\u0121': 'g', '\u0123': 'g',
+		  '\u0124': 'H',  '\u0126': 'H', '\u0125': 'h', '\u0127': 'h',
+		  '\u0128': 'I',  '\u012a': 'I', '\u012c': 'I', '\u012e': 'I', '\u0130': 'I',
+		  '\u0129': 'i',  '\u012b': 'i', '\u012d': 'i', '\u012f': 'i', '\u0131': 'i',
+		  '\u0134': 'J',  '\u0135': 'j',
+		  '\u0136': 'K',  '\u0137': 'k', '\u0138': 'k',
+		  '\u0139': 'L',  '\u013b': 'L', '\u013d': 'L', '\u013f': 'L', '\u0141': 'L',
+		  '\u013a': 'l',  '\u013c': 'l', '\u013e': 'l', '\u0140': 'l', '\u0142': 'l',
+		  '\u0143': 'N',  '\u0145': 'N', '\u0147': 'N', '\u014a': 'N',
+		  '\u0144': 'n',  '\u0146': 'n', '\u0148': 'n', '\u014b': 'n',
+		  '\u014c': 'O',  '\u014e': 'O', '\u0150': 'O',
+		  '\u014d': 'o',  '\u014f': 'o', '\u0151': 'o',
+		  '\u0154': 'R',  '\u0156': 'R', '\u0158': 'R',
+		  '\u0155': 'r',  '\u0157': 'r', '\u0159': 'r',
+		  '\u015a': 'S',  '\u015c': 'S', '\u015e': 'S', '\u0160': 'S',
+		  '\u015b': 's',  '\u015d': 's', '\u015f': 's', '\u0161': 's',
+		  '\u0162': 'T',  '\u0164': 'T', '\u0166': 'T',
+		  '\u0163': 't',  '\u0165': 't', '\u0167': 't',
+		  '\u0168': 'U',  '\u016a': 'U', '\u016c': 'U', '\u016e': 'U', '\u0170': 'U', '\u0172': 'U',
+		  '\u0169': 'u',  '\u016b': 'u', '\u016d': 'u', '\u016f': 'u', '\u0171': 'u', '\u0173': 'u',
+		  '\u0174': 'W',  '\u0175': 'w',
+		  '\u0176': 'Y',  '\u0177': 'y', '\u0178': 'Y',
+		  '\u0179': 'Z',  '\u017b': 'Z', '\u017d': 'Z',
+		  '\u017a': 'z',  '\u017c': 'z', '\u017e': 'z',
+		  '\u0132': 'IJ', '\u0133': 'ij',
+		  '\u0152': 'Oe', '\u0153': 'oe',
+		  '\u0149': "'n", '\u017f': 'ss'
+		};
+		
+		/** Detect free variable `global` from Node.js. */
+		var freeGlobal = typeof global == 'object' && global && global.Object === Object && global;
+		
+		/** Detect free variable `self`. */
+		var freeSelf = typeof self == 'object' && self && self.Object === Object && self;
+		
+		/** Used as a reference to the global object. */
+		var root = freeGlobal || freeSelf || Function('return this')();
+		
+		/**
+		 * A specialized version of `_.reduce` for arrays without support for
+		 * iteratee shorthands.
+		 *
+		 * @private
+		 * @param {Array} [array] The array to iterate over.
+		 * @param {Function} iteratee The function invoked per iteration.
+		 * @param {*} [accumulator] The initial value.
+		 * @param {boolean} [initAccum] Specify using the first element of `array` as
+		 *  the initial value.
+		 * @returns {*} Returns the accumulated value.
+		 */
+		function arrayReduce(array, iteratee, accumulator, initAccum) {
+		  var index = -1,
+		      length = array ? array.length : 0;
+		
+		  if (initAccum && length) {
+		    accumulator = array[++index];
+		  }
+		  while (++index < length) {
+		    accumulator = iteratee(accumulator, array[index], index, array);
+		  }
+		  return accumulator;
+		}
+		
+		/**
+		 * Splits an ASCII `string` into an array of its words.
+		 *
+		 * @private
+		 * @param {string} The string to inspect.
+		 * @returns {Array} Returns the words of `string`.
+		 */
+		function asciiWords(string) {
+		  return string.match(reAsciiWord) || [];
+		}
+		
+		/**
+		 * The base implementation of `_.propertyOf` without support for deep paths.
+		 *
+		 * @private
+		 * @param {Object} object The object to query.
+		 * @returns {Function} Returns the new accessor function.
+		 */
+		function basePropertyOf(object) {
+		  return function(key) {
+		    return object == null ? undefined : object[key];
+		  };
+		}
+		
+		/**
+		 * Used by `_.deburr` to convert Latin-1 Supplement and Latin Extended-A
+		 * letters to basic Latin letters.
+		 *
+		 * @private
+		 * @param {string} letter The matched letter to deburr.
+		 * @returns {string} Returns the deburred letter.
+		 */
+		var deburrLetter = basePropertyOf(deburredLetters);
+		
+		/**
+		 * Checks if `string` contains a word composed of Unicode symbols.
+		 *
+		 * @private
+		 * @param {string} string The string to inspect.
+		 * @returns {boolean} Returns `true` if a word is found, else `false`.
+		 */
+		function hasUnicodeWord(string) {
+		  return reHasUnicodeWord.test(string);
+		}
+		
+		/**
+		 * Splits a Unicode `string` into an array of its words.
+		 *
+		 * @private
+		 * @param {string} The string to inspect.
+		 * @returns {Array} Returns the words of `string`.
+		 */
+		function unicodeWords(string) {
+		  return string.match(reUnicodeWord) || [];
+		}
+		
+		/** Used for built-in method references. */
+		var objectProto = Object.prototype;
+		
+		/**
+		 * Used to resolve the
+		 * [`toStringTag`](http://ecma-international.org/ecma-262/7.0/#sec-object.prototype.tostring)
+		 * of values.
+		 */
+		var objectToString = objectProto.toString;
+		
+		/** Built-in value references. */
+		var Symbol = root.Symbol;
+		
+		/** Used to convert symbols to primitives and strings. */
+		var symbolProto = Symbol ? Symbol.prototype : undefined,
+		    symbolToString = symbolProto ? symbolProto.toString : undefined;
+		
+		/**
+		 * The base implementation of `_.toString` which doesn't convert nullish
+		 * values to empty strings.
+		 *
+		 * @private
+		 * @param {*} value The value to process.
+		 * @returns {string} Returns the string.
+		 */
+		function baseToString(value) {
+		  // Exit early for strings to avoid a performance hit in some environments.
+		  if (typeof value == 'string') {
+		    return value;
+		  }
+		  if (isSymbol(value)) {
+		    return symbolToString ? symbolToString.call(value) : '';
+		  }
+		  var result = (value + '');
+		  return (result == '0' && (1 / value) == -INFINITY) ? '-0' : result;
+		}
+		
+		/**
+		 * Creates a function like `_.camelCase`.
+		 *
+		 * @private
+		 * @param {Function} callback The function to combine each word.
+		 * @returns {Function} Returns the new compounder function.
+		 */
+		function createCompounder(callback) {
+		  return function(string) {
+		    return arrayReduce(words(deburr(string).replace(reApos, '')), callback, '');
+		  };
+		}
+		
+		/**
+		 * Checks if `value` is object-like. A value is object-like if it's not `null`
+		 * and has a `typeof` result of "object".
+		 *
+		 * @static
+		 * @memberOf _
+		 * @since 4.0.0
+		 * @category Lang
+		 * @param {*} value The value to check.
+		 * @returns {boolean} Returns `true` if `value` is object-like, else `false`.
+		 * @example
+		 *
+		 * _.isObjectLike({});
+		 * // => true
+		 *
+		 * _.isObjectLike([1, 2, 3]);
+		 * // => true
+		 *
+		 * _.isObjectLike(_.noop);
+		 * // => false
+		 *
+		 * _.isObjectLike(null);
+		 * // => false
+		 */
+		function isObjectLike(value) {
+		  return !!value && typeof value == 'object';
+		}
+		
+		/**
+		 * Checks if `value` is classified as a `Symbol` primitive or object.
+		 *
+		 * @static
+		 * @memberOf _
+		 * @since 4.0.0
+		 * @category Lang
+		 * @param {*} value The value to check.
+		 * @returns {boolean} Returns `true` if `value` is a symbol, else `false`.
+		 * @example
+		 *
+		 * _.isSymbol(Symbol.iterator);
+		 * // => true
+		 *
+		 * _.isSymbol('abc');
+		 * // => false
+		 */
+		function isSymbol(value) {
+		  return typeof value == 'symbol' ||
+		    (isObjectLike(value) && objectToString.call(value) == symbolTag);
+		}
+		
+		/**
+		 * Converts `value` to a string. An empty string is returned for `null`
+		 * and `undefined` values. The sign of `-0` is preserved.
+		 *
+		 * @static
+		 * @memberOf _
+		 * @since 4.0.0
+		 * @category Lang
+		 * @param {*} value The value to process.
+		 * @returns {string} Returns the string.
+		 * @example
+		 *
+		 * _.toString(null);
+		 * // => ''
+		 *
+		 * _.toString(-0);
+		 * // => '-0'
+		 *
+		 * _.toString([1, 2, 3]);
+		 * // => '1,2,3'
+		 */
+		function toString(value) {
+		  return value == null ? '' : baseToString(value);
+		}
+		
+		/**
+		 * Deburrs `string` by converting
+		 * [Latin-1 Supplement](https://en.wikipedia.org/wiki/Latin-1_Supplement_(Unicode_block)#Character_table)
+		 * and [Latin Extended-A](https://en.wikipedia.org/wiki/Latin_Extended-A)
+		 * letters to basic Latin letters and removing
+		 * [combining diacritical marks](https://en.wikipedia.org/wiki/Combining_Diacritical_Marks).
+		 *
+		 * @static
+		 * @memberOf _
+		 * @since 3.0.0
+		 * @category String
+		 * @param {string} [string=''] The string to deburr.
+		 * @returns {string} Returns the deburred string.
+		 * @example
+		 *
+		 * _.deburr('déjà vu');
+		 * // => 'deja vu'
+		 */
+		function deburr(string) {
+		  string = toString(string);
+		  return string && string.replace(reLatin, deburrLetter).replace(reComboMark, '');
+		}
+		
+		/**
+		 * Converts `string` to
+		 * [kebab case](https://en.wikipedia.org/wiki/Letter_case#Special_case_styles).
+		 *
+		 * @static
+		 * @memberOf _
+		 * @since 3.0.0
+		 * @category String
+		 * @param {string} [string=''] The string to convert.
+		 * @returns {string} Returns the kebab cased string.
+		 * @example
+		 *
+		 * _.kebabCase('Foo Bar');
+		 * // => 'foo-bar'
+		 *
+		 * _.kebabCase('fooBar');
+		 * // => 'foo-bar'
+		 *
+		 * _.kebabCase('__FOO_BAR__');
+		 * // => 'foo-bar'
+		 */
+		var kebabCase = createCompounder(function(result, word, index) {
+		  return result + (index ? '-' : '') + word.toLowerCase();
+		});
+		
+		/**
+		 * Splits `string` into an array of its words.
+		 *
+		 * @static
+		 * @memberOf _
+		 * @since 3.0.0
+		 * @category String
+		 * @param {string} [string=''] The string to inspect.
+		 * @param {RegExp|string} [pattern] The pattern to match words.
+		 * @param- {Object} [guard] Enables use as an iteratee for methods like `_.map`.
+		 * @returns {Array} Returns the words of `string`.
+		 * @example
+		 *
+		 * _.words('fred, barney, & pebbles');
+		 * // => ['fred', 'barney', 'pebbles']
+		 *
+		 * _.words('fred, barney, & pebbles', /[^, ]+/g);
+		 * // => ['fred', 'barney', '&', 'pebbles']
+		 */
+		function words(string, pattern, guard) {
+		  string = toString(string);
+		  pattern = guard ? undefined : pattern;
+		
+		  if (pattern === undefined) {
+		    return hasUnicodeWord(string) ? unicodeWords(string) : asciiWords(string);
+		  }
+		  return string.match(pattern) || [];
+		}
+		
+		module.exports = kebabCase;
+		
+		/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
+
+	/***/ }
+	/******/ ]);
+	//# sourceMappingURL=index.js.map
+
+/***/ },
+/* 196 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 
 	// load the styles
-	var content = __webpack_require__(195);
+	var content = __webpack_require__(197);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
 	var update = __webpack_require__(180)(content, {});
@@ -40090,46 +41951,6 @@
 	}
 
 /***/ },
-/* 195 */
-/***/ function(module, exports, __webpack_require__) {
-
-	exports = module.exports = __webpack_require__(179)();
-	// imports
-
-
-	// module
-	exports.push([module.id, "/* http://meyerweb.com/eric/tools/css/reset/\n   v2.0 | 20110126\n   License: none (public domain)\n*/\nhtml, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, big, cite, code, del, dfn, em, img, ins, kbd, q, s, samp, small, strike, strong, sub, sup, tt, var, b, u, i, center, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td, article, aside, canvas, details, embed, figure, figcaption, footer, header, hgroup, main, menu, nav, output, ruby, section, summary, time, mark, audio, video {\n    margin: 0;\n    padding: 0;\n    border: 0;\n    font-size: 100%;\n    font: inherit;\n    vertical-align: baseline\n}\n/* HTML5 display-role reset for older browsers */\narticle, aside, details, figcaption, figure, footer, header, hgroup, main, menu, nav, section {\n    display: block\n}\nbody {\n    line-height: 1\n}\nol, ul {\n    list-style: none\n}\nblockquote, q {\n    quotes: none\n}\nblockquote:before, blockquote:after, q:before, q:after {\n    content: '';\n    content: none\n}\ntable {\n    border-collapse: collapse;\n    border-spacing: 0\n}\n* {\n    box-sizing: border-box\n}\nbody {\n    font-family: 'proxima-nova';\n    background-color: #F5F7F9\n}\ninput, textarea {\n    font-family: inherit;\n    font-size: inherit\n}\nbutton {\n    outline: none\n}\n", ""]);
-
-	// exports
-
-
-/***/ },
-/* 196 */
-/***/ function(module, exports, __webpack_require__) {
-
-	// style-loader: Adds some css to the DOM by adding a <style> tag
-
-	// load the styles
-	var content = __webpack_require__(197);
-	if(typeof content === 'string') content = [[module.id, content, '']];
-	// add the styles to the DOM
-	var update = __webpack_require__(180)(content, {});
-	if(content.locals) module.exports = content.locals;
-	// Hot Module Replacement
-	if(false) {
-		// When the styles change, update the <style> tags
-		if(!content.locals) {
-			module.hot.accept("!!./../../../node_modules/css-loader/index.js!./../../../node_modules/postcss-loader/index.js!./header.css", function() {
-				var newContent = require("!!./../../../node_modules/css-loader/index.js!./../../../node_modules/postcss-loader/index.js!./header.css");
-				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
-				update(newContent);
-			});
-		}
-		// When the module is disposed, remove the <style> tags
-		module.hot.dispose(function() { update(); });
-	}
-
-/***/ },
 /* 197 */
 /***/ function(module, exports, __webpack_require__) {
 
@@ -40138,7 +41959,7 @@
 
 
 	// module
-	exports.push([module.id, "header {\n  position: fixed;\n  z-index: 1000;\n  height: 70px;\n  width: 100%;\n  background-color: #7FD1CD;\n}\nheader a {\n  width: 108px;\n  height: 21px;\n  background-image: url(/src/img/logo_sift.svg);\n  text-indent: 1000px;\n  display: block;\n  overflow: hidden;\n  margin: 22px 0 0 22px;\n  float: left;\n}\n", ""]);
+	exports.push([module.id, "/* http://meyerweb.com/eric/tools/css/reset/\n   v2.0 | 20110126\n   License: none (public domain)\n*/\nhtml, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, big, cite, code, del, dfn, em, img, ins, kbd, q, s, samp, small, strike, strong, sub, sup, tt, var, b, u, i, center, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td, article, aside, canvas, details, embed, figure, figcaption, footer, header, hgroup, main, menu, nav, output, ruby, section, summary, time, mark, audio, video {\n    margin: 0;\n    padding: 0;\n    border: 0;\n    font-size: 100%;\n    font: inherit;\n    vertical-align: baseline\n}\n/* HTML5 display-role reset for older browsers */\narticle, aside, details, figcaption, figure, footer, header, hgroup, main, menu, nav, section {\n    display: block\n}\nbody {\n    line-height: 1\n}\nol, ul {\n    list-style: none\n}\nblockquote, q {\n    quotes: none\n}\nblockquote:before, blockquote:after, q:before, q:after {\n    content: '';\n    content: none\n}\ntable {\n    border-collapse: collapse;\n    border-spacing: 0\n}\n* {\n    box-sizing: border-box\n}\nbody {\n    font-family: 'proxima-nova';\n    background-color: #F5F7F9\n}\ninput, textarea {\n    font-family: inherit;\n    font-size: inherit\n}\nbutton {\n    outline: none\n}\nbutton {\n    cursor: pointer\n}\nbutton.link {\n    border: none;\n    background: transparent;\n    display: inline;\n    padding: 0\n}\n", ""]);
 
 	// exports
 
@@ -40159,8 +41980,8 @@
 	if(false) {
 		// When the styles change, update the <style> tags
 		if(!content.locals) {
-			module.hot.accept("!!./../../../node_modules/css-loader/index.js!./../../../node_modules/postcss-loader/index.js!./content.css", function() {
-				var newContent = require("!!./../../../node_modules/css-loader/index.js!./../../../node_modules/postcss-loader/index.js!./content.css");
+			module.hot.accept("!!./../../../node_modules/css-loader/index.js!./../../../node_modules/postcss-loader/index.js!./header.css", function() {
+				var newContent = require("!!./../../../node_modules/css-loader/index.js!./../../../node_modules/postcss-loader/index.js!./header.css");
 				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
 				update(newContent);
 			});
@@ -40178,13 +41999,53 @@
 
 
 	// module
-	exports.push([module.id, ".content {\n  padding-top: 70px;\n}\n", ""]);
+	exports.push([module.id, "header {\n  position: fixed;\n  z-index: 1000;\n  height: 70px;\n  width: 100%;\n  background-color: #7FD1CD;\n}\nheader a {\n  width: 108px;\n  height: 21px;\n  background-image: url(/src/img/logo_sift.svg);\n  text-indent: 1000px;\n  display: block;\n  overflow: hidden;\n  margin: 22px 0 0 22px;\n  float: left;\n}\n", ""]);
 
 	// exports
 
 
 /***/ },
 /* 200 */
+/***/ function(module, exports, __webpack_require__) {
+
+	// style-loader: Adds some css to the DOM by adding a <style> tag
+
+	// load the styles
+	var content = __webpack_require__(201);
+	if(typeof content === 'string') content = [[module.id, content, '']];
+	// add the styles to the DOM
+	var update = __webpack_require__(180)(content, {});
+	if(content.locals) module.exports = content.locals;
+	// Hot Module Replacement
+	if(false) {
+		// When the styles change, update the <style> tags
+		if(!content.locals) {
+			module.hot.accept("!!./../../../node_modules/css-loader/index.js!./../../../node_modules/postcss-loader/index.js!./content.css", function() {
+				var newContent = require("!!./../../../node_modules/css-loader/index.js!./../../../node_modules/postcss-loader/index.js!./content.css");
+				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+				update(newContent);
+			});
+		}
+		// When the module is disposed, remove the <style> tags
+		module.hot.dispose(function() { update(); });
+	}
+
+/***/ },
+/* 201 */
+/***/ function(module, exports, __webpack_require__) {
+
+	exports = module.exports = __webpack_require__(179)();
+	// imports
+
+
+	// module
+	exports.push([module.id, ".content {\n  padding-top: 70px;\n}\n", ""]);
+
+	// exports
+
+
+/***/ },
+/* 202 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
