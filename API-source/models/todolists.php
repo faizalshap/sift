@@ -4,12 +4,16 @@
     public $user_id;
     public $name;
     public $todo_count;
+    public $created_at;
+    public $updated_at;
 
     function __construct($attrs) {
       $this->id = $attrs['id'];
       $this->user_id = $attrs['user_id'];
       $this->name = $attrs['name'];
       $this->todo_count = $attrs['todo_count'];
+      $this->created_at = $attrs['created_at'];
+      $this->updated_at = $attrs['updated_at'];
     }
 
     public static function fetch($logged_in_user, $list_id) {
@@ -22,6 +26,8 @@
                 tl.id,
                 tl.user_id,
                 tl.name,
+                tl.created_at,
+                tl.updated_at,
                 COUNT(t.id) AS todo_count
                   FROM todolists AS tl
                   LEFT OUTER JOIN todos AS t ON t.todolist_id = tl.id
@@ -33,6 +39,8 @@
         array_push($lists, new TodoList(array('id' => (int) $row['id'],
                                               'user_id' => (int) $row['user_id'],
                                               'name' => $row['name'],
+                                              'created_at' => $row['created_at'],
+                                              'updated_at' => $row['updated_at'],
                                               'todo_count' => (int) $row['todo_count']
                                           )));
       }
@@ -90,15 +98,21 @@
     }
 
     public function save() {
+      $now_date = gmdate('Y-m-d H:i:s');
+      $this->updated_at = $now_date;
       if($this->id == NULL) {
         $id = mysql_insert('todolists', array('user_id' => $this->user_id,
-                                              'name' => $this->name
+                                              'name' => $this->name,
+                                              'created_at' => $now_date,
+                                              'updated_at' => $now_date
                                         ));
         $this->id = $id;
+        $this->created_at = $now_date;
       }
       else {
         mysql_update('todolists',
-                      array('name' => $this->name),
+                      array('name' => $this->name
+                            'updated_at' => $this->updated_at),
                       array('id' => $this->id),
                       1);
         return $this;
