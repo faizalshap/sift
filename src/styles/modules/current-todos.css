@@ -5,10 +5,11 @@
   bottom: 0;
   overflow: auto;
   width: 374px;
-  padding-bottom: 75px;
   .current-todos-inner {
     background-color: white;
     position: relative;
+    height: 100%;
+    padding-bottom: 75px;
   }
   &.fullscreen {
     width: auto;
