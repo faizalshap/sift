@@ -38,13 +38,13 @@ export default class BigRocksApp extends React.Component {
 
   addTodo(todoName) {
     let todo = {
-      for_today: null,
-      is_big_rock: false,
+      isCurrent: null,
+      isBigRock: false,
       name: todoName,
-      percent_complete: 0,
-      todolist_id: this.state.todoList.id,
+      percentComplete: 0,
+      todolistId: this.state.todoList.id,
       key: Math.round(Math.random() * 1000),
-      created_at: new Date().toISOString().substring(0, 19).replace('T', ' ')
+      createdAt: new Date().toISOString().substring(0, 19).replace('T', ' ')
     };
     let oldTodos = this.state.todos;
 
@@ -75,10 +75,10 @@ export default class BigRocksApp extends React.Component {
       }
 
       if (todoListKey == 'currentTodos') {
-        if (updatedTodo.is_current && !todoWasInCurrent) {
+        if (updatedTodo.isCurrent && !todoWasInCurrent) {
           // Add to current if not there and it should be
           newTodoList = [...newTodoList, updatedTodo];
-        } else if (!updatedTodo.is_current && todoWasInCurrent) {
+        } else if (!updatedTodo.isCurrent && todoWasInCurrent) {
           // Remove from current if there and it shouldn't be
           newTodoList = _.reject(newTodoList, todo => todo.id == updatedTodo.id);
         }
@@ -89,7 +89,7 @@ export default class BigRocksApp extends React.Component {
       });
     });
 
-    this.api.updateTodo(updatedTodo.todolist_id, updatedTodo.id, updatedTodo).catch(error => {
+    this.api.updateTodo(updatedTodo.todolistId, updatedTodo.id, updatedTodo).catch(error => {
       alert('error: ' + error);
 
       _.each(oldTodoLists, (todoList, todoListKey) => {
@@ -124,8 +124,8 @@ export default class BigRocksApp extends React.Component {
 
 BigRocksApp.propTypes = {
   currentUser: React.PropTypes.shape({
-    user_id: React.PropTypes.number,
-    user_key: React.PropTypes.string,
-    user_token: React.PropTypes.string
+    userId: React.PropTypes.number,
+    userKey: React.PropTypes.string,
+    userToken: React.PropTypes.string
   })
 }

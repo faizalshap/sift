@@ -6,15 +6,15 @@ require('../styles/modules/icons');
 export default class CurrentTodoList extends React.Component {
   bigRocks() {
     return _(this.props.currentTodos)
-      .filter(todo => todo.is_big_rock)
-      .sortBy(['percent_complete', 'created_at'])
+      .filter(todo => todo.isBigRock)
+      .sortBy(['percentComplete', 'createdAt'])
       .value();
   }
 
   otherCurrentTodos() {
     return _(this.props.currentTodos)
-      .reject(todo => todo.is_big_rock)
-      .sortBy(['percent_complete', 'created_at'])
+      .reject(todo => todo.isBigRock)
+      .sortBy(['percentComplete', 'createdAt'])
       .value();
   }
 

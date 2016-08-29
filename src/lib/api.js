@@ -1,4 +1,5 @@
 import reqwest from 'reqwest';
+import { toCamelCase, toSnakeCase } from 'case-converter';
 
 export default class Api {
   constructor(user) {
@@ -9,20 +10,24 @@ export default class Api {
     let reqOptions = {
       url: `${process.env.API_URL}/${path}`,
       headers: {
-        'S-Api-Key': this.user.user_key,
-        'S-User-Token': this.user.user_token
+        'S-Api-Key': this.user.userKey,
+        'S-User-Token': this.user.userToken
       },
       ...options
     };
 
-    return reqwest(reqOptions);
+    if (options && options.data) {
+      reqOptions.data = JSON.stringify(toSnakeCase(options.data));
+    }
+
+    return reqwest(reqOptions).then(toCamelCase);
   }
 
   signIn(attrs) {
     return this.apiReq('login', {
       method: 'post',
       headers: {},
-      data: JSON.stringify(attrs)
+      data: attrs
     });
   }
 
@@ -41,14 +46,14 @@ export default class Api {
   addTodo(todoListId, todo) {
     return this.apiReq(`todolists/${todoListId}/todos`, {
       method: 'post',
-      data: JSON.stringify(todo)
+      data: todo
     });
   }
 
   updateTodo(todoListId, todoId, updatedTodo) {
     return this.apiReq(`todolists/${todoListId}/todos/${todoId}`, {
       method: 'put',
-      data: JSON.stringify(updatedTodo)
+      data: updatedTodo
     });
   }
 };

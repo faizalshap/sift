@@ -37,7 +37,7 @@ export default class TodoList extends React.Component {
           <h1 className='todo-list-name'>{this.props.todoList.name}</h1>
           <div className='todo-list-inner'>
             <ul>
-              {_(this.props.todos).sortBy(['percent_complete', 'created_at']).map(todo => {
+              {_(this.props.todos).sortBy(['percentComplete', 'createdAt']).map(todo => {
                 return (<Todo todo={todo} key={todo.id || todo.key} onUpdateTodo={this.props.onUpdateTodo} />);
               }).value()}
             </ul>
