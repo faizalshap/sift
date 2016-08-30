@@ -18,6 +18,11 @@
   .todo-list-links {
     margin-top: 10px;
   }
+  .teamgantt {
+    background: url(/src/img/teamgantt-icon.svg) 35px 19px no-repeat;
+    background-size: 14px;
+  }
+
   .inbox {
     background: url(/src/img/inbox-icon.svg) 34px center no-repeat;
   }

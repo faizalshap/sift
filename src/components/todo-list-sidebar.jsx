@@ -36,8 +36,9 @@ export default class TodoListSidebar extends React.Component {
   render() {
     if (!this.props.todoLists) { return (<div />); }
 
-    const inbox = _.find(this.props.todoLists, todo => todo.name == 'Inbox');
-    const otherTodoLists = _.without(this.props.todoLists, inbox);
+    const inbox = _.find(this.props.todoLists, todoList => todoList.name == 'Inbox');
+    const teamganttTodoList = _.find(this.props.todoLists, todoList => todoList.id == 'teamgantt');
+    const otherTodoLists = _.without(this.props.todoLists, inbox, teamganttTodoList);
 
     return (
       <div className={`todo-list-sidebar ${this.props.todoListsAreLoading ? 'loading' : ''}`}>
@@ -45,6 +46,9 @@ export default class TodoListSidebar extends React.Component {
         <ul className='todo-list-links'>
           <li className={`todo-list-link inbox ${inbox == this.props.currentList && 'current'}`} onClick={_.partial(this.props.onClickList, inbox)} key={inbox.id}>
             <div className='name'>Inbox</div>
+          </li>
+          <li className={`todo-list-link teamgantt ${teamganttTodoList == this.props.currentList && 'current'}`} onClick={_.partial(this.props.onClickList, teamganttTodoList)} key={teamganttTodoList.id}>
+            <div className='name'>{teamganttTodoList.name}</div>
           </li>
           {_(otherTodoLists).sortBy('createdAt').map(todoList => {
             return (
