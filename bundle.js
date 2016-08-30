@@ -38606,10 +38606,13 @@
 	        return _react2.default.createElement('div', null);
 	      }
 
-	      var inbox = _.find(this.props.todoLists, function (todo) {
-	        return todo.name == 'Inbox';
+	      var inbox = _.find(this.props.todoLists, function (todoList) {
+	        return todoList.name == 'Inbox';
 	      });
-	      var otherTodoLists = _.without(this.props.todoLists, inbox);
+	      var teamganttTodoList = _.find(this.props.todoLists, function (todoList) {
+	        return todoList.id == 'teamgantt';
+	      });
+	      var otherTodoLists = _.without(this.props.todoLists, inbox, teamganttTodoList);
 
 	      return _react2.default.createElement(
 	        'div',
@@ -38629,6 +38632,15 @@
 	              'div',
 	              { className: 'name' },
 	              'Inbox'
+	            )
+	          ),
+	          _react2.default.createElement(
+	            'li',
+	            { className: 'todo-list-link teamgantt ' + (teamganttTodoList == this.props.currentList && 'current'), onClick: _.partial(this.props.onClickList, teamganttTodoList), key: teamganttTodoList.id },
+	            _react2.default.createElement(
+	              'div',
+	              { className: 'name' },
+	              teamganttTodoList.name
 	            )
 	          ),
 	          _(otherTodoLists).sortBy('createdAt').map(function (todoList) {
@@ -38709,7 +38721,7 @@
 
 
 	// module
-	exports.push([module.id, ".todo-list-sidebar {\n  position: absolute;\n  top: 70px;\n  bottom: 0;\n  left: 0;\n  background-color: white;\n  width: 300px;\n  overflow: auto;\n}\n.todo-list-sidebar h1 {\n  padding: 55px 0 0 30px;\n  color: #777;\n  font-size: 14px;\n  font-weight: 600;\n  letter-spacing: 1.71px;\n  line-height: 15px;\n  text-transform: uppercase;\n}\n.todo-list-sidebar .todo-list-links {\n  margin-top: 10px;\n}\n.todo-list-sidebar .inbox {\n  background: url(/src/img/inbox-icon.svg) 34px center no-repeat;\n}\n.todo-list-sidebar li {\n  cursor: pointer;\n  padding: 15px 0 15px 55px;\n  color: #979797;\n  font-size: 16px;\n  font-weight: 500;\n  line-height: 19px;\n}\n.todo-list-sidebar li .name {\n  display: inline;\n}\n.todo-list-sidebar li .destroy {\n  visibility: hidden;\n  font-size: 20px;\n  height: 16px;\n  line-height: 16px;\n  float: right;\n  margin-right: 15px\n}\n.todo-list-sidebar li .destroy:hover {\n  opacity: 0.4;\n}\n.todo-list-sidebar li.current {\n  background-color: #F5F7F9;\n  font-weight: 600;\n  font-size: 16px;\n  color: #373636;\n}\n.todo-list-sidebar li:hover .name {\n  text-decoration: underline;\n}\n.todo-list-sidebar li:hover .destroy {\n  visibility: visible;\n}\n.todo-list-sidebar .add-todo-list {\n  border: 0;\n  outline: none;\n  padding: 15px 0 15px 85px;\n  background: white url(/src/img/btn-add-item.svg) 55px center no-repeat\n}\n.todo-list-sidebar .add-todo-list::-webkit-input-placeholder {\n  color: #5CBCD6;\n  text-transform: uppercase;\n  letter-spacing: 1.71px;\n  font-size: 0.7em;\n}\n.todo-list-sidebar .add-todo-list::-moz-placeholder {\n  color: #5CBCD6;\n  text-transform: uppercase;\n  letter-spacing: 1.71px;\n  font-size: 0.7em;\n}\n.todo-list-sidebar .add-todo-list:-ms-input-placeholder {\n  color: #5CBCD6;\n  text-transform: uppercase;\n  letter-spacing: 1.71px;\n  font-size: 0.7em;\n}\n.todo-list-sidebar .add-todo-list::placeholder {\n  color: #5CBCD6;\n  text-transform: uppercase;\n  letter-spacing: 1.71px;\n  font-size: 0.7em;\n}\n", ""]);
+	exports.push([module.id, ".todo-list-sidebar {\n  position: absolute;\n  top: 70px;\n  bottom: 0;\n  left: 0;\n  background-color: white;\n  width: 300px;\n  overflow: auto;\n}\n.todo-list-sidebar h1 {\n  padding: 55px 0 0 30px;\n  color: #777;\n  font-size: 14px;\n  font-weight: 600;\n  letter-spacing: 1.71px;\n  line-height: 15px;\n  text-transform: uppercase;\n}\n.todo-list-sidebar .todo-list-links {\n  margin-top: 10px;\n}\n.todo-list-sidebar .teamgantt {\n  background: url(/src/img/teamgantt-icon.svg) 35px 19px no-repeat;\n  background-size: 14px;\n}\n.todo-list-sidebar .inbox {\n  background: url(/src/img/inbox-icon.svg) 34px center no-repeat;\n}\n.todo-list-sidebar li {\n  cursor: pointer;\n  padding: 15px 0 15px 55px;\n  color: #979797;\n  font-size: 16px;\n  font-weight: 500;\n  line-height: 19px;\n}\n.todo-list-sidebar li .name {\n  display: inline;\n}\n.todo-list-sidebar li .destroy {\n  visibility: hidden;\n  font-size: 20px;\n  height: 16px;\n  line-height: 16px;\n  float: right;\n  margin-right: 15px\n}\n.todo-list-sidebar li .destroy:hover {\n  opacity: 0.4;\n}\n.todo-list-sidebar li.current {\n  background-color: #F5F7F9;\n  font-weight: 600;\n  font-size: 16px;\n  color: #373636;\n}\n.todo-list-sidebar li:hover .name {\n  text-decoration: underline;\n}\n.todo-list-sidebar li:hover .destroy {\n  visibility: visible;\n}\n.todo-list-sidebar .add-todo-list {\n  border: 0;\n  outline: none;\n  padding: 15px 0 15px 85px;\n  background: white url(/src/img/btn-add-item.svg) 55px center no-repeat\n}\n.todo-list-sidebar .add-todo-list::-webkit-input-placeholder {\n  color: #5CBCD6;\n  text-transform: uppercase;\n  letter-spacing: 1.71px;\n  font-size: 0.7em;\n}\n.todo-list-sidebar .add-todo-list::-moz-placeholder {\n  color: #5CBCD6;\n  text-transform: uppercase;\n  letter-spacing: 1.71px;\n  font-size: 0.7em;\n}\n.todo-list-sidebar .add-todo-list:-ms-input-placeholder {\n  color: #5CBCD6;\n  text-transform: uppercase;\n  letter-spacing: 1.71px;\n  font-size: 0.7em;\n}\n.todo-list-sidebar .add-todo-list::placeholder {\n  color: #5CBCD6;\n  text-transform: uppercase;\n  letter-spacing: 1.71px;\n  font-size: 0.7em;\n}\n", ""]);
 
 	// exports
 
