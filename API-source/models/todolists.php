@@ -56,40 +56,40 @@
 
     public static function display_todos($logged_in_user, $todolist_id) {
       if($todolist_id == 'teamgantt') {
-        return TeamGantt::fetch_list($logged_in_user, 'today');
+        $todolist_id = TeamGantt::fetch_teamgantt_todolist_id($logged_in_user);
+        TeamGantt::sync($logged_in_user);
       }
-      else {
-        $todos = array();
-        $result = mysql_query("SELECT
-                                t.id,
-                                t.todolist_id,
-                                t.name,
-                                t.percent_complete,
-                                t.is_big_rock,
-                                t.is_current,
-                                t.created_at,
-                                t.updated_at,
-                                t.teamgantt_id,
-                                t.teamgantt_meta
-                                  FROM todolists AS tl
-                                  JOIN todos AS t ON t.todolist_id = tl.id
-                                  WHERE tl.id = '".$todolist_id."' AND tl.user_id = '".$logged_in_user->id."'
-                                  ORDER BY t.created_at ASC");
-        while($row = mysql_fetch_assoc($result)) {
-          array_push($todos, new Todo(array('id' => (int) $row['id'],
-                                            'todolist_id' => (int) $row['todolist_id'],
-                                            'name' => $row['name'],
-                                            'percent_complete' => (int) $row['percent_complete'],
-                                            'is_big_rock' => (bool) $row['is_big_rock'],
-                                            'is_current' => (bool) $row['is_current'],
-                                            'created_at' => $row['created_at'],
-                                            'updated_at' => $row['updated_at'],
-                                            'teamgantt_id' => $row['teamgantt_id'],
-                                            'teamgantt_meta' => $row['teamgantt_meta']
-                                        )));
-        }
-        return $todos;
+
+      $todos = array();
+      $result = mysql_query("SELECT
+                              t.id,
+                              t.todolist_id,
+                              t.name,
+                              t.percent_complete,
+                              t.is_big_rock,
+                              t.is_current,
+                              t.created_at,
+                              t.updated_at,
+                              t.teamgantt_id,
+                              t.teamgantt_meta
+                                FROM todolists AS tl
+                                JOIN todos AS t ON t.todolist_id = tl.id
+                                WHERE tl.id = '".$todolist_id."' AND tl.user_id = '".$logged_in_user->id."'
+                                ORDER BY t.created_at ASC");
+      while($row = mysql_fetch_assoc($result)) {
+        array_push($todos, new Todo(array('id' => (int) $row['id'],
+                                          'todolist_id' => (int) $row['todolist_id'],
+                                          'name' => $row['name'],
+                                          'percent_complete' => (int) $row['percent_complete'],
+                                          'is_big_rock' => (bool) $row['is_big_rock'],
+                                          'is_current' => (bool) $row['is_current'],
+                                          'created_at' => $row['created_at'],
+                                          'updated_at' => $row['updated_at'],
+                                          'teamgantt_id' => $row['teamgantt_id'],
+                                          'teamgantt_meta' => $row['teamgantt_meta']
+                                      )));
       }
+      return $todos;
     }
 
     public function is_valid() {

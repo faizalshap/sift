@@ -53,24 +53,16 @@ Route::is('put', 'API/todolists/{$todolist_id}/todos/{$todo_id}', function($todo
   global $logged_in_user;
   $original_todolist_id = $todolist_id;
 
-  /* IF TEAMGANTT TODOLIST - UPDATE TOLIST_ID */
-  if($original_todolist_id == 'teamgantt') {
-    $todolist_id = TeamGantt::fetch_teamgantt_todolist_id($logged_in_user);
-    $teamgantt_todolist_id = $todolist_id; //IF IT's A TEAMGANTT TASK - WE CAN'T MOVE IT
-    $todo_id = NULL;
+  /* LOAD ORIGINAL TODO - SO WE KNOW WE HAVE ACCESS TO IT */
+  $original_todo = Todo::fetch($logged_in_user, $todo_id);
+  if(!$original_todo || $original_todo->todolist_id != $todolist_id) {
+    response_code(404);
   }
-  else {
-    /* LOAD ORIGINAL TODO - SO WE KNOW WE HAVE ACCESS TO IT */
-    $original_todo = Todo::fetch($logged_in_user, $todo_id);
-    if(!$original_todo || $original_todo->todolist_id != $todolist_id) {
-      response_code(404);
-    }
 
-    //MAKE SURE WE CAN POST INTO TODOLIST
-    $todolist = TodoList::fetch($logged_in_user, $json['todolist_id']);
-    if(!$todolist) {
-      response_code(404);
-    }
+  //MAKE SURE WE CAN POST INTO TODOLIST
+  $todolist = TodoList::fetch($logged_in_user, $json['todolist_id']);
+  if(!$todolist) {
+    response_code(404);
   }
 
   /* GET INFO FROM JSON */
@@ -93,7 +85,7 @@ Route::is('put', 'API/todolists/{$todolist_id}/todos/{$todo_id}', function($todo
   echo json_encode($todo);
 
   //IF TEAMGANTT - WE NEED TO UPDATE IT
-  if($json['teamgantt_id'] != '' && $original_todolist_id == TeamGantt::fetch_teamgantt_todolist_id($logged_in_user)) {
+  if($json['teamgantt_id'] != '') {
     TeamGantt::patch_task($logged_in_user, $todo);
   }
 });

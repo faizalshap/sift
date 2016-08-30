@@ -1,7 +1,7 @@
 <?
   class TeamGantt {
     public function fetch_teamgantt_todolist_id($logged_in_user) {
-      $teamgantt_todolist_name = 'TeamGantt Todos';
+      $teamgantt_todolist_name = 'My TeamGantt Tasks';
       $result = mysql_query("SELECT
                               id
                                 FROM todolists
@@ -9,6 +9,8 @@
       if(mysql_num_rows($result) == 0) {
         mysql_insert('todolists', array('user_id' => $logged_in_user->id,
                                         'name' => $teamgantt_todolist_name,
+                                        'created_at' => gmdate("Y-m-d H:i:s"),
+                                        'updated_at' => gmdate("Y-m-d H:i:s"),
                                         'is_hidden' => 1));
         return mysql_insert_id();
       }
@@ -19,15 +21,61 @@
       }
     }
 
-    public static function fetch_list($logged_in_user, $query) {
-      if($query == 'today') {
-        $teamgantt_tasks = API::run($logged_in_user, 'GET', 'https://api.teamgantt.com/v1/tasks?today');
+    public static function synced_tasks($logged_in_user) {
+      $todos = array();
+      $result = mysql_query("SELECT
+                              t.id,
+                              t.todolist_id,
+                              t.name,
+                              t.percent_complete,
+                              t.is_big_rock,
+                              t.is_current,
+                              t.created_at,
+                              t.updated_at,
+                              t.teamgantt_id,
+                              t.teamgantt_meta
+                                FROM todolists AS tl
+                                JOIN todos AS t ON t.todolist_id = tl.id
+                                WHERE tl.user_id = '".$logged_in_user->id."' AND t.teamgantt_id != ''
+                                ORDER BY t.created_at ASC");
+      while($row = mysql_fetch_assoc($result)) {
+        array_push($todos, new Todo(array('id' => (int) $row['id'],
+                                          'todolist_id' => (int) $row['todolist_id'],
+                                          'name' => $row['name'],
+                                          'percent_complete' => (int) $row['percent_complete'],
+                                          'is_big_rock' => (bool) $row['is_big_rock'],
+                                          'is_current' => (bool) $row['is_current'],
+                                          'created_at' => $row['created_at'],
+                                          'updated_at' => $row['updated_at'],
+                                          'teamgantt_id' => $row['teamgantt_id'],
+                                          'teamgantt_meta' => $row['teamgantt_meta']
+                                      )));
+      }
+      return $todos;
+    }
+
+    public static function sync($logged_in_user) {
+      if($keys = $logged_in_user->get_api_keys()) {
+        //SIFT TEAMGANTT LIST ID
+        $teamgantt_todolist_id = TeamGantt::fetch_teamgantt_todolist_id($logged_in_user);
+
+        //PULL TODOS FROM TEAMGANTT & LINK THEIR IDS BACK TO TODO
+        $todos = TeamGantt::synced_tasks($logged_in_user);
+        $teamgantt_ids = array(); //array used to match teamgantt ids to todo
+        foreach($todos as $t => $todo) {
+          $teamgantt_ids[$todo->teamgantt_id] = $t;
+        }
+
+        //PULL TEAMGANTT TASKS
+        $url = 'https://api.teamgantt.com/v1/tasks?today';
+        $teamgantt_tasks = API::run($logged_in_user, 'GET', $url);
+
+        //IF NO ERROR - LOOP THROUGH RESULTS
         if(!$teamgantt_tasks->error) {
-          //CONVERT & DISPLAY
-          $todos = array();
+
           foreach($teamgantt_tasks as $task) {
-            //SETUP RESOURCES IN ADVANCE
-            if($task->percent_complete != 100) {
+            if(!isset($teamgantt_ids[$task->id])) {
+              //BUILD RESOURCE ARRAY
               $resource_array = array();
               foreach($task->resources as $resource) {
                 $resource_data = (object) array('name' => $resource->name,
@@ -35,26 +83,52 @@
                 array_push($resource_array, $resource_data);
               }
 
-              $todo = new Todo( array('todolist_id' => 'teamgantt',
+              //CREATE NEW TODO
+              $todo = new Todo( array('todolist_id' => $teamgantt_todolist_id,
                                       'name' => $task->name,
                                       'percent_complete' => $task->percent_complete,
+                                      'created_at' => gmdate("Y-m-d H:i:s"),
+                                      'updated_at' => gmdate("Y-m-d H:i:s"),
                                       'teamgantt_id' => $task->id,
-                                      'teamgantt_meta' => (object) array('project_name' => $task->project_name,
-                                                                          'group_name' => $task->group_name,
-                                                                          'end_date' => $task->end_date,
-                                                                          'resources' => $resource_array)
+                                      'teamgantt_meta' => json_encode(array('project_name' => $task->project_name,
+                                                                            'group_name' => $task->group_name,
+                                                                            'end_date' => $task->end_date,
+                                                                            'resources' => $resource_array))
                             ));
-              array_push($todos, $todo);
+
+              //VALIDATE & SAVE
+              if($todo->is_valid()) {
+                $todo->save();
+              }
+            }
+            else {
+
+              //PULL CORRECT TODO
+              $todo = $todos[$teamgantt_ids[$task->id]];
+              $did_update = false;
+
+              //UPDATE NAME
+              if($todo->name != $task->name) {
+                $todo->name = $task->name;
+                $did_update = true;
+              }
+
+              //UPDATE PERCENT COMPLETE
+              if($todo->percent_complete != $task->percent_complete) {
+                $todo->percent_complete = $task->percent_complete;
+                $did_update = true;
+              }
+
+              //IF WE UPDATED IT - SAVE THE CHANGES
+              if($did_update) {
+                $todo->updated_at = gmdate("Y-m-d H:i:s");
+                if($todo->is_valid()) {
+                  $todo->save();
+                }
+              }
             }
           }
-          return $todos;
         }
-        else {
-          return false;
-        }
-      }
-      else {
-        return false;
       }
     }
 
