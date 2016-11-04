@@ -5,7 +5,7 @@ var nested = require('postcss-nested');
 var postcssImport = require('postcss-import');
 var lost = require('lost');
 var customProperties = require('postcss-custom-properties');
-require('dotenv').config();
+if (process.env.NODE_ENV !== 'production') { require('dotenv').config(); }
 
 module.exports = {
   entry: "./src/main.jsx",

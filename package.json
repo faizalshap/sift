@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "./node_modules/.bin/webpack-dev-server --progress --colors --hot --inline --module-bind",
+    "build": "$(npm bin)/webpack && mv bundle.js public",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
