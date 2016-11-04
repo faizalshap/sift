@@ -1,4 +1,4 @@
-# Big Rocks Todo List Web
+# Sift Todo List
 
 ## Local Development
 

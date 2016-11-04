@@ -1,5 +1,5 @@
 {
-  "name": "big-rocks-to-do",
+  "name": "sift",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -9,14 +9,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com/teamgantt/big-rocks-to-do.git"
+    "url": "git+ssh://git@github.com/teamgantt/sift.git"
   },
   "author": "TeamGantt",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/teamgantt/big-rocks-to-do/issues"
+    "url": "https://github.com/teamgantt/sift/issues"
   },
-  "homepage": "https://github.com/teamgantt/big-rocks-to-do#readme",
+  "homepage": "https://github.com/teamgantt/sift#readme",
   "devDependencies": {
     "autoprefixer": "^6.4.0",
     "babel-core": "^6.13.2",
